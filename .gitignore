@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.env
+.venv
+venv/
+
+# Outputs from pipeline runs
+sim/v1/out/
+sim/v1/outputs/
+training/runs/
+
+# C compiled binaries
+sim/v1/c_sim/hopfield_sim
+sim/v1/c_sim/*.o
+
+# Vivado project files
+*.jou
+*.log
+*.str
+*.xpr
+*.bit
+*.ltx
+*.runs/
+*.cache/
+*.hw/
+*.ip_user_files/
+*.sim/
+*.srcs/
+.Xil/
+
+# OS
+.DS_Store
+Thumbs.db
