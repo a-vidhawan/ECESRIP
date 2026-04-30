@@ -23,14 +23,9 @@ ECESRIP/
 │   │   ├── ising_machines.md      # Ising machines & NP-complete solvers
 │   │   └── lut_approach.md        # LUT-based NN papers (NullaNet, LogicNets, etc.)
 │   └── notes/
-│       └── research_plan.md       # Overall research plan & open questions
-├── sim/
-│   └── v1/                        # Claude v1 Python simulation framework
-│       ├── python/                # HopfieldNetwork class, truth table gen, pipeline
-│       ├── rtl/                   # SystemVerilog RTL (top, neuron bank, testbenches)
-│       ├── c_sim/                 # C simulation for fast sweep
-│       ├── docs/                  # Architecture notes, hazard analysis, pipeline docs
-│       └── scripts/               # run_pipeline.sh, synth_vivado.tcl
+│       ├── research_plan.md       # Overall research plan & open questions
+│       └── theory.md              # Theoretical foundations document
+├── sim/                           # Simulation framework (in progress)
 ├── training/
 │   ├── README.md                  # Benchmark research summary
 │   ├── datasets/
@@ -70,22 +65,6 @@ Evaluate: recall accuracy, basin of attraction,
 ```
 
 ---
-
-## Quick Start
-
-```bash
-# Install Python deps
-pip install numpy scipy
-
-# Run full pipeline: N=8 neurons, P=1 pattern, Hebbian rule
-cd sim/v1
-python python/pipeline.py --N 8 --P 1 --rule hebbian --out out/
-
-# Run benchmarks
-python python/pipeline.py --N 10 --P 14 --rule storkey --out out/
-```
-
-See `sim/v1/docs/pipeline.md` for full CLI reference.
 
 ---
 
