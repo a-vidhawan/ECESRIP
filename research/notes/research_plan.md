@@ -13,7 +13,7 @@ Build a Hopfield neural network on an FPGA by converting each neuron's update lo
 - Async and sync update modes
 - Energy function and overlap metric
 - **N=16 → 65K rows in truth table** — need smart/sparse approach at N>16
-- Implementation: `sim/v1/python/hopfield_train.py`
+- Implementation: `sim/python/hopfield_train.py` (to be created)
 
 ---
 
@@ -26,7 +26,7 @@ Build a Hopfield neural network on an FPGA by converting each neuron's update lo
 - Export to PLA format for Espresso:
   - Use `-dhazard` flag to insert redundant minterms for hazard-free SOP
   - Hazard-free: prevents glitches in asynchronous feedback loop
-- Implementation: `sim/v1/python/truth_table_gen.py`
+- Implementation: `sim/python/truth_table_gen.py` (to be created)
 
 **Open question (red):** Is our hazard-free SOP approach sufficient for the asynchronous feedback loop? What about metastability at the inputs when two neurons change simultaneously?
 
@@ -38,16 +38,16 @@ Build a Hopfield neural network on an FPGA by converting each neuron's update lo
 - Convert minimized SOP to SystemVerilog
 - One `neuron_update_i` module per neuron (SOP implementation)
 - `neuron_logic_bank` wrapper connects all neurons
-- Implementation: `sim/v1/python/logic_minimize.py`, `sim/v1/python/sv_export.py`
+- Implementation: `sim/python/logic_minimize.py`, `sim/python/sv_export.py` (to be created)
 
 ---
 
 ## Phase 4: Simulate and Verify
 
-- RTL simulation: `sim/v1/rtl/tb/tb_hopfield_top.sv`, `tb_neuron_update.sv`
+- RTL simulation: `sim/rtl/tb/tb_hopfield_top.sv`, `tb_neuron_update.sv` (to be created)
 - Compare SystemVerilog output vs Python model on same input patterns
 - Check: does the RTL converge to the same attractors as the Python model?
-- C simulation for fast parameter sweep: `sim/v1/c_sim/`
+- C simulation for fast parameter sweep: `sim/c_sim/` (to be created)
 
 ---
 

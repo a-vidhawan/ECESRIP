@@ -93,11 +93,4 @@ training/
 
 ## Getting Started
 
-```bash
-# From sim/v1/ — run a quick capacity sweep
-python python/pipeline.py --N 8 --P 1 --rule hebbian --out out/8n_1p_hebb/
-python python/pipeline.py --N 8 --P 8 --rule hebbian --out out/8n_8p_hebb/   # near capacity
-python python/pipeline.py --N 8 --P 8 --rule storkey --out out/8n_8p_stor/   # Storkey comparison
-```
-
-The pipeline outputs truth tables, minimized SOP, and SystemVerilog — ready for synthesis.
+Simulation scripts will live in `sim/` once implemented. The pipeline will output truth tables, minimized SOP, and SystemVerilog ready for synthesis.
