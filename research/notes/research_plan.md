@@ -2,102 +2,68 @@
 
 ## Overview
 
-Build a Hopfield neural network on an FPGA by converting each neuron's update logic into a Boolean truth table and synthesizing it into LUTs. Validate it as associative memory, then explore adaptation to Ising machine optimization.
+Implement a Hopfield network on FPGA by enumerating each neuron's update function as a truth table and synthesizing it into LUTs — no multipliers, pure Boolean logic. Three phases: clocked baseline → async combinational → Ising machine.
 
 ---
 
-## Phase 1: Higher-Level Hopfield Network (Python Simulation)
+## Phase 1 — Clocked LUT-Based Hopfield (Baseline)
 
-- Parameterizable Python class: N neurons, storing M patterns of N-bit vectors
-- Two learning rules: Hebbian and Storkey
-- Async and sync update modes
-- Energy function and overlap metric
-- **N=16 → 65K rows in truth table** — need smart/sparse approach at N>16
-- Implementation: `sim/python/hopfield_train.py` (to be created)
+**Goal:** Validate the truth-table approach with a debuggable synchronous design.
 
----
-
-## Phase 2: Generate Truth Tables
-
-- Enumerate all 2^N possible input combinations for each neuron
-- Bipolar-to-binary mapping: `b_j = (s_j + 1) / 2`
-- Compute local field: `h_i = 2*(W[i] · b) - Σ|W[i]|`
-- Output: 1 if `h_i ≥ 0`, else 0
-- Export to PLA format for Espresso:
-  - Use `-dhazard` flag to insert redundant minterms for hazard-free SOP
-  - Hazard-free: prevents glitches in asynchronous feedback loop
-- Implementation: `sim/python/truth_table_gen.py` (to be created)
-
-**Open question (red):** Is our hazard-free SOP approach sufficient for the asynchronous feedback loop? What about metastability at the inputs when two neurons change simultaneously?
+1. Train in Python (Hebbian or Storkey, single-line switch)
+2. Enumerate truth table per neuron over all $2^N$ binary inputs
+3. Minimize with Espresso (standard — no `-Dhazard` yet) → SOP per neuron
+4. Emit SystemVerilog: combinational SOP + **flip-flop on every neuron output**, clocked
+5. All neurons evaluate combinationally; results latch on clock edge
+6. Simulate in ModelSim; synthesize to Cyclone V via Quartus
+7. Verify: RTL attractors match Python model on identical inputs
 
 ---
 
-## Phase 3: Logic Synthesis
+## Phase 2 — Async Combinational Feedback
 
-- Run Espresso minimizer on each neuron's PLA file
-- Convert minimized SOP to SystemVerilog
-- One `neuron_update_i` module per neuron (SOP implementation)
-- `neuron_logic_bank` wrapper connects all neurons
-- Implementation: `sim/python/logic_minimize.py`, `sim/python/sv_export.py` (to be created)
+**Goal:** Remove flip-flops, wire neuron outputs directly back as inputs.
 
----
+1. Re-run Espresso with `-Dhazard` on the same truth tables → hazard-free SOP
+2. Strip flip-flops; `s_new[i]` feeds directly into all other LUT inputs
+3. Circuit settles combinationally — or oscillates (this is the research question)
+4. Compare Phase 2 waveforms against Phase 1 ground truth
+   - Discrepancies are attributable to async hazards only, not incorrect Hopfield logic
+5. Characterise: does the async circuit reach the same attractors? How often does it enter a 2-cycle?
 
-## Phase 4: Simulate and Verify
-
-- RTL simulation: `sim/rtl/tb/tb_hopfield_top.sv`, `tb_neuron_update.sv` (to be created)
-- Compare SystemVerilog output vs Python model on same input patterns
-- Check: does the RTL converge to the same attractors as the Python model?
-- C simulation for fast parameter sweep: `sim/c_sim/` (to be created)
+**Novel contribution:** First hazard-free async Hopfield circuit via truth table enumeration.
 
 ---
 
-## Phase 5: Evaluate as Associative Memory
+## Phase 3 — Ising Machine Adaptation
 
-Metrics to sweep over (N and M values):
+**Goal:** Use the LUT hardware as an Ising annealer for NP-hard optimisation.
 
-- **Recall accuracy**: fraction of test patterns correctly recalled under bit-flip noise
-- **Noise tolerance**: how many bits can be corrupted before recall fails?
-- **Spurious states**: fraction of convergent states that are not stored patterns
-- **Basin of attraction width**: maximum Hamming distance from pattern where recall still succeeds
-- **Convergence iterations**: how many update cycles to reach steady state?
-- **Fraction outside training set**: test on patterns not in the training set
+1. Set $W = J_{ij}$ from a problem instance directly (no learning)
+2. Generate truth tables from problem-specific weights
+3. Run LUT circuit; fixed point ≈ approximate solution
+4. Benchmark vs simulated annealing on Max-Cut, graph colouring
 
-**Feasibility sweep:**
-- Sweep M from 1 to 0.3N (beyond Hebbian capacity ~0.14N)
-- Sweep N from 4 to 20 (noting where truth table size becomes impractical)
-- Compare Python model (ground truth benchmark) vs SystemVerilog implementation (test)
+See `research/papers/ising_machines.md`.
 
 ---
 
-## Phase 6: Adaptation to Ising Machines
+## LUT Feasibility
 
-Once Hopfield LUT hardware is validated:
-
-- Map NP-complete problem instances to Hopfield weight matrix W = J_ij
-- Generate truth tables directly from problem-specific weights (no learning)
-- Run LUT circuit as Ising annealer — measure solution quality vs classical solvers
-- Target problems: Max-Cut, graph coloring, combinatorial optimization
-
-See `research/papers/ising_machines.md` for relevant papers.
-
----
-
-## Key Constraints & Feasibility
-
-| N | Truth table rows | Espresso time | Feasibility |
+| $N$ | Rows per neuron | Espresso time | Feasibility |
 |---|---|---|---|
-| ≤ 10 | ≤ 1,024 | < 1s | Easy |
-| ≤ 14 | ≤ 16,384 | ~seconds | Feasible |
-| ≤ 16 | ≤ 65,536 | ~minutes | Borderline |
-| > 16 | > 65K | hours/infeasible | Need sparse (F strongest weights) |
+| ≤ 10 | ≤ 1,024 | < 1 s | Easy |
+| ≤ 14 | ≤ 16,384 | seconds | Feasible |
+| ≤ 16 | ≤ 65,536 | minutes | Borderline |
+| > 16 | > 65 K | infeasible | Keep $F$ strongest $|w_{ij}|$ per neuron |
 
-**Capacity rule:** M ≤ 0.14N (Hebbian), M ≤ ~0.14N with better quality (Storkey).
+Capacity: $M \lesssim 0.14N$ (Hebbian); Storkey gives better quality at the same load.
 
 ---
 
 ## Open Questions
 
-1. **Hazard-free correctness:** Does Espresso's `-dhazard` flag produce a cover that is provably hazard-free for all input transitions in the asynchronous feedback loop? What about multi-input transitions (two neurons changing simultaneously)?
-2. **Metastability:** Can the asynchronous loop enter a metastable state? How to detect and break it?
-3. **Sparse connectivity for large N:** Which F weights to keep — strongest (by magnitude), random (LogicNets expander), or learned?
-4. **Ising adaptation:** When weights are set by a problem instance (not learned), does the capacity analysis still hold? What is the annealing quality vs simulated annealing?
+1. Does `-Dhazard` SOP prevent convergence errors in the fully combinational loop, or only for single-variable input transitions?
+2. How often does the Phase 2 circuit enter a 2-cycle vs a fixed point, as a function of $N$ and $M$?
+3. For $N > 16$, what is the optimal weight pruning strategy (strongest-$F$, random expander, learned mask)?
+4. Ising solution quality vs simulated annealing on standard G-set Max-Cut benchmarks.
