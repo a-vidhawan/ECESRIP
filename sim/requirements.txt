@@ -1,0 +1,3 @@
+numpy>=1.26
+scikit-learn>=1.3     # for MNIST download (optional — only needed for MNIST_8/MNIST_28)
+scikit-image>=0.22    # for MNIST downsampling (optional — fallback included)
