@@ -5,11 +5,7 @@
 
 ## Research Goal
 
-Implement a Hopfield neural network on an FPGA by converting each neuron's update logic into a Boolean truth table and synthesizing that directly into Look-Up Tables (LUTs). This eliminates multipliers entirely — the network becomes pure combinational logic.
-
-The key insight: since Hopfield neurons take bipolar {+1, −1} inputs (binary), each neuron's update rule `s_i = sign(Σ w_ij · s_j)` is a Boolean function. Enumerate all 2^N input combinations → truth table → Espresso logic minimization → synthesize as SOP in SystemVerilog. The resulting circuit is an asynchronous Hopfield machine that iterates to a fixed point.
-
-**Open research question:** No prior work has enumerated a Hopfield/RNN as truth tables for LUT hardware. The feedback (recurrent) aspect makes hazard-free logic design non-trivial — this is the novel contribution.
+Implement a Hopfield network on FPGA by converting each neuron's update rule $s_i = \text{sign}(\sum_j w_{ij} s_j)$ into a Boolean truth table and synthesizing it into LUTs — no multipliers, pure combinational logic. The feedback (recurrent) structure makes hazard-free design non-trivial; this is the novel contribution.
 
 ---
 
@@ -23,58 +19,46 @@ ECESRIP/
 │   │   ├── ising_machines.md      # Ising machines & NP-complete solvers
 │   │   └── lut_approach.md        # LUT-based NN papers (NullaNet, LogicNets, etc.)
 │   └── notes/
-│       ├── research_plan.md       # Overall research plan & open questions
-│       └── theory.md              # Theoretical foundations document
-├── sim/                           # Simulation framework (in progress)
+│       ├── research_plan.md       # Three-phase project plan & open questions
+│       └── theory.md              # Theoretical foundations (with proofs)
+├── sim/
+│   ├── README.md                  # How to run training, benchmarks, pipeline
+│   ├── python/                    # Training, datasets, benchmarking
+│   └── requirements.txt
 ├── training/
-│   ├── README.md                  # Benchmark research summary
-│   ├── datasets/
-│   │   └── README.md              # Dataset catalogue & usage guide
-│   └── benchmarks/
-│       └── README.md              # Benchmark protocol & metrics
+│   ├── datasets/README.md
+│   └── benchmarks/README.md
 └── hardware/
-    └── README.md                  # Hardware implementation (future)
+    └── README.md                  # Hardware implementation (Phase 1+2)
 ```
 
 ---
 
-## Iterative Research Workflow
+## Three-Phase Plan
 
 ```
-Train Hopfield net (Python)
-        │
-        ▼
-Generate truth tables per neuron
-        │
-        ▼
-Boolean minimization (Espresso, hazard-free)
-        │
-        ▼
-Export SOP → SystemVerilog
-        │
-        ▼
-FPGA synthesis + timing analysis (Vivado)
-        │
-        ▼
-Evaluate: recall accuracy, basin of attraction,
-          spurious states, convergence speed
-        │
-        └──► Compare vs Python model (ground truth)
-             Sweep N and M, find feasible ranges
-             ─► Adapt to Ising Machine formulation
+Phase 1 — Clocked (Baseline)
+  Python model → truth tables → Espresso (standard) → clocked SV → ModelSim/Quartus
+
+Phase 2 — Async Combinational
+  Same truth tables → Espresso -Dhazard → strip flip-flops → wire feedback directly
+  Compare vs Phase 1 to isolate async hazard effects
+
+Phase 3 — Ising Machine
+  Set W = J_ij from problem instance → same pipeline → fixed point ≈ solution
 ```
 
----
+See `research/notes/research_plan.md` for full details.
 
 ---
 
 ## Key Constraints
 
-| N (neurons) | Truth table rows | Feasibility |
+| $N$ | Truth table rows | Feasibility |
 |---|---|---|
-| ≤ 10 | ≤ 1,024 | Comfortable, fits distributed LUTs |
-| ≤ 14 | ≤ 16,384 | Feasible, may need BRAM |
-| ≤ 16 | ≤ 65,536 | Borderline; Espresso runtime grows |
-| > 16 | > 65K | Requires sparse connectivity (F strongest weights) |
+| ≤ 10 | ≤ 1,024 | Easy — fits distributed LUTs |
+| ≤ 14 | ≤ 16,384 | Feasible |
+| ≤ 16 | ≤ 65,536 | Borderline — Espresso runtime grows |
+| > 16 | > 65 K | Sparse connectivity required |
 
-Capacity rule: reliably store M ≈ 0.14 × N patterns (Hebbian); Storkey achieves higher quality near saturation.
+Capacity: $M \lesssim 0.14N$ (Hebbian), Storkey achieves better quality at the same load.
