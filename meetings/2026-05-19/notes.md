@@ -57,7 +57,67 @@ python demo_capacity.py
 
 ---
 
-## 4. Open Questions
+## 4. Code — What Does What
+
+### Hebbian learning (`sim/python/hopfield_net.py` lines 60–63)
+
+```python
+def _train_hebbian(self, patterns):
+    W = sum(np.outer(p, p) for p in patterns) / self.N
+    np.fill_diagonal(W, 0)
+    self.W = W
+```
+
+`np.outer(p, p)` is the outer product ξᵘ(ξᵘ)ᵀ — an N×N matrix for one pattern. Summing over all M patterns and dividing by N gives Wᵢⱼ = (1/N) Σ ξᵢᵘ ξⱼᵘ. Diagonal zeroed to stop self-feedback. All M patterns loaded in one shot — order-independent.
+
+---
+
+### Storkey learning (`sim/python/hopfield_net.py` lines 65–73)
+
+```python
+def _train_storkey(self, patterns):
+    W = np.zeros((N, N))
+    for p in patterns:
+        h = W @ p                    # local field from patterns seen so far
+        W += (np.outer(p, p) - np.outer(h, p) - np.outer(p, h)) / N
+        np.fill_diagonal(W, 0)
+    self.W = W
+```
+
+Patterns added one at a time. Before adding pattern ξᵘ, `h = W @ p` computes the **local field** — what current weights already predict for that pattern (crosstalk from everything stored so far). The two correction terms subtract that crosstalk, so the new pattern sits more orthogonally to what's already stored. Order-dependent — earlier patterns can be partially overwritten.
+
+---
+
+### Inference (`sim/python/hopfield_net.py` lines 106–117)
+
+```python
+order = np.arange(N)           # ASYNC_CYCLIC: 0, 1, 2, … N-1
+for i in order:
+    h_i = float(self.W[i] @ s) # local field: weighted vote from all neighbours
+    if   h_i > 0: s[i] =  1.0
+    elif h_i < 0: s[i] = -1.0
+    # h_i == 0: hold current state
+
+if np.array_equal(s, s_prev):
+    return s, sweep + 1, True   # fixed point — hardware "done" signal
+```
+
+Three things per neuron update:
+1. **`h_i = W[i] @ s`** — dot product of weight row i with full state. Sums weighted votes from every other neuron.
+2. **Threshold** — sign of h_i sets new state. Tie at 0 → hold.
+3. **Convergence check** — after full sweep, compare to previous state. No change = fixed point.
+
+Energy function (the correctness certificate):
+```python
+def energy(self, s):
+    return -0.5 * float(s @ self.W @ s)   # E = -½ sᵀWs
+```
+
+Every neuron flip that agrees with h_i either decreases E or leaves it flat — it can never increase. Finite state space + monotone energy = guaranteed termination.
+
+---
+
+## 5. Open Questions
 
 ### Q1 — N target for hardware
 - N ≤ 10: comfortable, fits distributed LUTs
