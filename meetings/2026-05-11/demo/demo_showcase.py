@@ -124,8 +124,8 @@ SCENARIOS = [
     ("Hebbian", "Below cap · low noise → target ✓",
      HEBBIAN,  ASYNC_CYCLIC, ['0','1'], '0', 3, 40, False),
 
-    ("Storkey", "Above cap (M=3) · spurious ✗",
-     STORKEY, ASYNC_CYCLIC, ['0','1','7'], '0', 3, 50, False),
+    ("Storkey", "Above cap (M=3) · wrong memory recalled ✗",
+     STORKEY, ASYNC_CYCLIC, ['0','1','7'], '7', 5, 0, False),
 
     ("Hebbian", "Above cap (M=4) · spurious ✗",
      HEBBIAN,  ASYNC_CYCLIC, ['0','1','7','X'], '0', 6, 1, False),

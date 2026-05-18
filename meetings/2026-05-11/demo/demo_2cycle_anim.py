@@ -139,12 +139,13 @@ def make_row(row_idx, label, color, n_panels=N_DISPLAY+1):
 sync_axes,  sync_e_ax  = make_row(0, 'SYNC',         RED)
 async_axes, async_e_ax = make_row(1, 'ASYNC-CYCLIC',  GREEN)
 
-# static images for sweep index panels
+blank_img = np.zeros((SIZE, SIZE))  # shown for future (not-yet-reached) panels
+
 def init_axes(axes, hist, color):
     imgs = []
     for k, ax in enumerate(axes):
-        t = k if k < len(hist) else -1
-        im = ax.imshow(img(hist[t]), cmap=CMAP, vmin=0, vmax=1,
+        # start all panels blank; update() reveals them as the frame advances
+        im = ax.imshow(blank_img, cmap=CMAP, vmin=0, vmax=1,
                        interpolation='nearest', animated=True)
         ax.set_title(f't={k}', fontsize=7, color='#888888', pad=2)
         imgs.append(im)
@@ -177,21 +178,26 @@ sync_energies  = [net_s.energy(st) for st in sync_hist]
 async_energies = [net_s.energy(st) for st in async_hist]
 
 def update(frame):
-    # highlight most recent sweep in each row
+    # reveal panels up to current frame; future panels stay blank
     for k, (sim, aim) in enumerate(zip(sync_imgs, async_imgs)):
-        t = min(frame, len(sync_hist)-1)
-        sim.set_data(img(sync_hist[min(k, t)]))
-        aim.set_data(img(async_hist[min(k, t)]))
+        if k <= frame:
+            sim.set_data(img(sync_hist[min(k, len(sync_hist)-1)]))
+            aim.set_data(img(async_hist[min(k, len(async_hist)-1)]))
+        else:
+            sim.set_data(blank_img)
+            aim.set_data(blank_img)
 
         is_recent_s = (k == min(frame, len(sync_axes)-1))
         is_recent_a = (k == min(frame, len(async_axes)-1))
 
         for sp in sync_axes[k].spines.values():
-            sp.set_color(RED if is_recent_s else '#333333')
-            sp.set_linewidth(2 if is_recent_s else 0.8)
+            active = is_recent_s and k <= frame
+            sp.set_color(RED if active else '#333333')
+            sp.set_linewidth(2 if active else 0.8)
         for sp in async_axes[k].spines.values():
-            sp.set_color(GREEN if is_recent_a else '#333333')
-            sp.set_linewidth(2 if is_recent_a else 0.8)
+            active = is_recent_a and k <= frame
+            sp.set_color(GREEN if active else '#333333')
+            sp.set_linewidth(2 if active else 0.8)
 
     t = min(frame + 1, n_frames)
     sync_e_line.set_data(range(t),  sync_energies[:t])
