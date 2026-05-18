@@ -8,8 +8,9 @@ Switch update mode:     change UPDATE_MODE (line 15)
 import numpy as np
 
 # ── learning rules ────────────────────────────────────────────────────────────
-STORKEY  = 'storkey'   # default — better quality near capacity
-HEBBIAN  = 'hebbian'   # simpler, classical
+STORKEY      = 'storkey'       # default — better quality near capacity
+HEBBIAN      = 'hebbian'       # simpler, classical
+PSEUDOINVERSE = 'pseudoinverse' # optimal: stored patterns become exact fixed points
 
 # ── update modes ──────────────────────────────────────────────────────────────
 ASYNC_CYCLIC = 1   # sequential cyclic 1→2→…→N→1  ← recommended (hardware-aligned)
@@ -28,7 +29,7 @@ class HopfieldNetwork:
     Parameters
     ----------
     N           : number of neurons
-    rule        : STORKEY or HEBBIAN
+    rule        : STORKEY, HEBBIAN, or PSEUDOINVERSE
     update_mode : ASYNC_CYCLIC, ASYNC_RANDOM, or SYNC
     """
 
@@ -54,11 +55,23 @@ class HopfieldNetwork:
         self.patterns_ = patterns
         if self.rule == STORKEY:
             self._train_storkey(patterns)
+        elif self.rule == PSEUDOINVERSE:
+            self._train_pseudoinverse(patterns)
         else:
             self._train_hebbian(patterns)
 
     def _train_hebbian(self, patterns: np.ndarray) -> None:
         W = sum(np.outer(p, p) for p in patterns) / self.N
+        np.fill_diagonal(W, 0)
+        self.W = W
+
+    def _train_pseudoinverse(self, patterns: np.ndarray) -> None:
+        # W = Ξ (ΞᵀΞ)⁻¹ Ξᵀ  where Ξ is N×M (columns = patterns)
+        # Using pinv for numerical stability when patterns are near-dependent.
+        # Stored patterns become exact fixed points when M < N and patterns
+        # are linearly independent (guaranteed by the pseudo-inverse property).
+        Xi = patterns.T                        # N×M
+        W  = Xi @ np.linalg.pinv(Xi)          # N×N projection onto span(Ξ)
         np.fill_diagonal(W, 0)
         self.W = W
 
