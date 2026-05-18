@@ -60,9 +60,12 @@ INTERVAL_MS = 180   # ms between frames
 def bipolar(bits):
     return np.array([1. if b else -1. for b in bits])
 
+BG     = '#0d0d0d'
+AX_BG  = '#111111'
+
 def state_color(val):
-    """Black for +1 neuron, white for -1."""
-    return '#111111' if val > 0 else '#f5f5f5'
+    """White for +1 neuron (ON), near-black for -1 (OFF)."""
+    return '#ffffff' if val > 0 else '#1a1a1a'
 
 def edge_color(w):
     return '#27ae60' if w > 0 else '#e74c3c'   # green / red
@@ -131,8 +134,8 @@ e_widths  = 0.5 + 3.5 * w_norm           # 0.5…4 px
 edge_list = list(G.edges())
 
 # ── figure layout ─────────────────────────────────────────────────────────────
-fig = plt.figure(figsize=(13, 5.5), facecolor='white')
-fig.patch.set_facecolor('white')
+fig = plt.figure(figsize=(13, 5.5), facecolor=BG)
+fig.patch.set_facecolor(BG)
 
 # GridSpec: [stored0] [stored1] [stored2] | gap | [pixel_grid] | gap | [graph]
 gs = fig.add_gridspec(1, 7, width_ratios=[1, 1, 1, 0.3, 1.6, 0.3, 2.5],
@@ -141,23 +144,25 @@ gs = fig.add_gridspec(1, 7, width_ratios=[1, 1, 1, 0.3, 1.6, 0.3, 2.5],
 # stored pattern thumbnails (static)
 ax_stored = [fig.add_subplot(gs[0, k]) for k in range(3)]
 for ax, (d, p) in zip(ax_stored, zip(DIGITS, patterns)):
+    ax.set_facecolor(AX_BG)
     ax.imshow(((p + 1) / 2).reshape(SIZE, SIZE),
               cmap='gray', vmin=0, vmax=1, interpolation='nearest')
-    ax.set_title(f"Stored '{d}'", fontsize=9, pad=3)
+    ax.set_title(f"Stored '{d}'", fontsize=9, pad=3, color='#cccccc')
     ax.axis('off')
 
 # animated pixel grid
 ax_pix = fig.add_subplot(gs[0, 4])
-ax_pix.set_facecolor('white')
+ax_pix.set_facecolor(AX_BG)
 pix_img = ax_pix.imshow(((corrupt + 1) / 2).reshape(SIZE, SIZE),
                          cmap='gray', vmin=0, vmax=1, interpolation='nearest',
                          animated=True)
-pix_title = ax_pix.set_title('Corrupted input', fontsize=10, pad=4)
+pix_title = ax_pix.set_title('Corrupted input', fontsize=10, pad=4,
+                              color='#cccccc')
 ax_pix.axis('off')
 
 # animated graph
 ax_g = fig.add_subplot(gs[0, 6])
-ax_g.set_facecolor('white')
+ax_g.set_facecolor(AX_BG)
 ax_g.axis('off')
 
 # draw static edges once
@@ -173,9 +178,10 @@ node_scat = nx.draw_networkx_nodes(
     linewidths=1.2,
     ax=ax_g
 )
-node_scat.set_edgecolor('#444444')
+node_scat.set_edgecolor('#666666')
 
-ax_g.set_title('Neuron states & weights', fontsize=10, pad=4)
+ax_g.set_title('Neuron states & weights', fontsize=10, pad=4,
+               color='#cccccc')
 
 # highlight ring for the currently-updating neuron
 highlight_ring, = ax_g.plot([], [], 'o',
@@ -184,26 +190,28 @@ highlight_ring, = ax_g.plot([], [], 'o',
                               zorder=5, animated=True)
 
 # bottom status text
-status_txt = fig.text(0.5, 0.02, '', ha='center', fontsize=9, color='#333333')
+status_txt = fig.text(0.5, 0.02, '', ha='center', fontsize=9, color='#aaaaaa')
 
 # legend
 leg_handles = [
-    mpatches.Patch(color='#111111', label='Neuron ON (+1)'),
-    mpatches.Patch(color='#f5f5f5', label='Neuron OFF (−1)', linewidth=0.8,
-                   edgecolor='#aaaaaa'),
+    mpatches.Patch(color='#ffffff', label='Neuron ON (+1)',
+                   edgecolor='#555555'),
+    mpatches.Patch(color='#1a1a1a', label='Neuron OFF (−1)',
+                   edgecolor='#555555'),
     plt.Line2D([0],[0], color='#27ae60', lw=2, label='Positive weight'),
     plt.Line2D([0],[0], color='#e74c3c', lw=2, label='Negative weight'),
-    plt.Line2D([0],[0], marker='o', color='w', markersize=10,
+    plt.Line2D([0],[0], marker='o', color=BG, markersize=10,
                markerfacecolor='none', markeredgecolor='#f39c12',
                markeredgewidth=2, label='Active neuron'),
 ]
 fig.legend(handles=leg_handles, loc='lower right', fontsize=8,
-           frameon=True, framealpha=0.9, edgecolor='#cccccc',
+           frameon=True, facecolor='#1a1a1a', edgecolor='#444444',
+           labelcolor='white',
            bbox_to_anchor=(0.98, 0.02))
 
 fig.suptitle(
     f'4×4 Hopfield Recall  (N={N}, M={len(DIGITS)}, Storkey, async-cyclic)',
-    fontweight='bold', fontsize=12, y=0.97)
+    fontweight='bold', fontsize=12, y=0.97, color='white')
 
 # ── animation update function ─────────────────────────────────────────────────
 def update(frame_idx):
