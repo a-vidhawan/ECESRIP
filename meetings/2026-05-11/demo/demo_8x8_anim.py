@@ -84,7 +84,7 @@ net.train(patterns)
 
 # ── build trace ───────────────────────────────────────────────────────────────
 rng     = np.random.default_rng(SEED)
-target  = patterns[DIGITS.index('0')]
+target  = patterns[DIGITS.index('1')]
 corrupt = add_noise(target, n_flips=N_FLIPS, rng=rng)
 
 frames         = [corrupt.copy()]
