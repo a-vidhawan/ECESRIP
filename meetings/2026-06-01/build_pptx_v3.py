@@ -11,7 +11,7 @@ from pptx import Presentation
 from pptx.oxml.ns import qn
 
 INPUT  = '/root/.claude/uploads/b83f060a-0718-412b-ba15-7f9efadcb4bb/0b712d9c-SRIP_Presena.pptx'
-OUTPUT = '/home/user/ECESRIP/meetings/2026-05-19/SRIP_Presentation_v3.pptx'
+OUTPUT = '/home/user/ECESRIP/meetings/2026-06-01/SRIP_Presentation_v3.pptx'
 
 A  = 'http://schemas.openxmlformats.org/drawingml/2006/main'
 PML = 'http://schemas.openxmlformats.org/presentationml/2006/main'
