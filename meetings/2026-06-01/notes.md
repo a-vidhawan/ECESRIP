@@ -30,23 +30,21 @@ The unifying idea: **don't differentiate through the process that found z\*, dif
 
 ## 2. Gradient-Based Training Methods for HNNs
 
-Hebbian stores only ~0.138N patterns with no error correction. Gradient-based methods treat W as a learnable parameter and optimise a loss — higher capacity, optional supervision, FPGA-trainable.
-
----
-
 ### A. Perceptron SGD / Three-Threshold Rule
+
 **Core idea:** Define a loss that is positive whenever a stored pattern is not a stable fixed point. For every neuron i in pattern ξ, check if it gets the right sign from its local field h_i = W_i · ξ. If not, apply a Hebbian correction.
 
 - Achieves the **Gardner bound: ~0.64N capacity** — 4× Hebbian
-- Update is a single margin check (one-bit compare) → simple on-chip FSM
+- Update is a single margin check (one-bit compare)
 - Online and incremental: W updates after every pattern
 - Three-threshold variant (Alemi et al. 2015) adds a forgetting term, approaches the theoretical maximum
 
-**On our FPGA:** margin check lives in the same pipeline as async settle. Training = settle + compare + accumulate. No second phase needed.
+**On our FPGA:** margin check lives in the same pipeline as async settle. Training = settle + compare + accumulate. simple on-chip FSM
 
 ---
 
 ### B. Equilibrium Propagation (Scellier & Bengio, 2017)
+
 **Core idea:** Free phase — run to fixed point s\*. Clamped phase — nudge output neurons toward target by adding β·C(s,y) to the energy, settle to s^β. Weight update = difference of outer products divided by β.
 
 EP is the adjoint method with the physics doing the linear solve. The β-nudge moves s\* in the direction [I − ∂f/∂s\*]⁻¹(∂L/∂s\*), which is exactly the adjoint vector. In the β→0 limit this converges to the exact backprop gradient.
@@ -61,6 +59,7 @@ EP is the adjoint method with the physics doing the linear solve. The β-nudge m
 ---
 
 ### C. Minimum Probability Flow (MPF, Sohl-Dickstein et al. 2011)
+
 **Core idea:** Treat the HNN as p(s) ∝ exp(−E(s)/T). Minimise the probability of spontaneously flipping any single bit away from a stored pattern. The loss gradient is fully analytic — no sampling, no partition function.
 
 - Provably achieves **≥ 1 pattern per neuron** (Hillar et al. 2012)
@@ -84,31 +83,34 @@ EP is the adjoint method with the physics doing the linear solve. The β-nudge m
 ## 4. NP-Hard Problem Datasets
 
 ### MaxCut
+
 Encoding: Wᵢⱼ = −wᵢⱼ for edges, no bias. Minimising HNN energy = maximising the cut.
 
-| Benchmark | Link | Notes |
-|---|---|---|
-| **Gset** | https://web.stanford.edu/~yyye/yyye/Gset/ | G1–G81, N=800–10000, standard reference |
-| **BiqMac** | https://biqmac.aau.at/biqmaclib.html | Sparse + dense graphs, known optima |
-| **MaxCutBench 2024** | https://github.com/maxcut/benchmark | Modern suite with SOTA comparisons |
+| Benchmark                  | Link                                      | Notes                                     |
+| -------------------------- | ----------------------------------------- | ----------------------------------------- |
+| **Gset**             | https://web.stanford.edu/~yyye/yyye/Gset/ | G1–G81, N=800–10000, standard reference |
+| **BiqMac**           | https://biqmac.aau.at/biqmaclib.html      | Sparse + dense graphs, known optima       |
+| **MaxCutBench 2024** | https://github.com/maxcut/benchmark       | Modern suite with SOTA comparisons        |
 
 Start with **G1** (N=800, 19176 edges) — known optimum 11624, widely cited.
 
 ---
 
 ### Travelling Salesman (Hopfield-Tank 1985)
+
 Encoding: N² neurons (city × position). Four penalty terms enforce valid tours.
 
-| Benchmark | Link | Notes |
-|---|---|---|
-| **TSPLIB95** | http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/ | eil51 (N=51), berlin52 (N=52) |
-| **TSPLIB mirror** | https://people.sc.fsu.edu/~jburkardt/datasets/tsp/tsp.html | Easy programmatic download |
+| Benchmark               | Link                                                       | Notes                         |
+| ----------------------- | ---------------------------------------------------------- | ----------------------------- |
+| **TSPLIB95**      | http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/     | eil51 (N=51), berlin52 (N=52) |
+| **TSPLIB mirror** | https://people.sc.fsu.edu/~jburkardt/datasets/tsp/tsp.html | Easy programmatic download    |
 
 Start with **eil51** (51 cities, known optimum 426). Key challenge: tuning the four penalty coefficients A,B,C,D.
 
 ---
 
 ### Number Partitioning
+
 Split a set of integers into two subsets with equal sum. Maps to HNN with no bias: σᵢ = ±1 encodes partition membership.
 
 - Encoding: Wᵢⱼ = −aᵢ aⱼ; minimising E gives balanced partition
@@ -118,18 +120,9 @@ Split a set of integers into two subsets with equal sum. Maps to HNN with no bia
 ---
 
 ### Graph Coloring
+
 Assign k colours to N vertices, no two adjacent vertices share a colour. Encoding: N×k binary neurons.
 
 - Penalty for adjacent same-colour nodes + penalty for each node having exactly one colour
 - Dataset: DIMACS — https://mat.tepper.cmu.edu/COLOR/instances.html (start with queen5_5 or myciel3)
 - More complex encoding — Phase 2
-
----
-
-## 5. Next Steps
-1. Add bias vector + `from_ising` / `from_qubo` to `hopfield_net.py`
-2. Implement perceptron SGD rule → demo 0.64N capacity
-3. MaxCut demo on G1 — validate against known optimum 11624
-4. Number partitioning demo — first bias-free Ising problem
-5. Discuss TSP penalty coefficient tuning
-6. Explore EP for supervised recall (longer term)
