@@ -38,6 +38,7 @@ The unifying idea: **don't differentiate through the process that found z\*, dif
 - Update is a single margin check (one-bit compare)
 - Online and incremental: W updates after every pattern
 - Three-threshold variant (Alemi et al. 2015) adds a forgetting term, approaches the theoretical maximum
+- **L1 sparsity extension:** add λ|W|₁ penalty to the margin loss; weights not needed to stabilise any pattern are driven to zero; threshold small weights to exactly zero after each update — controls sparsity directly via λ with no circuit changes
 
 **On our FPGA:** margin check lives in the same pipeline as async settle. Training = settle + compare + accumulate. simple on-chip FSM
 
@@ -58,7 +59,19 @@ EP is the adjoint method with the physics doing the linear solve. The β-nudge m
 
 ---
 
-### C. Minimum Probability Flow (MPF, Sohl-Dickstein et al. 2011)
+### C. Contrastive Hebbian Learning / CD-1 (Hinton 2002)
+
+**Core idea:** Two-phase rule. Free phase — settle to s⁻ (unclamped). Clamped phase — hard-clamp output neurons to the target, settle to s⁺. Weight update = η[s⁺(s⁺)ᵀ − s⁻(s⁻)ᵀ]. Supervised, reuses the settle circuit. Outer-product difference is naturally sparse when most neurons don't change state between phases.
+
+- Capacity above Hebbian empirically; no tight bound like Gardner's
+- CD-1 (one Gibbs step for the free phase) is practical for hardware — one settle pass per training example
+- Produces sparse weight updates when network is near-correct: only co-active neurons across the two phases contribute
+
+**On our FPGA:** identical settle circuit for both phases. Weight BRAM accumulates the outer-product difference. Useful if supervised labelled-recall is needed alongside optimisation.
+
+---
+
+### D. Minimum Probability Flow (MPF, Sohl-Dickstein et al. 2011)
 
 **Core idea:** Treat the HNN as p(s) ∝ exp(−E(s)/T). Minimise the probability of spontaneously flipping any single bit away from a stored pattern. The loss gradient is fully analytic — no sampling, no partition function.
 
