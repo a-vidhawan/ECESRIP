@@ -42,8 +42,16 @@ from pathlib import Path
 import numpy as np
 
 # Local modules
-from hopfield_train import HopfieldNetwork, random_patterns
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[3] / "sim" / "python"))
+from hopfield_net import HopfieldNetwork, HEBBIAN, STORKEY
 from truth_table_gen import enumerate_truth_tables, save_csv, save_json
+
+def random_patterns(N, P, seed=None):
+    import numpy as np
+    rng = np.random.default_rng(seed)
+    return [rng.choice([-1, 1], size=N).astype(float) for _ in range(P)]
 from logic_minimize import minimize_all, print_cover
 from sv_export import generate_sv
 
@@ -111,15 +119,13 @@ def stage_train(args, out_dir: Path) -> np.ndarray:
         patterns = random_patterns(N, args.P, seed=args.seed)
         print(f"[1/4] Generated {len(patterns)} random patterns  (N={N}, seed={args.seed})")
 
-    net = HopfieldNetwork(N)
-    if args.rule == "hebbian":
-        net.train_hebbian(patterns)
-    else:
-        net.train_storkey(patterns)
+    rule = HEBBIAN if args.rule == "hebbian" else STORKEY
+    net = HopfieldNetwork(N, rule=rule)
+    net.train(np.array(patterns))
     print(f"      Rule: {args.rule}")
 
     weights_path = out_dir / "weights.npy"
-    net.save_weights(weights_path)
+    np.save(weights_path, net.W)
     print(f"      Weights saved to {weights_path}")
     return net.W
 
