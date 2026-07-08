@@ -166,11 +166,13 @@ def run_sweep(
         W_dense = net.W.copy()
 
         off = W_dense[np.triu_indices(N, k=1)]
-        std = float(np.std(off[np.abs(off) > 1e-8]))
+        off_nz = off[np.abs(off) > 1e-8]
+        std  = float(np.std(off_nz))
+        mean = float(np.mean(off_nz))
 
         if verbose:
             print(f"\n{'─'*60}")
-            print(f"Rule: {rule_name.upper()}  |  std(W)={std:.4f}")
+            print(f"Rule: {rule_name.upper()}  |  mean(W)={mean:+.4f}  std(W)={std:.4f}")
             print(f"{'─'*60}")
 
         for s in s_values:
@@ -188,9 +190,16 @@ def run_sweep(
                                 (np.abs(W_dense)  < 1e-8).mean())
             n_fixed, _ = verify_fixed_points(W_pruned, patterns)
 
+            # Weight stats on surviving (non-zero) weights after pruning
+            off_p = W_pruned[np.triu_indices(N, k=1)]
+            off_p_nz = off_p[np.abs(off_p) > 1e-8]
+            mean_p = float(np.mean(off_p_nz)) if len(off_p_nz) else 0.0
+            std_p  = float(np.std(off_p_nz))  if len(off_p_nz) else 0.0
+
             if verbose:
                 print(f"  s={s:.2f} | threshold={threshold:.4f} | "
                       f"{n_zero_frac*100:.1f}% zeroed | "
+                      f"mean={mean_p:+.4f} std={std_p:.4f} | "
                       f"deg {mean_deg:.1f} | {n_fixed}/{M} fp | {compress:.0f}× compress")
 
             # Recall accuracy at each noise level
@@ -209,6 +218,8 @@ def run_sweep(
                     "s":               s,
                     "threshold":       round(threshold, 6),
                     "pct_zeroed":      round(n_zero_frac * 100, 1),
+                    "W_mean":          round(mean_p, 6),
+                    "W_std":           round(std_p, 6),
                     "n_fixed":         n_fixed,
                     "frac_fixed":      round(n_fixed / M, 4),
                     "mean_degree":     round(mean_deg, 2),
