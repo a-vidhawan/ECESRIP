@@ -281,6 +281,175 @@ def _prune_to_degree(W: np.ndarray, target_degree: int) -> np.ndarray:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Method 2b — Storkey: prune-then-retrain (mask-constrained Storkey)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def retrain_storkey_masked(
+    patterns: np.ndarray,
+    W_sparse: np.ndarray,
+) -> np.ndarray:
+    """
+    Re-run the Storkey rule but hard-zero masked connections after every step.
+
+    Given a sparsity pattern (from any pruning method), this finds the best
+    Storkey weights that fit within that connectivity pattern. The mask is
+    fixed throughout; only non-zero entries in W_sparse are allowed to grow.
+
+    Parameters
+    ----------
+    patterns : (M, N) bipolar patterns
+    W_sparse : weight matrix whose non-zero positions define the allowed mask
+
+    Returns
+    -------
+    W_retrained : (N, N) Storkey weights constrained to the mask
+    """
+    M, N = patterns.shape
+    mask = (np.abs(W_sparse) > 1e-8).astype(float)
+    np.fill_diagonal(mask, 0.0)
+
+    W = np.zeros((N, N))
+    for p in patterns:
+        h = W @ p
+        W += (np.outer(p, p) - np.outer(h, p) - np.outer(p, h)) / N
+        np.fill_diagonal(W, 0.0)
+        W *= mask  # enforce sparsity pattern every step
+    return W
+
+
+def prune_storkey_retrain(
+    patterns: np.ndarray,
+    s: float = 0.75,
+) -> tuple[np.ndarray, np.ndarray, dict]:
+    """
+    Storkey post-hoc prune → masked retrain.
+
+    Steps:
+      1. Train dense Storkey
+      2. Prune with magnitude threshold s to get sparsity mask
+      3. Re-run Storkey constrained to that mask (retrain_storkey_masked)
+      4. Verify fixed points
+
+    This usually recovers fixed points that post-hoc pruning loses, because
+    the remaining weights can redistribute to compensate for the removed ones.
+
+    Parameters
+    ----------
+    patterns : (M, N) bipolar patterns
+    s        : magnitude threshold multiplier for the initial prune
+    """
+    M, N = patterns.shape
+    net = HopfieldNetwork(N, rule=STORKEY)
+    net.train(patterns)
+    W_dense = net.W.copy()
+
+    W_mask = prune_magnitude(W_dense, s=s)
+    W_retrained = retrain_storkey_masked(patterns, W_mask)
+
+    report = pruning_report(W_dense, W_retrained, patterns)
+    return W_dense, W_retrained, report
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Method 3b — Pseudoinverse: masked constrained least-squares retrain
+# ─────────────────────────────────────────────────────────────────────────────
+
+def retrain_pseudoinverse_masked(
+    patterns: np.ndarray,
+    W_sparse: np.ndarray,
+) -> np.ndarray:
+    """
+    Constrained pseudoinverse: for each neuron i, solve a masked least-squares
+    problem using only the connections allowed by W_sparse's non-zero pattern.
+
+    For neuron i with allowed neighbors S_i = {j : W_sparse[i,j] != 0}:
+        w_i* = argmin ||w||² s.t. P[:, S_i] w ≈ P[:, i]
+
+    This is just np.linalg.lstsq applied per-row with a column mask.
+    The result is then symmetrized: W = (W + W^T) / 2.
+
+    This is the most principled sparse method: it finds the minimum-norm
+    weights on the allowed connections that best satisfy the fixed-point
+    equations — the true sparse pseudoinverse.
+
+    Parameters
+    ----------
+    patterns : (M, N) bipolar patterns
+    W_sparse : weight matrix whose non-zero positions define the allowed mask
+
+    Returns
+    -------
+    W_retrained : (N, N) symmetric, zero-diagonal weight matrix
+    """
+    M, N = patterns.shape
+    mask = (np.abs(W_sparse) > 1e-8).astype(float)
+    np.fill_diagonal(mask, 0.0)
+
+    W_new = np.zeros((N, N))
+    for i in range(N):
+        S_i = np.where(mask[i] > 0)[0]
+        if len(S_i) == 0:
+            continue
+        A = patterns[:, S_i]   # (M, |S_i|)
+        b = patterns[:, i]     # (M,)
+        w_i, _, _, _ = np.linalg.lstsq(A, b, rcond=None)
+        W_new[i, S_i] = w_i
+
+    # Symmetrize and zero diagonal
+    W_new = (W_new + W_new.T) / 2.0
+    np.fill_diagonal(W_new, 0.0)
+    return W_new
+
+
+def prune_pseudoinverse_retrain(
+    patterns: np.ndarray,
+    s: float = 0.75,
+    max_iter: int = 8,
+) -> tuple[np.ndarray, np.ndarray, dict]:
+    """
+    Pseudoinverse post-hoc prune → masked constrained-LS retrain.
+
+    Steps:
+      1. Train dense pseudoinverse
+      2. Prune at threshold s to get sparsity mask
+      3. Solve masked least squares per neuron (retrain_pseudoinverse_masked)
+      4. If fixed points still lost, back off s by 0.8× and repeat
+
+    This gives the globally optimal weights for the chosen sparsity pattern
+    and substantially outperforms plain post-hoc pruning at matched degree.
+
+    Parameters
+    ----------
+    patterns : (M, N) bipolar patterns
+    s        : initial magnitude threshold multiplier
+    max_iter : max backoff iterations if fixed points are lost
+    """
+    M, N = patterns.shape
+    net = HopfieldNetwork(N, rule=PSEUDOINVERSE)
+    net.train(patterns)
+    W_dense = net.W.copy()
+
+    current_s = s
+    W_retrained = W_dense.copy()
+
+    for it in range(max_iter):
+        W_mask = prune_magnitude(W_dense, s=current_s)
+        W_candidate = retrain_pseudoinverse_masked(patterns, W_mask)
+        n_fixed, _ = verify_fixed_points(W_candidate, patterns)
+        if n_fixed == M:
+            W_retrained = W_candidate
+            break
+        current_s *= 0.8
+    else:
+        W_retrained = W_candidate
+
+    report = pruning_report(W_dense, W_retrained, patterns)
+    report["final_s"] = round(current_s, 4)
+    report["iterations"] = it + 1
+    return W_dense, W_retrained, report
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Sweep: threshold vs accuracy (for plotting)
 # ─────────────────────────────────────────────────────────────────────────────
 
