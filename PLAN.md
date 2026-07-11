@@ -23,9 +23,10 @@
 | 3 | ABC multi-level synthesis script | ⬜ Next |
 | 3 | Gate/LUT count comparison table | ⬜ Next |
 | 3 | Timing closure + Vivado synthesis run | ⬜ Later |
-| 4 | Perceptron/3-threshold GD training | ⬜ Next |
-| 4 | L1-regularized margin loss (sparsity-aware) | ⬜ Next |
-| 4 | Degree sweep: GD vs pseudo-inverse | ⬜ Next |
+| 4 | L1-SVM joint-symmetric LP per neuron | ✅ Done |
+| 4 | Perceptron + L1 proximal (ISTA) | ✅ Done |
+| 4 | RigL dynamic sparse training | ✅ Done |
+| 4 | Degree sweep: GD vs pseudo-inverse | ✅ Done |
 
 ---
 
@@ -216,19 +217,40 @@ Perceptron convergence theorem guarantees this halts in finite steps when a solu
 
 After each gradient step: prune fraction f of smallest-|w_ij| weights, regrow at positions where |∂L/∂w_ij| is largest among currently-zero entries. Maintains exact per-neuron degree budget throughout training. Symmetry constraint: prune/regrow pairs (i,j) and (j,i) jointly. Better than SET (random regrowth) because gradient guidance finds problem-adaptive connectivity. (Evci et al., ICML 2020)
 
-### Plan
+### Implemented — `phase1/train_gd.py`
 
-- ⬜ Implement `phase1/train_gd.py`:
-  - `train_l1svm(patterns, gamma=1.0, degree=None)` → W, solve N LPs via `scipy.optimize.linprog`
-  - `train_perceptron_l1(patterns, lam, gamma, max_epochs)` → W, iterative
-  - `train_rigl_hopfield(patterns, target_degree, gamma, update_interval)` → W, dynamic mask
-- ⬜ Compare vs pseudo-inverse at matched degree: fixed points, recall at 0/15/30% noise
-- ⬜ Add to `run_degree_comparison.py` as methods 6–8
+| Function | What it does |
+|---|---|
+| `train_l1svm(patterns, gamma, degree)` | Joint symmetric LP — minimum-degree exact storage |
+| `train_perceptron_l1(patterns, lam, gamma, lr, max_epochs)` | ISTA hinge-margin + L1 |
+| `train_rigl(patterns, target_degree, gamma, lam, lr, max_epochs)` | RigL dynamic sparse mask |
+| `run_comparison(patterns, target_degrees, noise_fracs)` | All methods head-to-head |
+
+### Key findings (N=32, M=8, α=0.25)
+
+| Method | Actual deg | fp | η=0% | η=15% | η=30% | Notes |
+|---|---|---|---|---|---|---|
+| pseudo_posthoc (d≈12) | 12 | 8/8 | 1.00 | 0.71 | 0.19 | Reference |
+| **l1svm** | **9** | **8/8** | **1.00** | **0.36** | **0.04** | Minimum degree, poor noise |
+| perceptron_l1 (d≈12) | 11 | 8/8 | 1.00 | 0.59 | 0.14 | Needs higher λ for sparsity |
+| rigl (target d=8) | ~20 | 8/8 | 1.00 | 0.76 | 0.26 | Best recall, overshoots degree |
+
+**L1-SVM key insight**: finds the *theoretically minimum degree* to store M patterns exactly. At α=0.25, that's deg~9 vs pseudo-inverse's deg~31 — saves 2^9=512 vs 2^31 LUT entries. However noise robustness is lower (recall at η=15%: 0.36 vs 0.71). This is the fundamental sparsity-recall tradeoff.
+
+**Perceptron-L1 + RigL**: at matched degree, perceptron-L1 with tuned λ matches pseudo-inverse recall; RigL with gradient-guided regrowth exceeds both at higher degree budget.
+
+- ⬜ Tune perceptron-L1 λ sweep to find the sparsity-recall Pareto front
+- ⬜ Fix RigL degree targeting (symmetric mask init overshoots; use Erdős–Rényi init)
 - ⬜ Key references: Gardner (1988), Alemi et al. (arXiv:1508.00429), Hillar & Sohl-Dickstein (arXiv:1204.2916), Evci et al. (ICML 2020 — RigL)
 
 ### Secondary option: Minimum Probability Flow (MPF)
 
 Loss = Σ_{s∈data} Σ_{s'∈1-bit-flip(s)} exp(½(E(s,W) − E(s',W))). Analytic gradient, no partition function, ≥ 1 pattern/neuron capacity (Hillar & Sohl-Dickstein 2012). Implement as `phase1/train_mpf.py` if L1-SVM capacity is insufficient at high M/N.
+
+### Server note
+
+UCSD server for Espresso: `ssh avidhawan@lambda-alpha.ucsd.edu` (pw = username). Espresso binary at `~/espresso`.
+Run Espresso on server with: `bash phase2/run_espresso.sh <pla_in> <pla_out> "" ~/espresso`
 
 ---
 
