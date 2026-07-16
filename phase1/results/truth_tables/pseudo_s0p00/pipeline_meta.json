@@ -1,0 +1,12 @@
+{
+  "dataset": "random_bipolar",
+  "N": 16,
+  "M": 4,
+  "rule": "pseudoinverse",
+  "seed": 42,
+  "load_alpha": 0.25,
+  "patterns_stored": 4,
+  "lut_entries_per_neuron": 65536,
+  "total_lut_entries": 1048576,
+  "tie_break": 1
+}

@@ -9,6 +9,8 @@
 
 | Phase | What | Status |
 |---|---|---|
+| 0 | Espresso binary installed locally (`/usr/local/bin/espresso`) | ✅ Done |
+| 0 | iverilog installed locally for SV simulation | ✅ Done |
 | 1 | Simulation + learning rules | ✅ Done |
 | 1 | Truth table generation (dense + sparse) | ✅ Done |
 | 1 | Pruning sweep (all 3 rules, post-hoc) | ✅ Done |
@@ -17,9 +19,12 @@
 | 2 | CSV → PLA conversion (csv_to_pla.py) | ✅ Done |
 | 2 | Espresso batch runner (run_espresso.sh) | ✅ Done |
 | 2 | Minimized PLA → SystemVerilog (pla_to_sv.py) | ✅ Done |
-| 2 | Run Espresso: no-prune case | ⬜ Next |
-| 2 | Run Espresso: max-prune case | ⬜ Next |
-| 2 | Espresso combined multi-output PLA | ⬜ Next |
+| 2 | Run Espresso: no-prune case | 🔄 In progress (~7 min, 16 neurons × 65k rows) |
+| 2 | Run Espresso: max-prune case | ✅ Done (333× compression → 98% term reduction) |
+| 2 | Espresso combined multi-output PLA (max-prune) | ✅ Done |
+| 2 | SystemVerilog RTL: pseudo_maxprune.sv + FSM | ✅ Done |
+| 2 | SV testbenches (fixed-point + noisy recall) | ✅ Done |
+| 2 | Testbench simulation (iverilog) — max-prune verified | ✅ Done |
 | 3 | ABC multi-level synthesis script | ⬜ Next |
 | 3 | Gate/LUT count comparison table | ⬜ Next |
 | 3 | Timing closure + Vivado synthesis run | ⬜ Later |
@@ -280,9 +285,16 @@ ECESRIP/
 │   ├── csv_to_pla.py               ← truth tables → PLA
 │   ├── run_espresso.sh             ← batch Espresso runner
 │   ├── pla_to_sv.py                ← minimized PLA → SystemVerilog
+│   ├── gen_testbench.py            ← generates SV testbench from pipeline_meta.json
 │   ├── pla/                        ← raw PLA files (input to Espresso)
+│   │   └── pseudo_maxprune/        ← max-prune sparse PLA (333× compression)
 │   ├── pla_min/                    ← minimized PLA files (Espresso output)
-│   └── rtl/                        ← generated SV (pla_to_sv.py output)
+│   │   └── pseudo_maxprune/        ← 98% term reduction after Espresso
+│   ├── rtl/                        ← generated SV (pla_to_sv.py output)
+│   │   └── pseudo_maxprune.sv      ← LUT + FSM wrapper, 1649 literals
+│   └── tb/                         ← SystemVerilog testbenches
+│       ├── hopfield_maxprune_tb.sv ← 164 tests (4 fp + 160 noisy), SIMULATED ✅
+│       └── hopfield_dense_tb.sv    ← 164 tests (awaiting dense RTL)
 ├── research/
 │   ├── notes/research_plan.md      ← original Phases 1-3 plan
 │   └── notes/                      ← theory, update-order analysis
