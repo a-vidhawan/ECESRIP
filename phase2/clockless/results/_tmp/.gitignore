@@ -1,0 +1,4 @@
+# Compiled VVP binaries and generated testbench/vector files
+*.vvp
+*_tb.sv
+*_vec.hex

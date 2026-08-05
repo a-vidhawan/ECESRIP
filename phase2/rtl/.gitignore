@@ -1,0 +1,10 @@
+# Generated RTL variant files from stress tests (hundreds of files, not canonical)
+clockless_bifurc_*.sv
+clockless_depth_bigscale_*.sv
+clockless_depth_nscale*.sv
+clockless_even_odd_ratio*.sv
+clockless_even_odd_todd*.sv
+clockless_eo_*.sv
+clockless_noise_seed*.sv
+clockless_teven*.sv
+clockless_depth_scale*.sv
