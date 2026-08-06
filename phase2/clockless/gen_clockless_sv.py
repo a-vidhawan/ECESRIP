@@ -118,6 +118,46 @@ def gen_noise_sv(N=16, term_counts=None, seed=99, noise_scale=0.5) -> tuple:
     return "\n".join(lines), max_d, noisy
 
 
+# Prime delays: no two are commensurate, so no pair of classes settles into a
+# fixed phase relationship (cf. the T_ODD/T_EVEN integer-ratio crisis).
+PRIME_DELAYS = [11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71]
+
+
+def gen_coloring_sv(N=16, classes=None, class_delays=None,
+                    module_name="hopfield_clockless_coloring", note="") -> tuple:
+    """Delay per neuron chosen by its class. Returns (sv_text, max_depth, delays).
+
+    `classes` maps neuron index -> class id. Neurons that are coupled in the LUT
+    graph should never share a class, so no two interacting neurons latch at the
+    same sim time -- unlike even_odd, which assigns by index parity and leaves
+    44% of coupled pairs firing simultaneously. `class_delays` gives the delay
+    per class id (primes by default, to keep class periods incommensurate).
+    """
+    if classes is None:
+        classes = {i: i % 2 for i in range(N)}
+    k = max(classes.values()) + 1
+    if class_delays is None:
+        class_delays = PRIME_DELAYS[:k]
+    delays = [class_delays[classes[i]] for i in range(N)]
+    max_d = max(delays)
+
+    lines = [_header(module_name, N)]
+    lines.append(f"    // coloring mode: {k} classes, delays={list(class_delays[:k])}")
+    if note:
+        lines.append(f"    // {note}")
+    lines.append("    always @(s_next or init_en or init_val) begin")
+    lines.append("        if (init_en) begin")
+    lines.append("            s_settle <= #0 init_val;")
+    lines.append("        end else begin")
+    for i in range(N):
+        lines.append(f"            s_settle[{i:3d}] <= #({delays[i]:3d}) s_next[{i:3d}];"
+                     f"  // class {classes[i]}")
+    lines.append("        end")
+    lines.append("    end")
+    lines.append("endmodule")
+    return "\n".join(lines), max_d, delays
+
+
 def write_metadata(path, N, depths, terms, t_even=None, t_odd=None,
                    noise_seed=None, noise_delays=None):
     max_d = max(depths)

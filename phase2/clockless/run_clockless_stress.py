@@ -259,6 +259,7 @@ def run_batch(exp_name: str, mode: str, init_states: list, pat_indices: list,
         "depth":    "hopfield_clockless_depth",
         "even_odd": "hopfield_clockless_even_odd",
         "noise":    "hopfield_clockless_noise",
+        "coloring": "hopfield_clockless_coloring",
     }[mode]
     tag = f"{exp_name}_{mode}{variant_tag}"
     tb_path  = os.path.join(TMP, f"{tag}_tb.sv")
