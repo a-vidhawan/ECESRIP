@@ -8,3 +8,4 @@ clockless_eo_*.sv
 clockless_noise_seed*.sv
 clockless_teven*.sv
 clockless_depth_scale*.sv
+clockless_r7_*.sv
