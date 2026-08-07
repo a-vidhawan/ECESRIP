@@ -266,18 +266,34 @@ def prune_pseudoinverse(
 
 
 def _prune_to_degree(W: np.ndarray, target_degree: int) -> np.ndarray:
-    """Keep only the target_degree largest |W_ij| per row (symmetric)."""
+    """Keep only the target_degree largest |W_ij| per row (symmetric).
+
+    Ties must be broken explicitly. A threshold test of the form
+    ``row < kth`` keeps every entry whose magnitude equals the k-th largest,
+    so when a row is entirely tied it prunes nothing and the cap silently
+    no-ops. That is the common case, not a corner case: a pseudoinverse W
+    built from M bipolar patterns is rank-M, and for small M the off-diagonal
+    magnitudes collapse onto a single value -- e.g. N=512, M=4 leaves rows of
+    71 identical magnitudes, so a requested degree of 12 returned 71.
+
+    Ranking with argsort takes exactly target_degree entries regardless of
+    ties, using index order as the deterministic tie-break.
+    """
     N = W.shape[0]
-    W_out = W.copy()
+    keep = np.zeros(W.shape, dtype=bool)
     for i in range(N):
-        row = np.abs(W_out[i]).copy()
-        row[i] = 0
-        if (row > 0).sum() > target_degree:
-            kth = np.partition(row, -target_degree)[-target_degree]
-            mask = (row < kth) & (row > 0)
-            W_out[i, mask] = 0
-            W_out[mask, i] = 0
-    return W_out
+        row = np.abs(W[i]).copy()
+        row[i] = 0.0
+        nz = np.nonzero(row)[0]
+        if nz.size <= target_degree:
+            keep[i, nz] = True
+            continue
+        order = nz[np.argsort(-row[nz], kind="stable")]
+        keep[i, order[:target_degree]] = True
+    # An edge survives only if BOTH endpoints kept it, matching the original
+    # symmetric-removal semantics and guaranteeing degree <= target_degree.
+    keep &= keep.T
+    return np.where(keep, W, 0.0)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

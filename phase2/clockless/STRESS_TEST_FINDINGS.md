@@ -242,6 +242,54 @@ loading buys correct *settling* (needs a wider network).
 
 ---
 
+### 16. Scaling (scale_study.py)
+
+Confirmed the alpha prediction on the real Phase-1 pipeline and pushed N as far
+as it goes. The schedule simulator was validated against the SV measurements at
+N=16 first (coloured pow2 100% settled / 0 value-conflicts; degenerate 74% / 43
+conflicts) before any large-N number was taken seriously.
+
+**The schedule scales indefinitely. The LUT does not.**
+
+| N | M | fan-in | delay classes | max delay | settled | recall @HD<=3 | LUT entries/neuron |
+|---|---|---|---|---|---|---|---|
+| 1024 | 4 | 24 | 5 | 5 | 100% | 100% | 16.7M |
+| 2048 | 4 | 24 | 6 | 6 | 100% | 100% | 16.7M |
+| 4096 | 4 | 24 | 6 | 6 | 100% | 100% | 16.7M |
+
+At N=4096 the network needs only **6 distinct delay values**, because a sparse
+24-regular coupling graph has a tiny chromatic number regardless of N. Schedule
+cost is O(N) storage and O(chi) distinct delays -- it does not grow with N in any
+way that matters. Delay-pool choice is irrelevant: pow2, linear, linear2 and
+primes all gave identical settling, confirming the rule that only DISTINCTNESS
+between coupled neurons matters.
+
+**The binding constraint is per-neuron LUT size = 2^fan-in**, and fan-in is set
+by M, not N. Measured floor is d >~ 6M (d=24 for M=4): at d=12 only 2/4 patterns
+survive as fixed points, because `retrain_pseudoinverse_masked` symmetrises after
+the per-neuron least-squares fit and destroys the exact solution. So a LUT-based
+HNN scales freely in N but **exponentially in M**. Practical ceiling is d ~ 16-20
+(64K-1M entries); reaching larger M needs threshold gates (O(d) adders) instead
+of truth tables.
+
+**Two bugs found and fixed in the process:**
+- `phase1/pruning.py::_prune_to_degree` silently no-opped. It selected by
+  threshold (`row < kth`), which prunes nothing when a row is entirely tied --
+  and a rank-M pseudoinverse W is exactly that (N=512, M=4 gave rows of 71
+  identical magnitudes, so a requested degree of 12 returned 71). Now ranks with
+  argsort. The canonical N=16 network never passed `target_degree`, so committed
+  artifacts are unaffected.
+- `schedule_hnn.py::verify` checked class labels rather than delay values, so it
+  would have passed the `all_equal` schedule that measures 0% settling.
+
+Magnitude pruning cannot pick a support at low rank for the same tie reason --
+every candidate edge is equivalent. Supports must be chosen structurally and
+retrained on (`--support regular`, degree-preserving edge swaps). Ring/circulant
+supports fail (0-60% recall): local connectivity cannot store globally random
+patterns.
+
+---
+
 ## Design Recommendations
 
 1. **Use even_odd mode** for reliability: 97-99% settling rate vs 65-80% for depth mode
