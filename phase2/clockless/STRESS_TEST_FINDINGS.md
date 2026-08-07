@@ -171,6 +171,77 @@ Varying delay perturbation scale (±ε units around depth-mode values):
 
 ---
 
+### 14. The Scheduling Rule (Rounds 6-7)
+
+The `even_odd` schedule assigns delays by index parity (`i % 2`), which is blind to
+the coupling graph. Extracting that graph from the PLAs (43 edges, 35.8% dense)
+shows parity leaves **19/43 (44.2%) of coupled pairs latching at the same sim
+time** -- including hub neuron 14 (degree 11, 386 terms) firing in lockstep with
+6 of its 11 neighbours. Depth mode is 14/43 (32.6%), with seven neurons sharing
+delay 3. Every "weak bit" found independently by fault injection (4, 9, 11, 12)
+appears in the parity conflict list.
+
+**Round 7 ran the 2x2 separating the two candidate mechanisms** (20 schemes,
+4,276 unique states):
+
+| condition | universal oscillators settled |
+|---|---|
+| proper colouring + distinct incommensurate delays | **100%** (15/15 schemes) |
+| proper colouring + distinct commensurate delays | **100%** (3/3 schemes) |
+| proper colouring + *identical* delays (`all_equal`) | **0%** |
+| distinct incommensurate delays, *no* colouring (`parity_primes`) | **0%** |
+
+**THE RULE: no two coupled neurons may share a delay VALUE.** Necessary and
+sufficient. Colouring is just the algorithm that achieves it with the fewest
+distinct values; incommensurability is *not* required for settling and only
+shifts which attractor is reached (recall varied 6-34% on the oscillators while
+settling stayed pinned at 100%). Verifying on class *labels* instead of delay
+*values* misses the `all_equal` failure mode entirely.
+
+Robustness across 12 permutations of the same primes over the same classes:
+universal-oscillator settling **sd = 0.00**. Not numerology.
+
+**Best schedule found -- geometric ladder `[2,4,8,16,32,64]` on the 6-colouring:**
+
+| test set | settled | oscillated |
+|---|---|---|
+| all HD<=3 states (2,784) | **100.00%** | 0 |
+| universal oscillators (32) | **100.00%** | 0 |
+| random (1,500) | 99.87% | 0.1% |
+
+No state in the round-7 corpus fails to settle under at least one colouring
+schedule. Prime ladders score ~3 points better on recall but up to 5 points
+worse on settling -- prefer powers of two when reliable settling is the priority.
+
+### 15. Recall Is a Loading Problem, Not a Scheduling Problem
+
+Once scheduling is fixed, the residual failures are almost entirely *spurious
+attractors*, not oscillation (random states under colouring: 75.8% spurious,
+1.7% oscillated). Conditional on settling, accuracy barely moves (53.4% -> 60.5%).
+The network settles reliably onto the wrong attractor.
+
+A scan of pseudoinverse nets under idealised random-async updates shows recall
+is governed by loading alpha = M/N:
+
+| N | M | alpha | correct @ HD<=3 |
+|---|---|---|---|
+| 16 | 4 | 0.250 | 79% |
+| 24 | 4 | 0.167 | 99% |
+| 32 | 4 | **0.125** | **100%** |
+| 16 | 8 | 0.500 | 31% |
+
+**No schedule can reach perfect recall on the current network.** At M/N = 4/16 =
+0.25 the 4 stored patterns compete with 16 spurious fixed points. Near-perfect
+recall needs alpha <~ 0.125-0.19, i.e. N=32 for the same 4 patterns -- a Phase-1
+change, not a Phase-2 one. (Caveat: the scan uses unpruned pseudoinverse nets
+while the network under test is max-pruned, so the alpha trend transfers but the
+absolute numbers do not.)
+
+**Two independent levers:** scheduling buys reliable *settling* (solved, ~100%);
+loading buys correct *settling* (needs a wider network).
+
+---
+
 ## Design Recommendations
 
 1. **Use even_odd mode** for reliability: 97-99% settling rate vs 65-80% for depth mode

@@ -25,8 +25,18 @@ CLI:
 
 import argparse, json, math, os
 
-# Pairwise-incommensurate delay pool. Any two distinct primes have a
-# non-integer ratio, so no class pair re-aligns on a short period.
+# Geometric ladder -- DEFAULT. Round 7 measured this at 100% settling on the
+# whole HD<=3 basin and on every universal oscillator, beating every prime set
+# tested. Doubling gives each class half the firing rate of the one below it,
+# so the network resolves as an ordered cascade rather than a scramble.
+POW2 = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096,
+        8192, 16384, 32768, 65536]
+
+# Pairwise-incommensurate alternative. Round 7 found incommensurability is NOT
+# required for settling (commensurate ladders settle just as reliably); it only
+# shifts WHICH attractor is reached. Prime sets scored ~3 points better on
+# recall but up to 5 points worse on settling. Prefer POW2 when reliable
+# settling is the priority.
 PRIMES = [11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71,
           73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139]
 
@@ -84,9 +94,16 @@ def dsatur(n, edges):
     return colour
 
 
-def verify(colour, edges):
-    """Coupled pairs sharing a class. Must be empty for a valid schedule."""
-    return [(i, j) for (i, j) in edges if colour[i] == colour[j]]
+def verify(delays, edges):
+    """Coupled pairs sharing a DELAY VALUE. Must be empty for a valid schedule.
+
+    Check values, not class labels. A proper colouring whose classes are all
+    given the same delay is a valid colouring but a useless schedule -- round 7
+    measured exactly that case (6 classes, every delay 20) at 0% settling on the
+    universal oscillators, identical to no schedule at all. What the neurons
+    experience is the delay value; the class label is only bookkeeping.
+    """
+    return [(i, j) for (i, j) in edges if delays[i] == delays[j]]
 
 
 def incommensurate(delays):
@@ -104,13 +121,16 @@ def build_schedule(n, edges, delay_pool=None):
     """Returns (colour_map, per_neuron_delays, info)."""
     colour = dsatur(n, edges)
     k = max(colour.values()) + 1
-    pool = list(delay_pool or PRIMES)
+    pool = list(delay_pool or POW2)
     if k > len(pool):
         raise ValueError(f"need {k} delay classes, pool has {len(pool)}")
+    if len(set(pool[:k])) != k:
+        raise ValueError("delay pool has duplicate values -- coupled neurons "
+                         "would share a delay and update synchronously")
     class_delays = pool[:k]
     delays = [class_delays[colour[i]] for i in range(n)]
 
-    bad = verify(colour, edges)
+    bad = verify(delays, edges)
     info = {
         "n_neurons": n,
         "n_edges": len(edges),
