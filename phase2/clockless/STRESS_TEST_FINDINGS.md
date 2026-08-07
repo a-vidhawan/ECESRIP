@@ -310,3 +310,57 @@ patterns.
 - **Test vectors**: `$readmemh` with absolute paths
 - **Timing**: `timescale 1ns/1ps` in ALL modules (critical for NBA delays)
 - **Rounds**: 5 rounds + additional sweep (run_clockless_stress.py, run_additional_stress.py, run_stress_round3-5.py)
+
+### 17. Don't-Care Minimisation: the LUT Approach Does Scale
+
+The pipeline emitted fully-specified truth tables (all 2^d rows, every one a
+care condition) -- the worst case for two-level minimisation, and more than an
+associative memory needs. It only has to be correct on states it visits.
+
+Emitting `.type fr` PLAs containing only the care set -- the operating region
+(Hamming radius h of a stored pattern) projected onto each neuron's support,
+size M*sum_{j<=h} C(d,j), POLYNOMIAL in fan-in -- and minimising with espresso:
+
+| fan-in | full table | full-table terms | care rows | **DC terms** | speedup |
+|---|---|---|---|---|---|
+| 16 | 65,536 | ~1,000-2,900 | 2,768 | **31-54** | 34.5x fewer |
+| 24 | 16,777,216 | infeasible | 9,300 | **10-58** | -- |
+| 32 | 4.3e9 | infeasible | 21,956 | **5-27** | -- |
+
+Term count does not grow with fan-in -- it FALLS (avg 48 -> 27 -> 14). The care
+set is 4 small Hamming balls, and a handful of cubes covers it however wide the
+input. Espresso runtime is the limit (fan-in 48 timed out at 30 min), not term
+count.
+
+**This reverses finding #16.** Estimated area used the C(d,d/2) threshold bound
+on fully-specified tables and put the crossover vs an adder tree at fan-in ~9.
+With don't-cares the real numbers invert it:
+
+| fan-in | DC-LUT GE (measured terms) | threshold-gate GE | winner |
+|---|---|---|---|
+| 16 | ~435 | 1,028 | **LUT 2.4x smaller** |
+| 24 | ~351 | 1,687 | **LUT 4.8x smaller** |
+| 32 | ~246 | 2,271 | **LUT 9x smaller** |
+
+The LUT gets relatively BETTER as fan-in grows, because terms stay flat while
+the adder tree grows linearly. The earlier "LUT loses above fan-in 9" conclusion
+was an artifact of fully specifying functions we never needed fully specified.
+
+**Correctness verified, not assumed** (verify_dc_recall.py). Don't-cares let
+espresso assign the off-region freely, so it can invent fixed points or destroy
+basins. Rebuilding the network from the espresso SOPs (N=256, fan-in 16, 12,357
+terms over 256 neurons) and re-measuring under the colour schedule:
+
+| test | exact settled | exact recall | SOP settled | SOP recall | agreement |
+|---|---|---|---|---|---|
+| HD=0,1,3 | 100% | 100% | 100% | 100% | **100%** |
+| HD=5 (beyond the radius-3 care set) | 100% | 100% | 100% | 100% | **100%** |
+| uniform random (off-region) | 100% | -- | 98% | -- | 2% |
+
+Inside the operating region the minimised network is behaviourally identical,
+and it generalises past the care radius (HD=5 still exact). Outside it the two
+networks agree only 2% of the time -- expected, since that region was declared
+free, and it still settles 98% rather than oscillating. **The tradeoff is real
+and must be stated: behaviour on far-from-pattern inputs is unspecified.** That
+is acceptable for associative recall and unacceptable if arbitrary states must
+be handled.
