@@ -40,11 +40,11 @@ headline number from source and flags anything missing.
 
 - **T1** RTL measured (iverilog) — everything at N=16
 - **T2** Tool measured (Berkeley espresso) — don't-care term counts
-- **T3** Python simulator, validated against T1 at N=16 only — all scaling above N=16
+- **T3** Python simulator, validated against T1 at N=16 **and N=256** — scaling above N=256
 - **T4** First-order analytical estimate — all area comparisons
 
-The boundary that matters: **every scaling number above N=16 is T3**, and every
-area number is T4. Word them accordingly.
+The boundary that matters: **N ≤ 256 is measured in RTL; above that is
+simulated**, and every area number is T4. Word them accordingly.
 
 ## Headline results
 
@@ -55,3 +55,6 @@ area number is T4. Word them accordingly.
    necessary and sufficient; 18 schemes at 100%, both controls at 0%.
 3. **Two levers** — scheduling fixes settling, loading fixes correctness. They
    are orthogonal and are often conflated.
+4. **Verified end to end at N=256** — don't-care SOPs → SystemVerilog →
+   iverilog, 100% settled and recalled, identical to the simulator on 240/240
+   inputs.

@@ -5,7 +5,8 @@ lists what it claims, what evidence it stands on, and what would sink it.
 
 **Recommendation up front: Outline B is the most likely to be accepted; Outline A
 is the best paper if we can get synthesis numbers; Outline C should only be
-attempted as a workshop paper.** Reasoning at the end.
+attempted as a workshop paper.** _Updated: the N=256 end-to-end RTL run (C13)
+closes A's second-biggest gap — only synthesis remains._ Reasoning at the end.
 
 Evidence tiers (T1 RTL / T2 tool-measured / T3 simulator / T4 estimate) are from
 `CLAIMS_AUDIT.md`. A claim's tier determines how strongly it may be worded.
@@ -42,16 +43,20 @@ clockless settling can be made convergent by construction.
 6. **Verification** — behavioural equivalence in-region, divergence outside.
    *Table 5.* [T2/T3]
 7. **Scaling and limits** — χ vs N; the α ceiling on recall. *Fig. 3, Fig. 5,
-   Fig. 6, Table 3.* [T3 — must be worded as simulation]
+   Fig. 6, Table 3, Table 7.* [T1 at N≤256 via the end-to-end RTL run; T3 above]
 8. **Comparison** — vs threshold-gate HNN across area, latency, clocking,
    quantisation, fault tolerance. [T4 — **weakest section**]
 9. **Limitations** — no silicon, no PVT, N=16 RTL ceiling, off-region behaviour.
 10. **Conclusion.**
 
 ### Risk
-Section 8 is the whole selling point and is currently T4 estimates. **Do not
-submit this without synthesis numbers.** A referee asked to believe an
-architecture comparison built from hand-rolled gate-equivalent models will not.
+Section 8 is the whole selling point and is still T4 estimates. **Do not submit
+this without synthesis numbers.** A referee asked to believe an architecture
+comparison built from hand-rolled gate-equivalent models will not.
+
+The scaling section is no longer a weakness: the full flow is measured in RTL at
+N=256 (Table 7), including agreement with the simulator on 240/240 inputs. That
+leaves synthesis as the single blocking gap for this outline.
 
 ---
 
@@ -89,8 +94,11 @@ network is behaviourally identical where it is specified.
    fully specified (34.5×) and 100× faster to minimise; fan-in 24: 10–58 terms
    where the table is 16.7M rows; fan-in 32: 5–27 terms. Term count **falls**
    with fan-in. [T2]
-6. **Correctness** — *Table 5.* Rebuild the network from the SOPs; 100%
-   agreement in-region including beyond the care radius; 2% outside. [T2/T3]
+6. **Correctness** — *Table 5, Table 7.* Rebuild the network from the SOPs;
+   100% agreement in-region including beyond the care radius; 2% outside
+   [T2/T3]. The same SOPs, emitted as SystemVerilog, settle and recall
+   identically under iverilog at N=256 [T1] — so the minimisation is verified as
+   hardware, not only as a Python model.
 7. **Cost model** — inverted area comparison vs adder trees. [T4 — present as an
    estimate, explicitly]
 8. **Limitations** — off-region unspecified; espresso runtime caps fan-in ≈32;

@@ -184,6 +184,37 @@ def t_outcomes():
     w()
 
 
+def t_rtl():
+    p = os.path.join(HERE, "data", "dc_terms.json")
+    if not os.path.exists(p):
+        return
+    r = json.load(open(p)).get("rtl_n256")
+    if not r:
+        return
+    w("## Table 7 — End-to-end RTL verification at N=256")
+    w()
+    w(f"N={r['N']}, M={r['M']}, fan-in {r['fan_in']}, care radius {r['radius']}. "
+      f"{r['total_terms']:,} product terms over {r['neurons']} neurons "
+      f"(χ={r['chi']}, {r['delay_value_conflicts']} delay-value conflicts). "
+      "Don't-care SOPs emitted as SystemVerilog and simulated in iverilog — the "
+      "same tool as every N=16 result. The last column is the one that matters: "
+      "it upgrades the scaling claim from simulator to measured.")
+    w()
+    w("| HD | n | RTL settled | RTL recall | simulator settled | RTL = simulator |")
+    w("|---|---|---|---|---|---|")
+    n = r["trials_per_hd"]
+    for row in r["rows"]:
+        w(f"| {row['hd']} | {n} | {pct(round(row['rtl_settled']*n), n)} | "
+          f"{pct(round(row['rtl_recall']*n), n)} | "
+          f"{pct(round(row['sim_settled']*n), n)} | "
+          f"{pct(round(row['rtl_matches_sim']*n), n)} |")
+    w()
+    w("The simulator models the schedule as periodic firing rather than "
+      "event-driven NBA semantics; agreement on 240/240 inputs at N=256 is what "
+      "licenses using it at all. It does not license using it at N=4096.")
+    w()
+
+
 def main():
     w("# Canonical Results Tables")
     w()
@@ -194,7 +225,7 @@ def main():
       "where the normal interval collapses to zero width and overstates "
       "certainty.")
     w()
-    for f in (t_rule, t_perm, t_scale, t_dc, t_outcomes):
+    for f in (t_rule, t_perm, t_scale, t_dc, t_outcomes, t_rtl):
         try:
             f()
         except Exception as e:

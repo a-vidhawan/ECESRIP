@@ -72,3 +72,16 @@ The last row is the cost of the method, not a defect to hide: off the care set e
 
 Spurious convergence dominates oscillation by more than an order of magnitude on random states. Scheduling addresses the second column of failures; only loading addresses the first.
 
+## Table 7 — End-to-end RTL verification at N=256
+
+N=256, M=4, fan-in 16, care radius 3. 12,357 product terms over 256 neurons (χ=4, 0 delay-value conflicts). Don't-care SOPs emitted as SystemVerilog and simulated in iverilog — the same tool as every N=16 result. The last column is the one that matters: it upgrades the scaling claim from simulator to measured.
+
+| HD | n | RTL settled | RTL recall | simulator settled | RTL = simulator |
+|---|---|---|---|---|---|
+| 0 | 60 | 100.0 [94.0–100.0] | 100.0 [94.0–100.0] | 100.0 [94.0–100.0] | 100.0 [94.0–100.0] |
+| 1 | 60 | 100.0 [94.0–100.0] | 100.0 [94.0–100.0] | 100.0 [94.0–100.0] | 100.0 [94.0–100.0] |
+| 3 | 60 | 100.0 [94.0–100.0] | 100.0 [94.0–100.0] | 100.0 [94.0–100.0] | 100.0 [94.0–100.0] |
+| 5 | 60 | 100.0 [94.0–100.0] | 100.0 [94.0–100.0] | 100.0 [94.0–100.0] | 100.0 [94.0–100.0] |
+
+The simulator models the schedule as periodic firing rather than event-driven NBA semantics; agreement on 240/240 inputs at N=256 is what licenses using it at all. It does not license using it at N=4096.
+

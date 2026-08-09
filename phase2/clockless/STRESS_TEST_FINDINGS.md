@@ -20,6 +20,22 @@ M=4 patterns. Tests spanned >500,000 SV simulation runs.
 
 ---
 
+> ## ⚠ Read `../paper/CLAIMS_AUDIT.md` before reusing anything below
+>
+> This document was appended to round by round and never reconciled. Later rounds
+> contradict earlier ones in three places, all marked inline:
+>
+> - **Finding #4 is RETRACTED** — the "universal oscillators" all settle under a
+>   graph-coloured schedule.
+> - **Finding #3 is REVISED** — the "symmetry crisis" is the degenerate case of
+>   the value-distinctness rule, not an integer-ratio effect.
+> - **The `noise` mode is not a third condition.** With the canonical settings
+>   (seed 99, scale 0.5) it emits delays *byte-identical* to `depth`, because
+>   `round(d + U(-0.5, 0.5))` almost always returns `d`. Every "noise" row in
+>   findings #2 and #5–#13 duplicates `depth`, so any statement of the form "all
+>   three modes agree" is circular. Noise *sweeps* at scale ≥ 2.0 are genuine.
+> - **Finding #16 is superseded by #17** (don't-care minimisation).
+
 ## Key Findings
 
 ### 1. Full State Space Structure (EXP P: Python Synchronous Sim)
@@ -62,16 +78,29 @@ fixed points. However, most convert to SPURIOUS attractors (74.7% of settled sta
 - ratio=2.0 (T_ODD=20, T_EVEN=10): settled drops to 93-95% from 99%+
 - ratio=2.0 (T_EVEN=12, T_ODD=24): settled drops to 95.0%
 
-**Rule**: Any bipartite timing where T_ODD/T_EVEN = integer (especially 1 or 2) causes 
-oscillation crises. Use asymmetric ratios (e.g., 2.4x, 3x, or any non-integer).
+> **REVISED by round 7 — the rule below is wrong. See finding #14.**
+> Ratio = 1.0 means T_ODD = T_EVEN, i.e. *every neuron shares one delay value*.
+> That is the degenerate case of the value-distinctness rule, not a timing
+> resonance. Commensurate delays settle perfectly well (100% on the hardest
+> states, 3 schemes) provided the values differ, so integer ratios per se are
+> harmless — only equality is fatal. The residual dip at ratio 2.0 is unexplained
+> and too small to build on; do not cite it without re-running.
+
+~~**Rule**: Any bipartite timing where T_ODD/T_EVEN = integer (especially 1 or 2) causes
+oscillation crises. Use asymmetric ratios (e.g., 2.4x, 3x, or any non-integer).~~
 
 ### 4. Universal Oscillators (EXP E)
 
-**32 states oscillate in BOTH depth and even_odd modes** — universal oscillators:
+> **RETRACTED by round 6 — see finding #14.** These are not universal
+> oscillators. Every graph-coloured schedule settles all 32 of them (18 schemes,
+> 100%). They were artifacts of parity collisions, not intrinsic limit cycles;
+> the original claim generalised from having tried only even_odd variants.
+
+**32 states oscillate in BOTH depth and even_odd modes:**
 - 18.8% (6/32) settle at T_ODD < 20 and T_ODD ≥ 46
 - 0% settle at T_ODD ∈ [20, 45]
-- This is a TIMEOUT artifact: the oscillation period at T_ODD=20 exceeds the timeout
-- True universal oscillators do NOT converge under any even_odd configuration
+- ~~True universal oscillators do NOT converge under any even_odd configuration~~
+  — true only *within* even_odd; false in general
 
 ### 5. Exhaustive Basin Test (EXP T: HD≤5 from patterns)
 

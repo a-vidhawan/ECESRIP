@@ -9,10 +9,38 @@
       "radius": 3,
       "full_table_rows": 65536,
       "care_rows": 2768,
-      "dc_terms": [31, 54, 46, 44, 35, 31],
-      "full_terms": [2918, 1048, 999, 627, 1484, 1235],
-      "dc_seconds": [0.26, 0.47, 0.51, 0.19, 0.44, 0.39],
-      "full_seconds": [40.23, 41.32, 35.36, 0.42, 59.0, 37.21]
+      "dc_terms": [
+        31,
+        54,
+        46,
+        44,
+        35,
+        31
+      ],
+      "full_terms": [
+        2918,
+        1048,
+        999,
+        627,
+        1484,
+        1235
+      ],
+      "dc_seconds": [
+        0.26,
+        0.47,
+        0.51,
+        0.19,
+        0.44,
+        0.39
+      ],
+      "full_seconds": [
+        40.23,
+        41.32,
+        35.36,
+        0.42,
+        59.0,
+        37.21
+      ]
     },
     {
       "fan_in": 24,
@@ -21,9 +49,23 @@
       "radius": 3,
       "full_table_rows": 16777216,
       "care_rows": 9300,
-      "dc_terms": [12, 58, 20, 48, 10, 16],
+      "dc_terms": [
+        12,
+        58,
+        20,
+        48,
+        10,
+        16
+      ],
       "full_terms": null,
-      "dc_seconds": [10.33, 9.3, 16.8, 14.6, 10.1, 7.58],
+      "dc_seconds": [
+        10.33,
+        9.3,
+        16.8,
+        14.6,
+        10.1,
+        7.58
+      ],
       "full_seconds": null
     },
     {
@@ -33,9 +75,19 @@
       "radius": 3,
       "full_table_rows": 4294967296,
       "care_rows": 21956,
-      "dc_terms": [8, 5, 27, 18],
+      "dc_terms": [
+        8,
+        5,
+        27,
+        18
+      ],
       "full_terms": null,
-      "dc_seconds": [101.42, 79.91, 93.83, 94.88],
+      "dc_seconds": [
+        101.42,
+        79.91,
+        93.83,
+        94.88
+      ],
       "full_seconds": null
     }
   ],
@@ -45,11 +97,93 @@
     "neurons": 256,
     "chi": 4,
     "rows": [
-      {"test": "HD=0", "exact_settled": 1.0, "exact_recall": 1.0, "sop_settled": 1.0, "sop_recall": 1.0, "agreement": 1.0},
-      {"test": "HD=1", "exact_settled": 1.0, "exact_recall": 1.0, "sop_settled": 1.0, "sop_recall": 1.0, "agreement": 1.0},
-      {"test": "HD=3", "exact_settled": 1.0, "exact_recall": 1.0, "sop_settled": 1.0, "sop_recall": 1.0, "agreement": 1.0},
-      {"test": "HD=5", "exact_settled": 1.0, "exact_recall": 1.0, "sop_settled": 1.0, "sop_recall": 1.0, "agreement": 1.0},
-      {"test": "random", "exact_settled": 1.0, "exact_recall": null, "sop_settled": 0.98, "sop_recall": null, "agreement": 0.02}
+      {
+        "test": "HD=0",
+        "exact_settled": 1.0,
+        "exact_recall": 1.0,
+        "sop_settled": 1.0,
+        "sop_recall": 1.0,
+        "agreement": 1.0
+      },
+      {
+        "test": "HD=1",
+        "exact_settled": 1.0,
+        "exact_recall": 1.0,
+        "sop_settled": 1.0,
+        "sop_recall": 1.0,
+        "agreement": 1.0
+      },
+      {
+        "test": "HD=3",
+        "exact_settled": 1.0,
+        "exact_recall": 1.0,
+        "sop_settled": 1.0,
+        "sop_recall": 1.0,
+        "agreement": 1.0
+      },
+      {
+        "test": "HD=5",
+        "exact_settled": 1.0,
+        "exact_recall": 1.0,
+        "sop_settled": 1.0,
+        "sop_recall": 1.0,
+        "agreement": 1.0
+      },
+      {
+        "test": "random",
+        "exact_settled": 1.0,
+        "exact_recall": null,
+        "sop_settled": 0.98,
+        "sop_recall": null,
+        "agreement": 0.02
+      }
+    ]
+  },
+  "rtl_n256": {
+    "_provenance": "rtl_n256.py: build_net -> per-neuron don't-care PLAs -> Berkeley espresso -> SystemVerilog SOPs -> iverilog. Same simulator (iverilog 12) used for all N=16 results.",
+    "N": 256,
+    "M": 4,
+    "fan_in": 16,
+    "radius": 3,
+    "chi": 4,
+    "delay_value_conflicts": 0,
+    "total_terms": 12357,
+    "neurons": 256,
+    "espresso_seconds": 115,
+    "trials_per_hd": 60,
+    "rows": [
+      {
+        "hd": 0,
+        "rtl_settled": 1.0,
+        "rtl_recall": 1.0,
+        "sim_settled": 1.0,
+        "sim_recall": 1.0,
+        "rtl_matches_sim": 1.0
+      },
+      {
+        "hd": 1,
+        "rtl_settled": 1.0,
+        "rtl_recall": 1.0,
+        "sim_settled": 1.0,
+        "sim_recall": 1.0,
+        "rtl_matches_sim": 1.0
+      },
+      {
+        "hd": 3,
+        "rtl_settled": 1.0,
+        "rtl_recall": 1.0,
+        "sim_settled": 1.0,
+        "sim_recall": 1.0,
+        "rtl_matches_sim": 1.0
+      },
+      {
+        "hd": 5,
+        "rtl_settled": 1.0,
+        "rtl_recall": 1.0,
+        "sim_settled": 1.0,
+        "sim_recall": 1.0,
+        "rtl_matches_sim": 1.0
+      }
     ]
   }
 }

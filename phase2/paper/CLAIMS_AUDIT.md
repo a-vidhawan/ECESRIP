@@ -3,7 +3,7 @@
 _Companion to `audit_claims.py`, which recomputes every number below from its
 source file. Run it before any submission: `python3 audit_claims.py`._
 
-**Status: 9 verified, 1 revised, 2 retracted.**
+**Status: 10 verified, 1 revised, 2 retracted.**
 
 Two claims currently stated as fact in `clockless/STRESS_TEST_FINDINGS.md` are
 false, and one is misattributed. They were produced by earlier rounds and
@@ -21,15 +21,16 @@ though they do. Every claim is tagged with the strongest evidence supporting it.
 |---|---|---|
 | **T1 — RTL measured** | iverilog simulation of generated SystemVerilog | Everything at N=16: rounds 1–7, the 2×2 scheduling rule, oscillator sets |
 | **T2 — Tool measured** | Real Berkeley espresso runs | Don't-care term counts at fan-in 16/24/32; full-table term counts |
-| **T3 — Simulator** | Python schedule model, validated against T1 at N=16 only | All scaling results N ≥ 32; capacity scan |
+| **T3 — Simulator** | Python schedule model, validated against T1 at N=16 **and N=256** | Scaling results N > 256; capacity scan |
 | **T4 — Analytical estimate** | First-order gate-equivalent models | All area comparisons vs threshold gates |
 
-**The tier boundary that matters most: every scaling number above N=16 is T3.**
-The simulator reproduced the RTL's qualitative behaviour at N=16 in both
-directions (coloured 100% settled / 0 conflicts; degenerate 74% / 43 conflicts),
-but it models the delay schedule as periodic firing rather than event-driven NBA
-semantics. It has never been checked above N=16. Any claim of the form "this
-works at N=4096" is a simulator claim.
+**The tier boundary that matters most: N ≤ 256 is measured; above that is
+simulated.** The simulator models the delay schedule as periodic firing rather
+than event-driven NBA semantics, so it needed independent confirmation. It now
+has two anchor points: N=16 (qualitative, both directions) and **N=256, where
+the full flow — don't-care SOPs → SystemVerilog → iverilog — agrees with the
+simulator on 240/240 inputs**. Claims at N=256 and below are measured. A claim
+of the form "this works at N=4096" is still a simulator claim.
 
 ---
 
@@ -88,6 +89,7 @@ Source: `stress_add_ratio_sweep.csv` (ratio 1.0: 64.3% vs 97.6% elsewhere),
 | C2 | Index parity collides coupled neurons | T1 | 19/43 = 44.2%; hub neuron 14 collides with 6 of 11 neighbours |
 | C3 | Coupled neurons must differ in delay **value** — necessary and sufficient | T1 | colour+distinct 100% (18 schemes); both controls 0% |
 | C7 | The schedule scales; χ stays small | **T3** | χ = 6 at N = 4096; settling and recall 100% |
+| C13 | Full flow runs in RTL at N=256 and matches the simulator | **T1** | 240/240 inputs identical; 100% settled and recalled; 12,357 terms, χ=4 |
 | C8 | Don't-cares keep term count flat in fan-in | T2 | fan-in 32: 5–27 terms vs 4.3×10⁹ table rows |
 | C9 | Minimised network is behaviourally identical in-region | T2/T3 | 100% agreement HD≤5; 2% agreement off-region |
 | C10 | Recall is governed by α = M/N, not by the schedule | T3 | α=0.25 → 79%; α=0.125 → 100% |
@@ -101,9 +103,9 @@ Source: `stress_add_ratio_sweep.csv` (ratio 1.0: 64.3% vs 97.6% elsewhere),
 These are not errors; they are missing work. Listed in the order I would close
 them.
 
-1. **No RTL above N=16.** The headline scaling claim rests entirely on T3. One
-   end-to-end run at N=256 through generated SystemVerilog + iverilog would move
-   it to T1 and is the single highest-value experiment remaining.
+1. ~~**No RTL above N=16.**~~ **CLOSED.** `rtl_n256.py` runs the full flow at
+   N=256 under iverilog and matches the simulator on 240/240 inputs (C13). The
+   remaining exposure is N > 256, which is still T3.
 2. **No synthesis.** Every area and delay comparison is T4. Without at least a
    standard-cell or FPGA synthesis run, the LUT-vs-threshold comparison is an
    argument, not a measurement.
