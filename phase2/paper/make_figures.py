@@ -287,10 +287,43 @@ def fig6_capacity():
     save(fig, "fig6_capacity")
 
 
+# ── Fig 7: PVT robustness, and the rescue that confirms the mechanism ────────
+def fig7_pvt():
+    d = json.load(open(os.path.join(DATA, "dc_terms.json")))["pvt"]
+    r = d["rows"]
+    x = [100 * (np.exp(3 * row["sigma"]) - 1) for row in r]
+    cs = [100 * row["coloured_settled"] for row in r]
+    ds = [100 * row["degenerate_settled"] for row in r]
+
+    fig, ax = plt.subplots(figsize=(6.0, 3.4))
+    ax.plot(x, cs, "o-", color=GREEN, lw=2.4, ms=8,
+            label="graph-coloured schedule", zorder=4)
+    ax.plot(x, ds, "s--", color=VERM, lw=2.4, ms=8,
+            label="degenerate schedule (all delays equal)", zorder=4)
+    ax.annotate(f"{ds[0]:.0f}%", (x[0], ds[0]), textcoords="offset points",
+                xytext=(6, -14), fontsize=9, color=VERM, fontweight="bold")
+    ax.annotate("variation makes equal delays\ndistinct — the schedule is rescued",
+                xy=(x[1], ds[1]), xytext=(x[2] + 8, 78),
+                fontsize=7.5, color=MUTED,
+                arrowprops=dict(arrowstyle="->", color=MUTED, lw=1))
+    ax.set_ylim(55, 108)
+    ax.set_xscale("symlog", linthresh=20)
+    ax.set_xticks([0, 16, 35, 82, 146, 348])
+    ax.set_xticklabels(["0", "±16", "±35", "±82", "±146", "±348"])
+    ax.legend(frameon=False, fontsize=8, loc="lower right")
+    style(ax, "Delay variation does not break the schedule — it repairs a broken one",
+          "delay spread, 3σ (%)", "settled (%)")
+    fig.text(0.5, -0.06, "Real silicon variation helps. The hazard is delays made "
+             "equal BY CONSTRUCTION, which is what an identical-buffer-chain "
+             "implementation would give.",
+             ha="center", fontsize=7.5, color=MUTED)
+    save(fig, "fig7_pvt")
+
+
 if __name__ == "__main__":
     print("rendering figures...")
     for f in (fig1_coupling_graph, fig2_rule, fig3_scaling,
-              fig4_dontcare, fig5_two_levers, fig6_capacity):
+              fig4_dontcare, fig5_two_levers, fig6_capacity, fig7_pvt):
         try:
             f()
         except Exception as e:
