@@ -177,6 +177,43 @@ separate the scheduling lever from the loading lever.
 
 ---
 
+## 6a. Why a CAM crossover is unlikely — the argument to have ready
+
+The M-sweep will give an empirical answer, but the analytical one should be in
+the paper either way, because a referee will reach for it immediately.
+
+Storing M patterns of N bits requires at least **M·N bits of information**
+somewhere in the circuit. A nearest-match CAM stores them explicitly, so its area
+is Θ(M·N) — essentially the information-theoretic floor, plus a popcount and an
+argmin tree. The Hopfield network stores the same information implicitly, in
+weights or LUT terms, so its area is also Ω(M·N). It then pays *extra* for the
+machinery the CAM does not need: iterative dynamics, per-neuron scheduling, and
+a fan-in that must itself grow with M to keep the patterns as fixed points.
+
+**So the HNN cannot beat a CAM on raw storage area at any M.** The measured 2.5×
+gap at M=4 is not a small-M artifact that closes later; it is the constant factor
+of paying for dynamics on top of storage.
+
+That is not fatal to the project, but it does determine what may be claimed:
+
+- **Not claimable:** "a smaller associative memory."
+- **Claimable, if demonstrated:** advantages that do not reduce to storage —
+  graceful degradation under defects (measured: 10% LUT corruption costs ~10%
+  recall, where a corrupted CAM word is simply wrong), learned or online-updated
+  weights, correlated patterns whose weight matrix compresses below M·N, or
+  analogue/in-memory implementation where the adder tree and comparator are the
+  expensive parts rather than the LUT.
+- **Also claimable, and independent of all this:** the *synthesis* result (§3).
+  It stands whether or not anyone should build this memory, which is exactly why
+  Outline B is the safe submission.
+
+The honest one-line framing if the sweep finds no crossover: *"we do not claim a
+better associative memory; we show that the LUT implementation of one is far
+cheaper than the threshold-function bound suggests, and that clockless settling
+can be made convergent and PVT-robust by construction."*
+
+---
+
 ## 7. What would most improve the paper, in order
 
 1. ~~**One end-to-end RTL run at N=256.**~~ **DONE** — 240/240 inputs match the
