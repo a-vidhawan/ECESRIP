@@ -278,6 +278,31 @@ def c13():
           "confirmed against event-driven NBA semantics at N=256. N>256 remains T3.")
 
 
+# ─── C14: synthesised area -- replaces the T4 estimate, and corrects it ──────
+def c14():
+    p = os.path.join(HERE, "data", "dc_terms.json")
+    if not os.path.exists(p):
+        return claim("C14", "MISSING", "synthesis", "-", p)
+    s = json.load(open(p)).get("synthesis")
+    if not s:
+        return claim("C14", "MISSING", "synthesis", "-", p)
+    t4 = s["threshold"][0]
+    claim("C14", "REVISED",
+          "LUT vs threshold-gate area, measured by synthesis rather than estimated",
+          f"N={s['N']} fan-in {s['fan_in']}: LUT {s['lut_gates']:,} gates / "
+          f"{s['lut_luts6']:,} 6-LUTs; threshold (4-bit weights, all patterns "
+          f"kept) {t4['gates']:,} gates / {t4['luts6']:,} 6-LUTs. "
+          f"ASIC proxy: {s['verdict_asic']}. FPGA proxy: {s['verdict_fpga']}.",
+          "synth_compare.py (yosys 0.33)",
+          "CORRECTS the earlier T4 estimate, which claimed the LUT was 2.4-2.8x "
+          "smaller at fan-in 16. Measured: 1.52x smaller on the ASIC proxy, and "
+          "1.19x LARGER on the FPGA proxy. Two causes: 4-bit weights suffice "
+          "(the estimate assumed 8), and 6-LUT packing favours the adder tree. "
+          "The area argument is therefore weak and target-dependent -- the "
+          "defensible LUT advantages are latency, absence of a clock, and no "
+          "weight quantisation, NOT area.")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--json", default=None)
@@ -286,7 +311,7 @@ def main():
     print("CLAIMS AUDIT -- every headline number recomputed from source")
     print("=" * 78)
     print()
-    for fn in (c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13):
+    for fn in (c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14):
         try:
             fn()
         except Exception as e:

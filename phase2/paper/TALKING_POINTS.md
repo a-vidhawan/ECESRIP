@@ -104,9 +104,12 @@ different here:
 
 ## 5. Cons — what we must concede first, before a referee says it
 
-- **No silicon, no synthesis, no corner analysis.** Every area number is a
-  first-order estimate. For a *clockless* design the missing PVT analysis is the
-  most serious gap: the entire approach rests on delay relationships holding
+- **Area is a weak argument, and we now know it.** Synthesis (yosys, N=64)
+  gives LUT 1.52× smaller on an ASIC proxy but 1.19× *larger* on an FPGA proxy.
+  The estimate that said 2.4–2.8× smaller was wrong. Lead with latency and
+  clocklessness instead.
+- **No silicon and no corner analysis.** For a *clockless* design the missing
+  PVT analysis is the most serious gap: the entire approach rests on delay relationships holding
   across corners. (Mitigating argument: the rule requires only that coupled
   delays *differ*, and ordering is far more robust than absolute values. This is
   an argument, not evidence.)
@@ -137,10 +140,16 @@ The claim is scoped to the operating region and the region is a stated design
 parameter (h), not an accident.
 
 **"Threshold gates are smaller, simpler, and well understood. Why LUTs?"**
-With don't-cares they are not smaller — 2.8×/4.7×/9.2× larger at fan-in
-16/24/32 on our estimates. Plus no weight quantisation and single-level latency.
-But this must be defended with synthesis numbers, which we do not yet have. **Do
-not put the area claim in the abstract until it is synthesised.**
+**Answer revised after synthesis — do not use the old estimate.** Measured with
+yosys on the same N=64 network: LUT 7,020 gates vs threshold 10,659 (LUT 1.52×
+smaller on a generic standard-cell mapping), but 1,728 vs 1,458 6-LUTs — the
+**LUT design is 1.19× LARGER on an FPGA target**. The earlier T4 estimate
+(2.4–2.8× smaller) was wrong on two counts: 4-bit weights preserve all patterns
+where the estimate assumed 8, and 6-LUT packing suits the adder tree.
+
+So **do not lead with area.** It is a modest, target-dependent win at best. The
+defensible LUT advantages are single-level latency, no clock tree, no weight
+quantisation, and graceful degradation under corruption.
 
 **"Why is this a Hopfield network rather than a hash table / CAM?"**
 A fair and dangerous question at M=4, N=16. The answer must be the graceful
@@ -156,10 +165,10 @@ separate the scheduling lever from the loading lever.
 
 ## 7. What would most improve the paper, in order
 
-1. **One end-to-end RTL run at N=256.** Moves the central scaling claim from T3
-   to T1. Highest value per unit effort by a wide margin.
-2. **Synthesis numbers** (even Yosys + a free PDK, or FPGA LUT counts). Converts
-   the entire architecture comparison from argument to measurement.
+1. ~~**One end-to-end RTL run at N=256.**~~ **DONE** — 240/240 inputs match the
+   simulator (C13). The scaling claim is measured at N≤256.
+2. ~~**Synthesis numbers.**~~ **DONE** — and it corrected us: see C14. Next step
+   is a real PDK with timing, to get delay as well as area.
 3. **A baseline.** CAM, or a conventional clocked threshold-gate HNN, built and
    measured the same way. Without one, every comparison is against a model.
 4. **Sweep the care radius h.** It is the design knob; we have one value.

@@ -185,5 +185,38 @@
         "rtl_matches_sim": 1.0
       }
     ]
+  },
+  "synthesis": {
+    "_provenance": "synth_compare.py: yosys 0.33, technology-independent mapping. ASIC proxy = abc -g simple (generic standard-cell gate set); FPGA proxy = abc -lut 6. Both designs implement the SAME network (N=64, M=4, fan-in 16, radius 3).",
+    "_caveat": "Weight width swept; 4 bits is the narrowest that keeps all 4 patterns as fixed points, so it is the fair comparison point. The earlier T4 estimate assumed 8-bit weights, which was pessimistic toward the threshold design.",
+    "N": 64,
+    "M": 4,
+    "fan_in": 16,
+    "radius": 3,
+    "lut_terms": 3245,
+    "lut_gates": 7020,
+    "lut_luts6": 1728,
+    "threshold": [
+      {
+        "bits": 4,
+        "patterns_kept": 4,
+        "gates": 10659,
+        "luts6": 1458
+      },
+      {
+        "bits": 6,
+        "patterns_kept": 4,
+        "gates": 21351,
+        "luts6": 3502
+      },
+      {
+        "bits": 8,
+        "patterns_kept": 4,
+        "gates": 30464,
+        "luts6": 5136
+      }
+    ],
+    "verdict_asic": "LUT 1.52x smaller",
+    "verdict_fpga": "LUT 1.19x LARGER"
   }
 }

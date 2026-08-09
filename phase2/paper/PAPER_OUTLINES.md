@@ -45,18 +45,18 @@ clockless settling can be made convergent by construction.
 7. **Scaling and limits** — χ vs N; the α ceiling on recall. *Fig. 3, Fig. 5,
    Fig. 6, Table 3, Table 7.* [T1 at N≤256 via the end-to-end RTL run; T3 above]
 8. **Comparison** — vs threshold-gate HNN across area, latency, clocking,
-   quantisation, fault tolerance. [T4 — **weakest section**]
+   quantisation, fault tolerance. Area is now synthesised [T2]: 1.52× smaller
+   (ASIC proxy) but 1.19× larger (FPGA proxy). **Do not lead with area** — lead
+   with latency and the absence of a clock tree.
 9. **Limitations** — no silicon, no PVT, N=16 RTL ceiling, off-region behaviour.
 10. **Conclusion.**
 
 ### Risk
-Section 8 is the whole selling point and is still T4 estimates. **Do not submit
-this without synthesis numbers.** A referee asked to believe an architecture
-comparison built from hand-rolled gate-equivalent models will not.
-
-The scaling section is no longer a weakness: the full flow is measured in RTL at
-N=256 (Table 7), including agreement with the simulator on 240/240 inputs. That
-leaves synthesis as the single blocking gap for this outline.
+Both original blockers are closed: scaling is measured in RTL at N=256 (Table 7)
+and area is synthesised (C14). But synthesis **weakened** the story rather than
+confirming it — the LUT is larger on an FPGA target. This outline now needs an
+honest reframing around latency and clocklessness, with area reported as a wash.
+A version that still claims an area win will not survive review.
 
 ---
 
