@@ -200,6 +200,10 @@ from one design parameter. The CAM is unaffected by h.
 | 8 | **6/8** | 0.93× (parity) | 0.72× |
 | 16 | **0/16** | 1.80× (HNN larger) | 1.59× |
 
+_(M=24 was started and stopped: M=16 already stores nothing and loses on area, the
+trend is monotone, and the mechanism is understood. Three points, not four —
+say so rather than implying a fuller sweep.)_
+
 The area columns are almost beside the point: **the HNN fails on storage before
 it fails on area.** Storing M patterns requires fan-in ≈ 6M, and area grows with
 both fan-in and the care set, so capacity cannot be bought without paying area.

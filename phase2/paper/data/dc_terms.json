@@ -348,6 +348,7 @@
       "h3_gates": 7020,
       "note": "Same network, same CAM (2,858 gates). h=2: HNN 2.1x smaller. h=3: HNN 2.5x larger. The care radius swings area ~5.3x and flips the verdict."
     },
-    "verdict": "The LUT Hopfield beats a nearest-match CAM only in a narrow corner: small M and small guaranteed radius. It fails on STORAGE before it fails on area -- 6/8 patterns at M=8, 0/16 at M=16."
+    "verdict": "The LUT Hopfield beats a nearest-match CAM only in a narrow corner: small M and small guaranteed radius. It fails on STORAGE before it fails on area -- 6/8 patterns at M=8, 0/16 at M=16.",
+    "_incomplete": "M=24 was started but stopped after ~30 min rather than run to completion: M=16 already stores 0/16 patterns and is 1.80x larger, the trend is monotone, and the mechanism (fan-in must grow ~6M to keep patterns as fixed points) is understood, so the row could not change the conclusion. Reported as three points, not four."
   }
 }
