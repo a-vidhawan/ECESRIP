@@ -1,0 +1,55 @@
+{
+  "_provenance": "Measured with gen_dc_pla.py driving Berkeley espresso (classabbyamp/espresso-logic build). Networks: regular d-regular support + retrain_pseudoinverse_masked, M=4 patterns, care radius h=3. Full-table columns only exist where 2^d enumeration is feasible.",
+  "_note": "fan-in 48 was attempted and timed out in espresso at 30 min; the limit is minimiser runtime, not term count.",
+  "runs": [
+    {
+      "fan_in": 16,
+      "N": 256,
+      "M": 4,
+      "radius": 3,
+      "full_table_rows": 65536,
+      "care_rows": 2768,
+      "dc_terms": [31, 54, 46, 44, 35, 31],
+      "full_terms": [2918, 1048, 999, 627, 1484, 1235],
+      "dc_seconds": [0.26, 0.47, 0.51, 0.19, 0.44, 0.39],
+      "full_seconds": [40.23, 41.32, 35.36, 0.42, 59.0, 37.21]
+    },
+    {
+      "fan_in": 24,
+      "N": 512,
+      "M": 4,
+      "radius": 3,
+      "full_table_rows": 16777216,
+      "care_rows": 9300,
+      "dc_terms": [12, 58, 20, 48, 10, 16],
+      "full_terms": null,
+      "dc_seconds": [10.33, 9.3, 16.8, 14.6, 10.1, 7.58],
+      "full_seconds": null
+    },
+    {
+      "fan_in": 32,
+      "N": 1024,
+      "M": 4,
+      "radius": 3,
+      "full_table_rows": 4294967296,
+      "care_rows": 21956,
+      "dc_terms": [8, 5, 27, 18],
+      "full_terms": null,
+      "dc_seconds": [101.42, 79.91, 93.83, 94.88],
+      "full_seconds": null
+    }
+  ],
+  "verification": {
+    "_provenance": "verify_dc_recall.py, N=256 fan-in 16 radius 3, 40 trials per row, exact threshold network vs network rebuilt from the espresso SOPs, both under the same graph-coloured schedule.",
+    "total_sop_terms": 12357,
+    "neurons": 256,
+    "chi": 4,
+    "rows": [
+      {"test": "HD=0", "exact_settled": 1.0, "exact_recall": 1.0, "sop_settled": 1.0, "sop_recall": 1.0, "agreement": 1.0},
+      {"test": "HD=1", "exact_settled": 1.0, "exact_recall": 1.0, "sop_settled": 1.0, "sop_recall": 1.0, "agreement": 1.0},
+      {"test": "HD=3", "exact_settled": 1.0, "exact_recall": 1.0, "sop_settled": 1.0, "sop_recall": 1.0, "agreement": 1.0},
+      {"test": "HD=5", "exact_settled": 1.0, "exact_recall": 1.0, "sop_settled": 1.0, "sop_recall": 1.0, "agreement": 1.0},
+      {"test": "random", "exact_settled": 1.0, "exact_recall": null, "sop_settled": 0.98, "sop_recall": null, "agreement": 0.02}
+    ]
+  }
+}

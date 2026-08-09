@@ -1,0 +1,98 @@
+[
+  {
+    "id": "C1",
+    "status": "VERIFIED",
+    "claim": "Under SYNCHRONOUS updates most of the state space cycles",
+    "value": "39,436/65,536 = 60.2% cycle; 6,260 = 9.55% reach a stored pattern",
+    "source": "stress_r4_state_map.csv (exhaustive 2^16)",
+    "note": ""
+  },
+  {
+    "id": "C2",
+    "status": "VERIFIED",
+    "claim": "even_odd (index parity) leaves coupled neurons updating together",
+    "value": "19/43 = 44.2% of coupled pairs share a delay; hub neuron 14 (degree 11) collides with 6 of its neighbours",
+    "source": "coupling_graph.json",
+    "note": ""
+  },
+  {
+    "id": "C3",
+    "status": "VERIFIED",
+    "claim": "Coupled neurons must differ in DELAY VALUE -- necessary and sufficient",
+    "value": "colour+commens: 100% settled (3 schemes); colour+incommens: 100% settled (15 schemes); colour+nosep: 0% settled (1 schemes); parity+incommens: 0% settled (1 schemes); across 12 prime permutations sd=0.00",
+    "source": "stress_r7_permutation.csv",
+    "note": "colour+distinct settles 100% whether or not delays are commensurate; both controls (identical delays / no colouring) settle 0%"
+  },
+  {
+    "id": "C4",
+    "status": "REVISED",
+    "claim": "The 'T_ODD/T_EVEN symmetry crisis' is the value-collision rule, not a distinct timing phenomenon",
+    "value": "ratio=1.0: 64.3% settled vs 97.6% mean elsewhere",
+    "source": "stress_add_ratio_sweep.csv",
+    "note": "ORIGINAL claim was 'avoid integer ratios'. ratio=1.0 means T_ODD==T_EVEN, i.e. ALL neurons share one delay value -- exactly the all_equal control in C3, which settles 0% on hard states. Round 7 shows commensurate delays settle fine (100% on uosc) as long as values DIFFER, so the integer-ratio framing is wrong; only equality matters."
+  },
+  {
+    "id": "C5",
+    "status": "RETRACTED",
+    "claim": "'32 states never converge under any configuration'",
+    "value": "colour6: 100%; dist2: 100%; distinct: 100%; parity: 0%",
+    "source": "stress_r6_scheduling.csv",
+    "note": "ORIGINAL claim (finding #4) said these were universal oscillators that no schedule settles. FALSE: every graph-coloured schedule settles all 32 of them. They were artifacts of parity collisions, not intrinsic limit cycles."
+  },
+  {
+    "id": "C6",
+    "status": "RETRACTED",
+    "claim": "'noise' delay mode is a third independent schedule",
+    "value": "depth delays == noise delays: True (['3', '3', '5', '5', '4', '3', '5', '8', '3', '4', '3', '6', '6', '3', '10', '3'])",
+    "source": "phase2/rtl/clockless_{depth,noise}.sv",
+    "note": "round(d + U(-0.5,0.5)) almost always returns d, so the canonical noise config emits the depth schedule verbatim. Every 'noise' row in rounds 1-5 duplicates depth. Noise sweeps at scale>=2.0 ARE genuine."
+  },
+  {
+    "id": "C7",
+    "status": "VERIFIED",
+    "claim": "The schedule scales: chi stays ~6 and settling stays 100% as N grows",
+    "value": "N=1024: chi=5, settled 100%, recall 100%; N=2048: chi=6, settled 100%, recall 100%; N=4096: chi=6, settled 100%, recall 100%",
+    "source": "scale_final.json (M=4, fan-in 24, regular support + retrain)",
+    "note": "Python schedule simulator, validated against SV at N=16. NOT RTL-verified above N=16 -- state this limitation in the paper."
+  },
+  {
+    "id": "C8",
+    "status": "VERIFIED",
+    "claim": "Don't-care minimisation keeps LUT term count flat as fan-in grows",
+    "value": "fan-in 16: 31-54 terms (vs ~1,000-2,900 fully specified, 34.5x); fan-in 24: 10-58 terms (full table 16.7M rows, infeasible); fan-in 32: 5-27 terms",
+    "source": "gen_dc_pla.py + espresso (run log)",
+    "note": "care set = M*sum_{j<=h} C(d,j), polynomial in fan-in. REVERSES the earlier 'LUT area crossover at fan-in 9' estimate, which applied the C(d,d/2) bound to fully-specified tables."
+  },
+  {
+    "id": "C9",
+    "status": "VERIFIED",
+    "claim": "The minimised network is behaviourally identical inside the operating region, and differs outside it",
+    "value": "N=256 fan-in 16: HD=0/1/3/5 -> 100% settled, 100% recall, 100% agreement with the exact network; uniform random -> 98% settled, 2% agreement",
+    "source": "verify_dc_recall.py",
+    "note": "The 2% off-region agreement is the real cost of the method and must be reported, not buried: behaviour on far-from-pattern inputs is unspecified."
+  },
+  {
+    "id": "C10",
+    "status": "VERIFIED",
+    "claim": "Recall is governed by loading alpha=M/N, not by the schedule",
+    "value": "N=16 (alpha=0.250): 79%; N=24 (alpha=0.167): 99%; N=32 (alpha=0.125): 100%; N=48 (alpha=0.083): 100%; N=64 (alpha=0.062): 100%",
+    "source": "capacity_scan.json",
+    "note": "Idealised random-async on UNPRUNED pseudoinverse nets. The alpha trend transfers; absolute numbers do not (the network under test is pruned). Corroborated independently by the pruned pipeline: N=256 fan-in 16 (alpha=0.016) reaches 100% recall."
+  },
+  {
+    "id": "C11",
+    "status": "VERIFIED",
+    "claim": "Once scheduled, failures are spurious attractors rather than oscillation",
+    "value": "spurious: 75.8%; correct: 17.3%; wrong_pattern: 5.1%; oscillated: 1.7%",
+    "source": "stress_r6_scheduling.csv (colour6, random states)",
+    "note": "This is what separates the two levers: scheduling fixes settling, loading fixes correctness."
+  },
+  {
+    "id": "C12",
+    "status": "VERIFIED",
+    "claim": "On fully-specified tables espresso tracks the C(d,d/2) threshold bound",
+    "value": "5/16 neurons hit the bound exactly (e.g. neuron 7: 9 inputs, 126 terms = C(9,4)); neuron 14: 11 inputs, 386 vs 462",
+    "source": "phase2/pla_min/pseudo_maxprune/*.pla",
+    "note": "This is why FULLY-SPECIFIED LUTs blow up -- and why don't-cares (C8) are the whole story."
+  }
+]
