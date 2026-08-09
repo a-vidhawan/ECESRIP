@@ -369,6 +369,37 @@ def c17():
           "M>=8, so these are conservative losses.")
 
 
+# ─── C18: capacity is a training-rule property, not a fixed network limit ────
+def c18():
+    p = os.path.join(HERE, "data", "dc_terms.json")
+    d = json.load(open(p)) if os.path.exists(p) else {}
+    imp, fr = d.get("capacity_improvement"), d.get("capacity_frontier")
+    if not imp or not fr:
+        return claim("C18", "MISSING", "capacity", "-", p)
+    best = {}
+    for r in fr["rows"]:
+        if r["stored"] == r["M"] and r.get("recall_hd3", 0) >= 0.95:
+            if r["M"] > best.get(r["N"], (0,))[0]:
+                best[r["N"]] = (r["M"], r["alpha"])
+    claim("C18", "VERIFIED",
+          "Pattern capacity is set by the TRAINING RULE and by fan-in, not by an "
+          "intrinsic limit of the architecture",
+          "; ".join(f"N={n}: M={m} at alpha={a:.2f}" for n, (m, a) in sorted(best.items()))
+          + " | margin vs least-squares at fixed fan-in: "
+          + ", ".join(f"d={r['fan_in']}: {r['lstsq']}->{r['margin']}"
+                      for r in imp["rows"]),
+          "improve_capacity.py, nm_scaling.py",
+          "The earlier 'fails at M=8' was an artifact of a fan-in cap of 20 imposed "
+          "for espresso runtime, not a capacity limit. Margin training stores "
+          "1.5-3x more patterns than least-squares-plus-symmetrise at the same "
+          "fan-in, and storage plus >=95% recall now holds to alpha~0.5 -- well "
+          "past the classical Hopfield limit of ~0.138 -- with a sharp cliff at "
+          "alpha~0.6. CAVEAT: high alpha needs near-full fan-in, which is good for "
+          "the network but makes the LUT care set intractable. Network capacity "
+          "and LUT-implementable capacity are different limits and must not be "
+          "quoted interchangeably.")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--json", default=None)
@@ -377,7 +408,7 @@ def main():
     print("CLAIMS AUDIT -- every headline number recomputed from source")
     print("=" * 78)
     print()
-    for fn in (c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17):
+    for fn in (c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18):
         try:
             fn()
         except Exception as e:

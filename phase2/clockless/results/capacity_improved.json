@@ -1,0 +1,32 @@
+[
+  {
+    "fan_in": 8,
+    "m_lstsq": 2,
+    "m_margin": 2,
+    "recall": 1.0
+  },
+  {
+    "fan_in": 12,
+    "m_lstsq": 2,
+    "m_margin": 6,
+    "recall": 0.43333333333333335
+  },
+  {
+    "fan_in": 16,
+    "m_lstsq": 4,
+    "m_margin": 8,
+    "recall": 0.4666666666666667
+  },
+  {
+    "fan_in": 24,
+    "m_lstsq": 6,
+    "m_margin": 12,
+    "recall": 0.5666666666666667
+  },
+  {
+    "fan_in": 32,
+    "m_lstsq": 8,
+    "m_margin": 12,
+    "recall": 0.9666666666666667
+  }
+]

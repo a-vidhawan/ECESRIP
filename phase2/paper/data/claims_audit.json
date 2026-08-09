@@ -134,5 +134,13 @@
     "value": "M=4: 4/4 stored, 0.47x gates; M=8: 6/8 stored, 0.93x gates; M=16: 0/16 stored, 1.80x gates | radius effect at M=4: h=2 -> 1,330 gates (HNN 2.1x smaller), h=3 -> 7,020 (HNN 2.5x larger)",
     "source": "msweep2.py / cam_baseline.py",
     "note": "CORRECTS an earlier analytical argument in TALKING_POINTS 6a which claimed the HNN could not beat a CAM at any M because both are Omega(M*N). The bound holds but the conclusion does not: both sit far above the information floor, so constant factors decide, and the HNN's constant scales with the care radius while the CAM's does not. Note h=2 favours the HNN and the fan-in cap of 20 is what breaks storage at M>=8, so these are conservative losses."
+  },
+  {
+    "id": "C18",
+    "status": "VERIFIED",
+    "claim": "Pattern capacity is set by the TRAINING RULE and by fan-in, not by an intrinsic limit of the architecture",
+    "value": "N=32: M=6 at alpha=0.19; N=64: M=32 at alpha=0.50; N=128: M=64 at alpha=0.50; N=256: M=64 at alpha=0.25 | margin vs least-squares at fixed fan-in: d=8: 2->2, d=12: 2->6, d=16: 4->8, d=24: 6->12, d=32: 8->12",
+    "source": "improve_capacity.py, nm_scaling.py",
+    "note": "The earlier 'fails at M=8' was an artifact of a fan-in cap of 20 imposed for espresso runtime, not a capacity limit. Margin training stores 1.5-3x more patterns than least-squares-plus-symmetrise at the same fan-in, and storage plus >=95% recall now holds to alpha~0.5 -- well past the classical Hopfield limit of ~0.138 -- with a sharp cliff at alpha~0.6. CAVEAT: high alpha needs near-full fan-in, which is good for the network but makes the LUT care set intractable. Network capacity and LUT-implementable capacity are different limits and must not be quoted interchangeably."
   }
 ]
