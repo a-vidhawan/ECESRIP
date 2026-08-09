@@ -113,8 +113,10 @@ different here:
   across corners. (Mitigating argument: the rule requires only that coupled
   delays *differ*, and ordering is far more robust than absolute values. This is
   an argument, not evidence.)
-- **Nothing above N=16 is RTL-verified.** The N=4096 headline is a Python
-  simulator validated only at N=16.
+- **RTL verification stops at N=256.** The full flow is measured there and
+  matches the simulator on 240/240 inputs, but the N=4096 headline is still a
+  Python simulator result. Quote N=256 as measured and N=4096 as projected —
+  never blur them.
 - **Don't-cares buy area with unspecified behaviour.** Off the care set the
   minimised network agrees with the exact one **2%** of the time. For associative
   recall that is fine. For anything adversarial, or any system that can present
