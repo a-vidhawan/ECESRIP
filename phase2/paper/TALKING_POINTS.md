@@ -108,11 +108,14 @@ different here:
   gives LUT 1.52× smaller on an ASIC proxy but 1.19× *larger* on an FPGA proxy.
   The estimate that said 2.4–2.8× smaller was wrong. Lead with latency and
   clocklessness instead.
-- **No silicon and no corner analysis.** For a *clockless* design the missing
-  PVT analysis is the most serious gap: the entire approach rests on delay relationships holding
-  across corners. (Mitigating argument: the rule requires only that coupled
-  delays *differ*, and ordering is far more robust than absolute values. This is
-  an argument, not evidence.)
+- ~~**No corner analysis.**~~ **CLOSED, and favourably.** Under lognormal delay
+  variation the coloured schedule holds 100% settling out to ±348% spread (3σ),
+  and variation *rescues* the degenerate schedule from 67% to 100% — because
+  continuous variation makes equal delays distinct with probability 1. Real
+  silicon variation helps; the hazard is delays made equal *by construction*.
+- **No silicon.** Still no tape-out and no real PDK timing.
+- **The CAM baseline beats us at M=4** (see §6). This is the most serious
+  finding in the project and it must lead the limitations section.
 - **RTL verification stops at N=256.** The full flow is measured there and
   matches the simulator on 240/240 inputs, but the N=4096 headline is still a
   Python simulator result. Quote N=256 as measured and N=4096 as projected —
@@ -153,11 +156,20 @@ So **do not lead with area.** It is a modest, target-dependent win at best. The
 defensible LUT advantages are single-level latency, no clock tree, no weight
 quantisation, and graceful degradation under corruption.
 
-**"Why is this a Hopfield network rather than a hash table / CAM?"**
-A fair and dangerous question at M=4, N=16. The answer must be the graceful
-degradation and Hamming-ball completion that a CAM does not give — and it should
-be demonstrated against a CAM baseline, which we do not currently have. **This
-is the most under-defended part of the whole project.**
+**"Why is this a Hopfield network rather than a CAM?"**
+**We built the baseline and we lose.** A nearest-match CAM (XOR, popcount,
+argmin — not a strawman exact-match CAM) at N=64, M=4: **2,858 gates / 794
+6-LUTs versus the HNN's 7,020 / 1,728.** The CAM is 2.5× smaller *and*
+recovers the correct pattern 100% of the time at HD=1 through 16, where the HNN
+manages ~57%. At this loading the CAM strictly dominates on both axes.
+
+There is no rebuttal at M=4. The honest position is to **state this in the paper
+ourselves** and scope the claim: the case for an HNN has to rest on regimes the
+baseline does not cover — large M (CAM area is O(M·N) and grows without bound in
+the number of patterns), learned or updatable weights, or analogue
+implementation. If the M-sweep finds no crossover, the honest conclusion is that
+this architecture is a vehicle for the *synthesis* contribution, not a
+recommended memory.
 
 **"α = 0.25 is above the classical capacity limit; of course it fails."**
 Agreed — and that is our finding, not our oversight. It is exactly why we
@@ -171,10 +183,11 @@ separate the scheduling lever from the loading lever.
    simulator (C13). The scaling claim is measured at N≤256.
 2. ~~**Synthesis numbers.**~~ **DONE** — and it corrected us: see C14. Next step
    is a real PDK with timing, to get delay as well as area.
-3. **A baseline.** CAM, or a conventional clocked threshold-gate HNN, built and
-   measured the same way. Without one, every comparison is against a model.
+3. ~~**A baseline.**~~ **DONE, and it is bad news** — the CAM wins at M=4 (C16).
+   The open question is now whether an M-sweep finds any crossover. That single
+   experiment decides whether this is an architecture paper or a synthesis paper.
 4. **Sweep the care radius h.** It is the design knob; we have one value.
-5. **Corner/Monte-Carlo analysis on delay ratios.** Directly addresses the
-   biggest structural objection to clockless.
+5. ~~**Corner analysis.**~~ **DONE** (C15) — and it strengthens Outline C enough
+   to make it viable on its own.
 6. **Structured patterns** (correlated, not random bipolar) to show basin
    geometry results are not an artifact of orthogonality.

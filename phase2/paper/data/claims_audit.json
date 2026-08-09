@@ -110,5 +110,21 @@
     "value": "N=64 fan-in 16: LUT 7,020 gates / 1,728 6-LUTs; threshold (4-bit weights, all patterns kept) 10,659 gates / 1,458 6-LUTs. ASIC proxy: LUT 1.52x smaller. FPGA proxy: LUT 1.19x LARGER.",
     "source": "synth_compare.py (yosys 0.33)",
     "note": "CORRECTS the earlier T4 estimate, which claimed the LUT was 2.4-2.8x smaller at fan-in 16. Measured: 1.52x smaller on the ASIC proxy, and 1.19x LARGER on the FPGA proxy. Two causes: 4-bit weights suffice (the estimate assumed 8), and 6-LUT packing favours the adder tree. The area argument is therefore weak and target-dependent -- the defensible LUT advantages are latency, absence of a clock, and no weight quantisation, NOT area."
+  },
+  {
+    "id": "C15",
+    "status": "VERIFIED",
+    "claim": "The coloured schedule is robust to delay variation, and variation RESCUES the degenerate schedule",
+    "value": "coloured: 100% settled at every spread from 0 to +/-348% (3 sigma); degenerate: 67% at zero variation, 100% at every nonzero spread",
+    "source": "pvt_analysis.py",
+    "note": "Answers the central objection to clockless design. Also confirms the mechanism from an independent direction: continuous variation makes equal delays distinct with probability 1, and that alone repairs the failing schedule. Practical corollary -- real silicon variation HELPS; the hazard is delays made equal BY CONSTRUCTION, which is exactly what a naive identical-buffer-chain implementation would produce."
+  },
+  {
+    "id": "C16",
+    "status": "VERIFIED",
+    "claim": "At M=4 a nearest-match CAM beats the LUT Hopfield on BOTH area and function",
+    "value": "N=64 M=4: HNN 7,020 gates / 1,728 6-LUTs vs CAM 2,858 / 794 -- CAM 2.5x smaller (ASIC), 2.2x (FPGA); CAM recall 100% at HD=1..16",
+    "source": "cam_baseline.py",
+    "note": "NEGATIVE RESULT and the most consequential one in the project. The obvious substitute is smaller AND functionally better at this loading. Any case for the HNN must therefore rest on regimes this does not cover -- large M, learned or updatable weights, analogue implementation -- and NOT on associative recall at small M. Report it prominently; a referee will construct this baseline in thirty seconds."
   }
 ]

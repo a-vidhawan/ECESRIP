@@ -218,5 +218,82 @@
     ],
     "verdict_asic": "LUT 1.52x smaller",
     "verdict_fpga": "LUT 1.19x LARGER"
+  },
+  "pvt": {
+    "_provenance": "pvt_analysis.py, event-driven inertial-delay model with real-valued delays. Validated against the RTL on the N=16 HD<=3 set: all_equal 63.6% (RTL 63.6%), parity 99.7% (RTL 99.6%), pow2 100% (RTL 100%).",
+    "network": "max-prune N=16 (the network where the degenerate schedule demonstrably fails)",
+    "trials_per_point": 120,
+    "hd": 3,
+    "rows": [
+      {
+        "sigma": 0.0,
+        "spread_3sigma_pct": 0,
+        "coloured_settled": 1.0,
+        "coloured_recall": 0.57,
+        "degenerate_settled": 0.67,
+        "degenerate_recall": 0.48
+      },
+      {
+        "sigma": 0.05,
+        "spread_3sigma_pct": 16,
+        "coloured_settled": 1.0,
+        "coloured_recall": 0.62,
+        "degenerate_settled": 1.0,
+        "degenerate_recall": 0.6
+      },
+      {
+        "sigma": 0.1,
+        "spread_3sigma_pct": 35,
+        "coloured_settled": 1.0,
+        "coloured_recall": 0.61,
+        "degenerate_settled": 1.0,
+        "degenerate_recall": 0.6
+      },
+      {
+        "sigma": 0.2,
+        "spread_3sigma_pct": 82,
+        "coloured_settled": 1.0,
+        "coloured_recall": 0.62,
+        "degenerate_settled": 1.0,
+        "degenerate_recall": 0.59
+      },
+      {
+        "sigma": 0.3,
+        "spread_3sigma_pct": 146,
+        "coloured_settled": 1.0,
+        "coloured_recall": 0.6,
+        "degenerate_settled": 1.0,
+        "degenerate_recall": 0.58
+      },
+      {
+        "sigma": 0.5,
+        "spread_3sigma_pct": 348,
+        "coloured_settled": 1.0,
+        "coloured_recall": 0.61,
+        "degenerate_settled": 1.0,
+        "degenerate_recall": 0.57
+      }
+    ]
+  },
+  "cam_baseline": {
+    "_provenance": "cam_baseline.py, yosys 0.33, identical settings to the HNN synthesis. Target is a NEAREST-match CAM (XOR, popcount, argmin), not exact-match, so it can complete corrupted inputs and is a fair functional substitute.",
+    "N": 64,
+    "M": 4,
+    "fan_in": 16,
+    "radius": 3,
+    "hnn_gates": 7020,
+    "hnn_luts6": 1728,
+    "cam_gates": 2858,
+    "cam_luts6": 794,
+    "cam_smaller_asic": 2.5,
+    "cam_smaller_fpga": 2.2,
+    "cam_recall_by_hd": {
+      "1": 1.0,
+      "3": 1.0,
+      "5": 1.0,
+      "8": 1.0,
+      "16": 1.0
+    },
+    "verdict": "At M=4 the CAM strictly dominates: 2.5x smaller and 100% recall at every Hamming distance tested, where the HNN reaches ~57% at HD=3 on random states."
   }
 }

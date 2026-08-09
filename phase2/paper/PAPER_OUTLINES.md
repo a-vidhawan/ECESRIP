@@ -3,10 +3,14 @@
 Three genuinely different theses, not one paper aimed at three venues. Each
 lists what it claims, what evidence it stands on, and what would sink it.
 
-**Recommendation up front: Outline B is the most likely to be accepted; Outline A
-is the best paper if we can get synthesis numbers; Outline C should only be
-attempted as a workshop paper.** _Updated: the N=256 end-to-end RTL run (C13)
-closes A's second-biggest gap — only synthesis remains._ Reasoning at the end.
+**Recommendation up front: Outline B is the most likely to be accepted; Outline C
+is now viable on its own; Outline A is in trouble.**
+
+_Updated twice. The N=256 RTL run (C13) and synthesis (C14) closed A's two
+blockers — but synthesis showed the area win is marginal, and then the **CAM
+baseline (C16) beat the HNN on both area and function at M=4**. Meanwhile the
+PVT analysis (C15) closed the one gap that made C unpublishable. The ranking has
+moved._ Reasoning at the end.
 
 Evidence tiers (T1 RTL / T2 tool-measured / T3 simulator / T4 estimate) are from
 `CLAIMS_AUDIT.md`. A claim's tier determines how strongly it may be worded.
@@ -51,12 +55,16 @@ clockless settling can be made convergent by construction.
 9. **Limitations** — no silicon, no PVT, N=16 RTL ceiling, off-region behaviour.
 10. **Conclusion.**
 
-### Risk
-Both original blockers are closed: scaling is measured in RTL at N=256 (Table 7)
-and area is synthesised (C14). But synthesis **weakened** the story rather than
-confirming it — the LUT is larger on an FPGA target. This outline now needs an
-honest reframing around latency and clocklessness, with area reported as a wash.
-A version that still claims an area win will not survive review.
+### Risk — now the weakest of the three
+Both original blockers closed, but the evidence went the wrong way. Synthesis
+made the area win marginal and target-dependent (C14), and the CAM baseline
+(C16) is **2.5× smaller and functionally better at M=4**. A paper claiming a
+practical LUT associative memory has to answer "why not a CAM?", and right now
+the answer is "you should use the CAM."
+
+**Do not attempt this outline unless the M-sweep finds a crossover.** If it does,
+the paper becomes "LUT Hopfield beats CAM above M=X" and is strong. If it does
+not, fold the useful parts into B and drop the architecture claim.
 
 ---
 
@@ -153,12 +161,19 @@ workshop. **Not** a theory venue.
 7. **Scaling** — χ stays ~6 to N=4096. *Fig. 3.* [T3]
 8. **Limitations** — no PVT analysis (the central one for async), N=16 RTL only.
 
-### Risk
-Thin. After conceding §2, the contribution is one rule and two negative results.
-Honest, useful, and probably a workshop paper. The missing PVT analysis is fatal
-at ASYNC specifically — that community will ask about corners immediately.
-**Would become a real paper with Monte-Carlo delay-variation results**, which is
-maybe a week of work and would make this the most novel of the three.
+### Risk — substantially reduced
+The PVT gap is **closed** (C15) and the result is genuinely interesting in both
+directions: the coloured schedule holds 100% settling out to ±348% spread, and
+variation *rescues* the degenerate schedule, confirming the value-distinctness
+mechanism from an independent angle. The practical corollary — silicon variation
+helps, and the real hazard is equal-by-construction delays — is exactly what the
+ASYNC community would want to hear.
+
+What remains thin is novelty of the core idea (§2). This is now a solid short
+paper rather than a workshop poster, and it no longer has a fatal gap.
+
+Add as section 8: **PVT robustness** — *the rescue experiment is the best single
+figure in this outline.* [T3, event-driven model validated against RTL]
 
 ---
 
