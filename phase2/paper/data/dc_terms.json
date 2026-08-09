@@ -295,5 +295,59 @@
       "16": 1.0
     },
     "verdict": "At M=4 the CAM strictly dominates: 2.5x smaller and 100% recall at every Hamming distance tested, where the HNN reaches ~57% at HD=3 on random states."
+  },
+  "m_sweep": {
+    "_provenance": "msweep2.py, N=64, care radius h=2, fan-in = min(max(16,4M),20), yosys 0.33, same settings as cam_baseline.py.",
+    "_caveat": "h=2 (rather than the h=3 used elsewhere) FAVOURS the HNN: fewer care rows -> fewer terms -> less area. The CAM is unaffected by h. So the HNN's losses here are conservative. The fan-in cap of 20 is an espresso-runtime limit and is what breaks storage at M>=8; lifting it would restore storage but at exponentially more area.",
+    "N": 64,
+    "radius": 2,
+    "rows": [
+      {
+        "M": 4,
+        "fan_in": 16,
+        "kept": 4,
+        "terms": 566,
+        "hnn_gates": 1330,
+        "cam_gates": 2858,
+        "ratio_gates": 0.47,
+        "hnn_luts6": 283,
+        "cam_luts6": 794,
+        "ratio_luts6": 0.36
+      },
+      {
+        "M": 8,
+        "fan_in": 20,
+        "kept": 6,
+        "terms": 1785,
+        "hnn_gates": 5215,
+        "cam_gates": 5579,
+        "ratio_gates": 0.93,
+        "hnn_luts6": 1280,
+        "cam_luts6": 1772,
+        "ratio_luts6": 0.72
+      },
+      {
+        "M": 16,
+        "fan_in": 20,
+        "kept": 0,
+        "terms": 6456,
+        "hnn_gates": 20287,
+        "cam_gates": 11278,
+        "ratio_gates": 1.8,
+        "hnn_luts6": 6367,
+        "cam_luts6": 3997,
+        "ratio_luts6": 1.59
+      }
+    ],
+    "radius_effect": {
+      "N": 64,
+      "M": 4,
+      "h2_terms": 566,
+      "h2_gates": 1330,
+      "h3_terms": 3245,
+      "h3_gates": 7020,
+      "note": "Same network, same CAM (2,858 gates). h=2: HNN 2.1x smaller. h=3: HNN 2.5x larger. The care radius swings area ~5.3x and flips the verdict."
+    },
+    "verdict": "The LUT Hopfield beats a nearest-match CAM only in a narrow corner: small M and small guaranteed radius. It fails on STORAGE before it fails on area -- 6/8 patterns at M=8, 0/16 at M=16."
   }
 }

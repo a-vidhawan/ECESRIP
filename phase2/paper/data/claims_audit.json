@@ -126,5 +126,13 @@
     "value": "N=64 M=4: HNN 7,020 gates / 1,728 6-LUTs vs CAM 2,858 / 794 -- CAM 2.5x smaller (ASIC), 2.2x (FPGA); CAM recall 100% at HD=1..16",
     "source": "cam_baseline.py",
     "note": "NEGATIVE RESULT and the most consequential one in the project. The obvious substitute is smaller AND functionally better at this loading. Any case for the HNN must therefore rest on regimes this does not cover -- large M, learned or updatable weights, analogue implementation -- and NOT on associative recall at small M. Report it prominently; a referee will construct this baseline in thirty seconds."
+  },
+  {
+    "id": "C17",
+    "status": "VERIFIED",
+    "claim": "The LUT Hopfield beats a nearest-match CAM only at small M AND small guaranteed radius; it fails on storage before it fails on area",
+    "value": "M=4: 4/4 stored, 0.47x gates; M=8: 6/8 stored, 0.93x gates; M=16: 0/16 stored, 1.80x gates | radius effect at M=4: h=2 -> 1,330 gates (HNN 2.1x smaller), h=3 -> 7,020 (HNN 2.5x larger)",
+    "source": "msweep2.py / cam_baseline.py",
+    "note": "CORRECTS an earlier analytical argument in TALKING_POINTS 6a which claimed the HNN could not beat a CAM at any M because both are Omega(M*N). The bound holds but the conclusion does not: both sit far above the information floor, so constant factors decide, and the HNN's constant scales with the care radius while the CAM's does not. Note h=2 favours the HNN and the fan-in cap of 20 is what breaks storage at M>=8, so these are conservative losses."
   }
 ]

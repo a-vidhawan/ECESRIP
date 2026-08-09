@@ -4,13 +4,15 @@ Three genuinely different theses, not one paper aimed at three venues. Each
 lists what it claims, what evidence it stands on, and what would sink it.
 
 **Recommendation up front: Outline B is the most likely to be accepted; Outline C
-is now viable on its own; Outline A is in trouble.**
+is viable on its own; Outline A is viable only with its scope narrowed to the
+measured small-M / small-radius corner.**
 
-_Updated twice. The N=256 RTL run (C13) and synthesis (C14) closed A's two
-blockers — but synthesis showed the area win is marginal, and then the **CAM
-baseline (C16) beat the HNN on both area and function at M=4**. Meanwhile the
-PVT analysis (C15) closed the one gap that made C unpublishable. The ranking has
-moved._ Reasoning at the end.
+_Updated three times. The N=256 RTL run (C13) and synthesis (C14) closed A's two
+blockers; the CAM baseline (C16) then beat the HNN at care radius 3; and the
+M-sweep (C17) showed the verdict flips with the care radius — the HNN is 2.1×
+smaller at h=2 — but that it stores only 6/8 patterns at M=8 and 0/16 at M=16.
+The PVT analysis (C15) separately closed the one gap that made C unpublishable._
+Reasoning at the end.
 
 Evidence tiers (T1 RTL / T2 tool-measured / T3 simulator / T4 estimate) are from
 `CLAIMS_AUDIT.md`. A claim's tier determines how strongly it may be worded.
@@ -55,16 +57,26 @@ clockless settling can be made convergent by construction.
 9. **Limitations** — no silicon, no PVT, N=16 RTL ceiling, off-region behaviour.
 10. **Conclusion.**
 
-### Risk — now the weakest of the three
-Both original blockers closed, but the evidence went the wrong way. Synthesis
-made the area win marginal and target-dependent (C14), and the CAM baseline
-(C16) is **2.5× smaller and functionally better at M=4**. A paper claiming a
-practical LUT associative memory has to answer "why not a CAM?", and right now
-the answer is "you should use the CAM."
+### Risk — viable again, but only with the scope stated honestly
+The M-sweep resolved this (C17), and not in the direction either of us guessed.
 
-**Do not attempt this outline unless the M-sweep finds a crossover.** If it does,
-the paper becomes "LUT Hopfield beats CAM above M=X" and is strong. If it does
-not, fold the useful parts into B and drop the architecture claim.
+The verdict depends on the **care radius**, which we had not been treating as a
+comparison variable. At h=3 the CAM is 2.5× smaller; at h=2 the HNN is 2.1×
+smaller. Same network, same CAM — a ~5.3× area swing from one design parameter.
+
+But the M-sweep is unambiguous: **4/4 patterns stored at M=4, 6/8 at M=8, 0/16 at
+M=16.** The HNN stops working before it stops being competitive on area.
+
+So this outline survives *only* as: **"the LUT Hopfield is smaller than a CAM in
+a narrow corner — small M, small guaranteed radius — and here is exactly where
+that corner ends."** That is a legitimate and useful paper, and the boundary is
+measured rather than asserted. What it cannot be is "a better associative
+memory"; at M≥8 it is not even a working one.
+
+Section 8 must therefore compare against the CAM at a **fixed functional
+specification**, since the CAM does exact nearest-match at any distance while
+the HNN guarantees only HD≤h. An area ratio quoted without the spec is
+meaningless, and a referee will say so.
 
 ---
 

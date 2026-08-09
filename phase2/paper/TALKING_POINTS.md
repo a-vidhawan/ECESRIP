@@ -177,40 +177,53 @@ separate the scheduling lever from the loading lever.
 
 ---
 
-## 6a. Why a CAM crossover is unlikely — the argument to have ready
+## 6a. The CAM comparison — a design corner, not a verdict
 
-The M-sweep will give an empirical answer, but the analytical one should be in
-the paper either way, because a referee will reach for it immediately.
+**An earlier draft of this section argued the HNN "cannot beat a CAM on raw
+storage area at any M" because both are Ω(M·N). The bound is right; the
+conclusion was wrong.** Both designs sit far above the information floor — at
+N=64, M=4 that floor is 256 bits, against 1,330 and 2,858 gates — so what decides
+the comparison is the constant factors, and the HNN's constant scales with the
+guaranteed radius h while the CAM's does not. Measured, the HNN can win.
 
-Storing M patterns of N bits requires at least **M·N bits of information**
-somewhere in the circuit. A nearest-match CAM stores them explicitly, so its area
-is Θ(M·N) — essentially the information-theoretic floor, plus a popcount and an
-argmin tree. The Hopfield network stores the same information implicitly, in
-weights or LUT terms, so its area is also Ω(M·N). It then pays *extra* for the
-machinery the CAM does not need: iterative dynamics, per-neuron scheduling, and
-a fan-in that must itself grow with M to keep the patterns as fixed points.
+Two knobs, measured (yosys, N=64):
 
-**So the HNN cannot beat a CAM on raw storage area at any M.** The measured 2.5×
-gap at M=4 is not a small-M artifact that closes later; it is the constant factor
-of paying for dynamics on top of storage.
+**Care radius h.** At h=3 the HNN needs 3,245 terms and is 2.5× *larger* than the
+CAM. At h=2 it needs 566 terms and is 2.1× *smaller*. Nearly a 6× swing in area
+from one design parameter. The CAM is unaffected by h.
 
-That is not fatal to the project, but it does determine what may be claimed:
+**Pattern count M** (h=2, fan-in capped at 20):
 
-- **Not claimable:** "a smaller associative memory."
-- **Claimable, if demonstrated:** advantages that do not reduce to storage —
-  graceful degradation under defects (measured: 10% LUT corruption costs ~10%
-  recall, where a corrupted CAM word is simply wrong), learned or online-updated
-  weights, correlated patterns whose weight matrix compresses below M·N, or
-  analogue/in-memory implementation where the adder tree and comparator are the
-  expensive parts rather than the LUT.
-- **Also claimable, and independent of all this:** the *synthesis* result (§3).
-  It stands whether or not anyone should build this memory, which is exactly why
-  Outline B is the safe submission.
+| M | patterns stored | HNN vs CAM gates | HNN vs CAM 6-LUTs |
+|---|---|---|---|
+| 4 | **4/4** | 0.47× (HNN 2.1× smaller) | 0.36× |
+| 8 | **6/8** | 0.93× (parity) | 0.72× |
+| 16 | **0/16** | 1.80× (HNN larger) | 1.59× |
 
-The honest one-line framing if the sweep finds no crossover: *"we do not claim a
-better associative memory; we show that the LUT implementation of one is far
-cheaper than the threshold-function bound suggests, and that clockless settling
-can be made convergent and PVT-robust by construction."*
+The area columns are almost beside the point: **the HNN fails on storage before
+it fails on area.** Storing M patterns requires fan-in ≈ 6M, and area grows with
+both fan-in and the care set, so capacity cannot be bought without paying area.
+The CAM stores M patterns by construction, exactly, at any M.
+
+### What this permits us to claim
+
+- **Not claimable:** "a better associative memory." At M≥8 it does not even work.
+- **Claimable, and precise:** the LUT Hopfield is smaller than a nearest-match
+  CAM in a **narrow corner — small M and small guaranteed radius** (2.1× smaller
+  at M=4, h=2). State the corner with its boundaries; do not generalise past it.
+- **Not comparable at all, and say so:** the CAM does exact nearest-match at
+  *any* Hamming distance for fixed area (100% at HD=16). The HNN guarantees only
+  HD≤h and pays area for each increment of h. These are different functional
+  specifications, and quoting one area ratio without the spec is meaningless.
+- **Unaffected by any of this:** the *synthesis* result (§3). It stands whether
+  or not this memory should be built — which is why Outline B is the safe
+  submission.
+
+The honest framing: *"we do not claim a better associative memory — outside a
+small-M, small-radius corner a CAM is smaller and strictly more capable. We show
+that the LUT implementation is far cheaper than the threshold-function bound
+suggests, and that clockless settling can be made convergent and PVT-robust by
+construction."*
 
 ---
 

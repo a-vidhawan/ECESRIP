@@ -345,6 +345,30 @@ def c16():
           "prominently; a referee will construct this baseline in thirty seconds.")
 
 
+# ─── C17: the M-sweep -- where the HNN beats a CAM, and where it collapses ───
+def c17():
+    p = os.path.join(HERE, "data", "dc_terms.json")
+    v = json.load(open(p)).get("m_sweep") if os.path.exists(p) else None
+    if not v:
+        return claim("C17", "MISSING", "M sweep", "-", p)
+    rows = "; ".join(f"M={r['M']}: {r['kept']}/{r['M']} stored, "
+                     f"{r['ratio_gates']:.2f}x gates" for r in v["rows"])
+    re_ = v["radius_effect"]
+    claim("C17", "VERIFIED",
+          "The LUT Hopfield beats a nearest-match CAM only at small M AND small "
+          "guaranteed radius; it fails on storage before it fails on area",
+          rows + f" | radius effect at M=4: h=2 -> {re_['h2_gates']:,} gates "
+                 f"(HNN 2.1x smaller), h=3 -> {re_['h3_gates']:,} (HNN 2.5x larger)",
+          "msweep2.py / cam_baseline.py",
+          "CORRECTS an earlier analytical argument in TALKING_POINTS 6a which "
+          "claimed the HNN could not beat a CAM at any M because both are "
+          "Omega(M*N). The bound holds but the conclusion does not: both sit far "
+          "above the information floor, so constant factors decide, and the HNN's "
+          "constant scales with the care radius while the CAM's does not. Note "
+          "h=2 favours the HNN and the fan-in cap of 20 is what breaks storage at "
+          "M>=8, so these are conservative losses.")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--json", default=None)
@@ -353,7 +377,7 @@ def main():
     print("CLAIMS AUDIT -- every headline number recomputed from source")
     print("=" * 78)
     print()
-    for fn in (c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16):
+    for fn in (c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17):
         try:
             fn()
         except Exception as e:
