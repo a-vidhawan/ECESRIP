@@ -1,0 +1,54 @@
+[
+  {
+    "N": 64,
+    "M": 8,
+    "fan_in": 32,
+    "stored_margin": 8,
+    "stored_adjoint": 7,
+    "loss_start": 0.6758291536596717,
+    "loss_end": 5.183086510424352,
+    "recall_margin_hd3": 0.95,
+    "recall_adjoint_hd3": 0.7833333333333333,
+    "recall_margin_hd6": 0.9,
+    "recall_adjoint_hd6": 0.8
+  },
+  {
+    "N": 64,
+    "M": 16,
+    "fan_in": 32,
+    "stored_margin": 14,
+    "stored_adjoint": 0,
+    "loss_start": 62.863646395079414,
+    "loss_end": 100.29533839663785,
+    "recall_margin_hd3": 0.4166666666666667,
+    "recall_adjoint_hd3": 0.0,
+    "recall_margin_hd6": 0.26666666666666666,
+    "recall_adjoint_hd6": 0.0
+  },
+  {
+    "N": 64,
+    "M": 24,
+    "fan_in": 32,
+    "stored_margin": 1,
+    "stored_adjoint": 0,
+    "loss_start": 93.44096300257,
+    "loss_end": 103.69093942647773,
+    "recall_margin_hd3": 0.016666666666666666,
+    "recall_adjoint_hd3": 0.0,
+    "recall_margin_hd6": 0.0,
+    "recall_adjoint_hd6": 0.0
+  },
+  {
+    "N": 64,
+    "M": 32,
+    "fan_in": 32,
+    "stored_margin": 0,
+    "stored_adjoint": 0,
+    "loss_start": 100.54930541735371,
+    "loss_end": 108.93369793301673,
+    "recall_margin_hd3": 0.0,
+    "recall_adjoint_hd3": 0.0,
+    "recall_margin_hd6": 0.0,
+    "recall_adjoint_hd6": 0.0
+  }
+]
