@@ -1,0 +1,982 @@
+[
+  {
+    "N": 64,
+    "M": 8,
+    "fan_in": 32,
+    "stored": 8,
+    "hd": 1,
+    "hd_frac": 0.015625,
+    "recall": 0.9833333333333333,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 8,
+    "fan_in": 32,
+    "stored": 8,
+    "hd": 2,
+    "hd_frac": 0.03125,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 8,
+    "fan_in": 32,
+    "stored": 8,
+    "hd": 3,
+    "hd_frac": 0.046875,
+    "recall": 0.9,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 8,
+    "fan_in": 32,
+    "stored": 8,
+    "hd": 4,
+    "hd_frac": 0.0625,
+    "recall": 0.9833333333333333,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 8,
+    "fan_in": 32,
+    "stored": 8,
+    "hd": 6,
+    "hd_frac": 0.09375,
+    "recall": 0.9333333333333333,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 8,
+    "fan_in": 32,
+    "stored": 8,
+    "hd": 8,
+    "hd_frac": 0.125,
+    "recall": 0.9,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 8,
+    "fan_in": 32,
+    "stored": 8,
+    "hd": 10,
+    "hd_frac": 0.15625,
+    "recall": 0.85,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 8,
+    "fan_in": 32,
+    "stored": 8,
+    "hd": 12,
+    "hd_frac": 0.1875,
+    "recall": 0.7333333333333333,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 8,
+    "fan_in": 32,
+    "stored": 8,
+    "hd": 16,
+    "hd_frac": 0.25,
+    "recall": 0.6833333333333333,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 8,
+    "fan_in": 32,
+    "stored": 8,
+    "hd": 20,
+    "hd_frac": 0.3125,
+    "recall": 0.4166666666666667,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 8,
+    "fan_in": 32,
+    "stored": 8,
+    "hd": 24,
+    "hd_frac": 0.375,
+    "recall": 0.16666666666666666,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 8,
+    "fan_in": 32,
+    "stored": 8,
+    "hd": 32,
+    "hd_frac": 0.5,
+    "recall": 0.0,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 8,
+    "fan_in": 32,
+    "stored": 8,
+    "hd": 40,
+    "hd_frac": 0.625,
+    "recall": 0.0,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 8,
+    "fan_in": 32,
+    "stored": 8,
+    "hd": 48,
+    "hd_frac": 0.75,
+    "recall": 0.0,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 16,
+    "fan_in": 63,
+    "stored": 16,
+    "hd": 1,
+    "hd_frac": 0.015625,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 16,
+    "fan_in": 63,
+    "stored": 16,
+    "hd": 2,
+    "hd_frac": 0.03125,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 16,
+    "fan_in": 63,
+    "stored": 16,
+    "hd": 3,
+    "hd_frac": 0.046875,
+    "recall": 0.9833333333333333,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 16,
+    "fan_in": 63,
+    "stored": 16,
+    "hd": 4,
+    "hd_frac": 0.0625,
+    "recall": 0.9666666666666667,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 16,
+    "fan_in": 63,
+    "stored": 16,
+    "hd": 6,
+    "hd_frac": 0.09375,
+    "recall": 0.85,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 16,
+    "fan_in": 63,
+    "stored": 16,
+    "hd": 8,
+    "hd_frac": 0.125,
+    "recall": 0.8833333333333333,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 16,
+    "fan_in": 63,
+    "stored": 16,
+    "hd": 10,
+    "hd_frac": 0.15625,
+    "recall": 0.8666666666666667,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 16,
+    "fan_in": 63,
+    "stored": 16,
+    "hd": 12,
+    "hd_frac": 0.1875,
+    "recall": 0.5166666666666667,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 16,
+    "fan_in": 63,
+    "stored": 16,
+    "hd": 16,
+    "hd_frac": 0.25,
+    "recall": 0.25,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 16,
+    "fan_in": 63,
+    "stored": 16,
+    "hd": 20,
+    "hd_frac": 0.3125,
+    "recall": 0.15,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 16,
+    "fan_in": 63,
+    "stored": 16,
+    "hd": 24,
+    "hd_frac": 0.375,
+    "recall": 0.05,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 16,
+    "fan_in": 63,
+    "stored": 16,
+    "hd": 32,
+    "hd_frac": 0.5,
+    "recall": 0.0,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 16,
+    "fan_in": 63,
+    "stored": 16,
+    "hd": 40,
+    "hd_frac": 0.625,
+    "recall": 0.0,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 16,
+    "fan_in": 63,
+    "stored": 16,
+    "hd": 48,
+    "hd_frac": 0.75,
+    "recall": 0.0,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 32,
+    "fan_in": 63,
+    "stored": 32,
+    "hd": 1,
+    "hd_frac": 0.015625,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 32,
+    "fan_in": 63,
+    "stored": 32,
+    "hd": 2,
+    "hd_frac": 0.03125,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 32,
+    "fan_in": 63,
+    "stored": 32,
+    "hd": 3,
+    "hd_frac": 0.046875,
+    "recall": 0.9833333333333333,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 32,
+    "fan_in": 63,
+    "stored": 32,
+    "hd": 4,
+    "hd_frac": 0.0625,
+    "recall": 0.7833333333333333,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 32,
+    "fan_in": 63,
+    "stored": 32,
+    "hd": 6,
+    "hd_frac": 0.09375,
+    "recall": 0.7833333333333333,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 32,
+    "fan_in": 63,
+    "stored": 32,
+    "hd": 8,
+    "hd_frac": 0.125,
+    "recall": 0.6,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 32,
+    "fan_in": 63,
+    "stored": 32,
+    "hd": 10,
+    "hd_frac": 0.15625,
+    "recall": 0.4,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 32,
+    "fan_in": 63,
+    "stored": 32,
+    "hd": 12,
+    "hd_frac": 0.1875,
+    "recall": 0.25,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 32,
+    "fan_in": 63,
+    "stored": 32,
+    "hd": 16,
+    "hd_frac": 0.25,
+    "recall": 0.016666666666666666,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 32,
+    "fan_in": 63,
+    "stored": 32,
+    "hd": 20,
+    "hd_frac": 0.3125,
+    "recall": 0.016666666666666666,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 32,
+    "fan_in": 63,
+    "stored": 32,
+    "hd": 24,
+    "hd_frac": 0.375,
+    "recall": 0.0,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 32,
+    "fan_in": 63,
+    "stored": 32,
+    "hd": 32,
+    "hd_frac": 0.5,
+    "recall": 0.0,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 32,
+    "fan_in": 63,
+    "stored": 32,
+    "hd": 40,
+    "hd_frac": 0.625,
+    "recall": 0.0,
+    "settled": 1.0
+  },
+  {
+    "N": 64,
+    "M": 32,
+    "fan_in": 63,
+    "stored": 32,
+    "hd": 48,
+    "hd_frac": 0.75,
+    "recall": 0.0,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 1,
+    "hd_frac": 0.0078125,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 2,
+    "hd_frac": 0.015625,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 3,
+    "hd_frac": 0.0234375,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 4,
+    "hd_frac": 0.03125,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 6,
+    "hd_frac": 0.046875,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 8,
+    "hd_frac": 0.0625,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 10,
+    "hd_frac": 0.078125,
+    "recall": 0.9833333333333333,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 12,
+    "hd_frac": 0.09375,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 16,
+    "hd_frac": 0.125,
+    "recall": 0.9833333333333333,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 20,
+    "hd_frac": 0.15625,
+    "recall": 0.8333333333333334,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 24,
+    "hd_frac": 0.1875,
+    "recall": 0.75,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 32,
+    "hd_frac": 0.25,
+    "recall": 0.6333333333333333,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 40,
+    "hd_frac": 0.3125,
+    "recall": 0.21666666666666667,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 48,
+    "hd_frac": 0.375,
+    "recall": 0.016666666666666666,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 32,
+    "fan_in": 127,
+    "stored": 32,
+    "hd": 1,
+    "hd_frac": 0.0078125,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 32,
+    "fan_in": 127,
+    "stored": 32,
+    "hd": 2,
+    "hd_frac": 0.015625,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 32,
+    "fan_in": 127,
+    "stored": 32,
+    "hd": 3,
+    "hd_frac": 0.0234375,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 32,
+    "fan_in": 127,
+    "stored": 32,
+    "hd": 4,
+    "hd_frac": 0.03125,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 32,
+    "fan_in": 127,
+    "stored": 32,
+    "hd": 6,
+    "hd_frac": 0.046875,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 32,
+    "fan_in": 127,
+    "stored": 32,
+    "hd": 8,
+    "hd_frac": 0.0625,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 32,
+    "fan_in": 127,
+    "stored": 32,
+    "hd": 10,
+    "hd_frac": 0.078125,
+    "recall": 0.9833333333333333,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 32,
+    "fan_in": 127,
+    "stored": 32,
+    "hd": 12,
+    "hd_frac": 0.09375,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 32,
+    "fan_in": 127,
+    "stored": 32,
+    "hd": 16,
+    "hd_frac": 0.125,
+    "recall": 0.9666666666666667,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 32,
+    "fan_in": 127,
+    "stored": 32,
+    "hd": 20,
+    "hd_frac": 0.15625,
+    "recall": 0.9333333333333333,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 32,
+    "fan_in": 127,
+    "stored": 32,
+    "hd": 24,
+    "hd_frac": 0.1875,
+    "recall": 0.8,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 32,
+    "fan_in": 127,
+    "stored": 32,
+    "hd": 32,
+    "hd_frac": 0.25,
+    "recall": 0.35,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 32,
+    "fan_in": 127,
+    "stored": 32,
+    "hd": 40,
+    "hd_frac": 0.3125,
+    "recall": 0.1,
+    "settled": 1.0
+  },
+  {
+    "N": 128,
+    "M": 32,
+    "fan_in": 127,
+    "stored": 32,
+    "hd": 48,
+    "hd_frac": 0.375,
+    "recall": 0.03333333333333333,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 1,
+    "hd_frac": 0.00390625,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 2,
+    "hd_frac": 0.0078125,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 3,
+    "hd_frac": 0.01171875,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 4,
+    "hd_frac": 0.015625,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 6,
+    "hd_frac": 0.0234375,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 8,
+    "hd_frac": 0.03125,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 10,
+    "hd_frac": 0.0390625,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 12,
+    "hd_frac": 0.046875,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 16,
+    "hd_frac": 0.0625,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 20,
+    "hd_frac": 0.078125,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 24,
+    "hd_frac": 0.09375,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 32,
+    "hd_frac": 0.125,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 40,
+    "hd_frac": 0.15625,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 16,
+    "fan_in": 64,
+    "stored": 16,
+    "hd": 48,
+    "hd_frac": 0.1875,
+    "recall": 0.95,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 32,
+    "fan_in": 128,
+    "stored": 32,
+    "hd": 1,
+    "hd_frac": 0.00390625,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 32,
+    "fan_in": 128,
+    "stored": 32,
+    "hd": 2,
+    "hd_frac": 0.0078125,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 32,
+    "fan_in": 128,
+    "stored": 32,
+    "hd": 3,
+    "hd_frac": 0.01171875,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 32,
+    "fan_in": 128,
+    "stored": 32,
+    "hd": 4,
+    "hd_frac": 0.015625,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 32,
+    "fan_in": 128,
+    "stored": 32,
+    "hd": 6,
+    "hd_frac": 0.0234375,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 32,
+    "fan_in": 128,
+    "stored": 32,
+    "hd": 8,
+    "hd_frac": 0.03125,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 32,
+    "fan_in": 128,
+    "stored": 32,
+    "hd": 10,
+    "hd_frac": 0.0390625,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 32,
+    "fan_in": 128,
+    "stored": 32,
+    "hd": 12,
+    "hd_frac": 0.046875,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 32,
+    "fan_in": 128,
+    "stored": 32,
+    "hd": 16,
+    "hd_frac": 0.0625,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 32,
+    "fan_in": 128,
+    "stored": 32,
+    "hd": 20,
+    "hd_frac": 0.078125,
+    "recall": 1.0,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 32,
+    "fan_in": 128,
+    "stored": 32,
+    "hd": 24,
+    "hd_frac": 0.09375,
+    "recall": 0.9833333333333333,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 32,
+    "fan_in": 128,
+    "stored": 32,
+    "hd": 32,
+    "hd_frac": 0.125,
+    "recall": 0.9666666666666667,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 32,
+    "fan_in": 128,
+    "stored": 32,
+    "hd": 40,
+    "hd_frac": 0.15625,
+    "recall": 0.9166666666666666,
+    "settled": 1.0
+  },
+  {
+    "N": 256,
+    "M": 32,
+    "fan_in": 128,
+    "stored": 32,
+    "hd": 48,
+    "hd_frac": 0.1875,
+    "recall": 0.9,
+    "settled": 1.0
+  }
+]
