@@ -28,9 +28,11 @@ a cross term W_ij·Δs_i·Δs_j that can break the monotonic energy decrease; if
 they're uncoupled that term is zero, so updating them together is exactly
 equivalent to updating them in sequence. (Figure 1 attached.)
 
-We ran this as a proper 2×2 to be sure — colouring with distinct delays settles
-100% of the hardest states, while both controls (a valid colouring with equal
-delays, and distinct delays without colouring) settle 0%. One thing that
+We tested the two factors separately to be sure which one matters — whether the
+schedule is a proper colouring, and whether the delay values are distinct.
+Colouring with distinct delays settles 100% of the hardest states; a valid
+colouring with all delays set equal settles 0%; and distinct delays without a
+colouring also settles 0%. So neither ingredient is sufficient on its own. One thing that
 surprised us: the delay *values* don't matter at all beyond being distinct.
 We'd assumed non-commensurate delays would be needed to avoid re-alignment;
 that turned out to be false. The number of distinct delays needed stays around
@@ -66,10 +68,13 @@ overstate it.
 makes an asynchronous network settle reliably and quickly — which is genuinely
 relevant, since Ising/max-cut solvers need exactly that, and our scheduling
 gives convergence with a constant number of time slots regardless of network
-size. But settling reliably means reaching *a* local minimum, and our own data
-shows ~76% of random initial states land on spurious attractors rather than
-stored patterns. For associative memory that's a failure mode; for optimisation
-it's the central difficulty. We haven't run a single optimisation instance yet,
+size. But settling reliably means reaching *a* local minimum, not a good one. Starting
+from a *uniformly random* state — which is what an optimiser does, rather than
+starting near a known solution — the network reaches a fixed point that is not
+one of the stored patterns about 90-95% of the time. That is entirely expected
+for a memory (a random state is astronomically far from anything stored, and it
+is not the regime a memory operates in), but it is precisely the difficulty in
+optimisation: which local minimum you land in is the whole problem. We haven't run a single optimisation instance yet,
 so I don't want to claim anything there. If it's a direction you'd like to
 pursue, the concrete next step would be mapping some max-cut instances onto this
 and comparing solution quality against simulated annealing — the settling
