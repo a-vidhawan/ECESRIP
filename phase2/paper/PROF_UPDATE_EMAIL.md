@@ -38,10 +38,33 @@ We'd assumed non-commensurate delays would be needed to avoid re-alignment;
 that turned out to be false. The number of distinct delays needed stays around
 6 even at N=4096, because sparse graphs colour cheaply.
 
-**On recall**, which I know is the thing you care most about. After replacing
-the training rule (the old one solved a least-squares fit per neuron and then
-symmetrised, which destroys the fit — the new one maintains symmetry throughout
-a margin-maximising solve), we now get:
+**On the training rule.** The change that unlocked the recall numbers below was
+moving off the pseudoinverse. We had been solving an exact least-squares fit per
+neuron over its allowed inputs and then symmetrising the weight matrix at the
+end — but that final symmetrisation destroys the fit it just computed, which is
+why we needed so much connectivity before all the patterns held as fixed points.
+
+The rule we've landed on is a margin-based one, in the perceptron/Gardner family
+rather than the Hebbian/Storkey/pseudoinverse family. Instead of asking for
+h_i = ξ_i exactly, it asks for ξ_i·h_i ≥ κ, and it re-imposes the sparsity mask
+and the symmetry constraint at *every* step rather than once at the end — so it
+converges to something that already satisfies the constraints it will actually be
+deployed under. Concretely it is projected subgradient descent on a hinge loss,
+Σ max(0, κ − ξ_i·h_i). The margin is what buys the larger basins: slack in the
+local field is what survives corruption, quantisation and symmetrisation. I
+should say the rule itself isn't new — it's essentially Krauth–Mertens minover
+adapted to a masked, symmetric weight matrix, which is the constraint our
+hardware imposes.
+
+One direction we're starting to look at: because recall is the output of a
+fixed-point solve, we can differentiate through the settling process itself using
+the implicit function theorem — the adjoint method, as in deep equilibrium
+models — and optimise basin size *directly* rather than using margin as a proxy
+for it. That would let us train the thing we actually measure. It's early days
+and I don't have results worth reporting yet.
+
+**On recall**, which I know is the thing you care most about. With that rule we
+now get:
 
 | N | patterns M | recall from HD≤3 corruption |
 |---|---|---|
