@@ -73,6 +73,31 @@ def train_margin(pats, mask, kappa=1.0, iters=4000, lr=0.05, seed=0):
     return W
 
 
+def train_margin_auto(pats, mask, kappas=(1.0, 0.7, 0.5, 0.3, 0.2, 0.1, 0.05),
+                      iters=4000, lr=0.05, seed=0):
+    """Train at the LARGEST margin that is actually feasible for this (N, M, mask).
+
+    kappa was fixed at 1.0 throughout phases 5-6, which turns out to be the wrong
+    default at high loading: at N=256, alpha=0.5 the kappa=1 problem is
+    infeasible and stores 0/128 patterns, while kappa=0.3 stores all 128 and
+    recalls 80% at 2% corruption. The apparent 'capacity cliff' there was the
+    kappa=1 feasibility boundary, not a capacity limit.
+
+    Lower kappa is not free -- margin is what creates basin width, so where a
+    high kappa IS feasible it gives strictly better recall (at alpha=0.375,
+    kappa=1 recalls 100/100/90 against kappa=0.3's 95/57/48). Hence: take the
+    largest feasible value rather than a fixed one.
+    """
+    best = None
+    for k in kappas:
+        W = train_margin(pats, mask, kappa=k, iters=iters, lr=lr, seed=seed)
+        if n_fixed(W, pats) == len(pats):
+            return W, k
+        if best is None:
+            best = (W, k)
+    return best                              # nothing feasible; return the first try
+
+
 def n_fixed(W, pats):
     return sum(np.array_equal(np.where(W @ pats[m] >= 0, 1, -1), pats[m])
                for m in range(len(pats)))
