@@ -3,7 +3,7 @@
 _Companion to `audit_claims.py`, which recomputes every number below from its
 source file. Run it before any submission: `python3 audit_claims.py`._
 
-**Status: 10 verified, 1 revised, 2 retracted.**
+**Status: 14 verified, 2 revised, 2 retracted.** (Regenerate with `python3 audit_claims.py` — this prose had drifted behind the script and was reconciled in phase 7.)
 
 Two claims currently stated as fact in `clockless/STRESS_TEST_FINDINGS.md` are
 false, and one is misattributed. They were produced by earlier rounds and
@@ -62,6 +62,21 @@ Source: `rtl/clockless_depth.sv` vs `rtl/clockless_noise.sv`.
 
 ## 3. Revised
 
+### V2 — the area advantage over threshold gates
+
+The estimate said the LUT was 2.4–2.8× smaller at fan-in 16. Synthesis (yosys,
+N=64) says **1.52× smaller on an ASIC proxy and 1.19× LARGER on FPGA**. Two
+causes: 4-bit weights suffice where the estimate assumed 8, and 6-LUT packing
+favours the adder tree. **Do not lead with area.**
+
+### V3 — the "capacity cliff" at α≈0.5
+
+Measured with κ fixed at 1.0. At N=256, α=0.5 that problem is *infeasible*
+(0/128 stored) but κ=0.7 stores all 128 — it was the margin feasibility
+boundary, not a capacity limit. `train_margin_auto` now takes the largest
+feasible κ. **Figure 8 was generated under the old fixed κ and needs
+regenerating before publication.**
+
 ### V1 — the "T_ODD/T_EVEN symmetry crisis"
 
 Finding #3 concluded "avoid integer ratios; use 2.4×, 3×, or any non-integer."
@@ -95,6 +110,12 @@ Source: `stress_add_ratio_sweep.csv` (ratio 1.0: 64.3% vs 97.6% elsewhere),
 | C10 | Recall is governed by α = M/N, not by the schedule | T3 | α=0.25 → 79%; α=0.125 → 100% |
 | C11 | Residual failures are spurious attractors, not oscillation | T1 | random states: 75.8% spurious vs 1.7% oscillated |
 | C12 | On full tables espresso tracks the C(d,d/2) threshold bound | T2 | 5/16 neurons hit it exactly (neuron 7: 126 = C(9,4)) |
+| C13 | Full flow runs in RTL at N=256 and matches the simulator | T1 | 240/240 inputs identical; 12,357 terms, χ=4 |
+| C15 | The schedule is PVT-robust, and variation rescues a degenerate one | T3 | 100% settled to ±348% spread; degenerate 67% → 100% |
+| C16 | A nearest-match CAM beats this design at M=4 on area AND function | T2 | CAM 2,858 gates vs 7,020; CAM recalls 100% at HD=1–16 |
+| C17 | The HNN beats a CAM only at small M and small radius | T2 | M=4 0.47×, M=8 0.93×, M=16 1.80×; fails on storage first |
+| C18 | Capacity is set by the training rule and fan-in, not the architecture | T3 | margin stores 1.5–3× more at fixed fan-in; α≈0.5 |
+| C19 | Logic hazards do not break settling | T3 | 86 glitches / 123 commits → 98% recall; settling 100% throughout |
 
 ---
 
@@ -106,17 +127,15 @@ them.
 1. ~~**No RTL above N=16.**~~ **CLOSED.** `rtl_n256.py` runs the full flow at
    N=256 under iverilog and matches the simulator on 240/240 inputs (C13). The
    remaining exposure is N > 256, which is still T3.
-2. **No synthesis.** Every area and delay comparison is T4. Without at least a
-   standard-cell or FPGA synthesis run, the LUT-vs-threshold comparison is an
-   argument, not a measurement.
-3. **No PVT / corner analysis.** A clockless design lives or dies on whether the
-   delay *ordering* survives process, voltage and temperature variation. The rule
-   requires only that coupled neurons differ, which is encouraging — ordering is
-   more robust than absolute values — but this is untested and is the most
-   likely reviewer attack on the whole approach.
-4. **Care radius `h` never swept.** It is now the principal design knob (it sets
-   both LUT size and the size of the guaranteed-correct region) and we have a
-   single value, h=3.
+2. ~~**No synthesis.**~~ **CLOSED** (C14) — and it went against us, see V2.
+3. ~~**No PVT / corner analysis.**~~ **CLOSED** (C15) — and favourably.
+3a. **No gate-level hazard simulation.** The injection study (C19) says hazards
+   are benign, but it models glitches as independent, whereas real hazards
+   correlate with input transitions. Gate-level simulation with annotated delays
+   is the definitive test and the tooling exists.
+4. **Care radius `h` still barely swept.** It is the principal design knob — it
+   swings area 5.3× and flips the CAM verdict — and we have two values (h=2, h=3).
+   κ, previously listed here, is now handled adaptively (see V3).
 5. **One network family.** Random bipolar patterns, pseudoinverse, one pruning
    method. No structured or real-world patterns, which have correlations that
    could change basin geometry substantially.
