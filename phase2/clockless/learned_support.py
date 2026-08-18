@@ -37,10 +37,17 @@ ladder, the identical M grid, the identical seeds, and the identical recall
 protocol (DSATUR colouring, delays = colour+1, settle_event_driven).
 
 FINDING -- pattern-aware support DOES beat random d-regular, by a lot.
-At matched fan-in the correlation/projection/greedy supports store roughly
-1.8-2x the patterns the random d-regular baseline can, and at matched load
-(everyone trained on the baseline's own max M) they recall ~80-100% at HD=5%/10%
-where the baseline recalls ~5%. The two controls behave exactly as they must for
+At matched fan-in the correlation/projection/greedy supports won all 12
+(N, d, strategy) comparisons, storing 2-4x the patterns the random d-regular
+baseline can:
+
+    N=64  d=16   regular 12  ->  correlation 24, projection 24, greedy 32
+    N=64  d=32   regular 24  ->  correlation 32, projection 48, greedy 48
+    N=128 d=16   regular  8  ->  correlation 24, projection 32, greedy 32
+    N=128 d=32   regular 24  ->  correlation 48, projection 48, greedy 64
+
+and at matched load (everyone trained on the baseline's own max M) they recall
+80-100% at HD=5% and 64-100% at HD=10%, where the baseline recalls 2-25%. The two controls behave exactly as they must for
 this to be believable: `ring` is no better than `regular` (the instrument can see
 a bad support), and `decoy` -- the identical selector fed independent patterns --
 lands on the baseline, not on the pattern-aware group. So the gain is
@@ -56,10 +63,23 @@ finely. (3) Patterns are i.i.d. random +/-1; a correlation-based selector on
 i.i.d. patterns is picking up sampling noise in sum_mu xi_i xi_j, which is
 exactly the "structure" the trainer then exploits -- the effect should be
 expected to change (probably grow) for genuinely correlated pattern sets, and
-this experiment does not measure that.
+this experiment does not measure that. (4) Several pattern-aware max-M values
+sit at the top of the M grid (marked * in the report), so those are lower
+bounds -- the true gap is at least as large as reported, not smaller.
+(5) Recall measured at each strategy's OWN max M is low and noisy for everybody,
+because that is the capacity edge; the matched-load table is the comparison to
+read.
 
-Run:  python3 learned_support.py            (~15 min)
-      python3 learned_support.py --quick    (smaller sweep)
+Runtime was the binding constraint, so the sweep was cut in ways applied
+IDENTICALLY to every strategy: the M grid is coarse (M/d in {0.5, 0.75, 1, 1.5,
+2}), the kappa ladder is 4 values rather than train_margin_auto's 7, the M sweep
+stops at the first failure, and there are 2 replicates at N=64 but only 1 at
+N=128. Nothing here is tuned per strategy.
+
+Run:  python3 learned_support.py                       (all 4 cells, ~35 min)
+      python3 learned_support.py --Ns 64 --ds 16 --out part.json   (one cell)
+      python3 learned_support.py --merge part1.json ...  (combine + report)
+      python3 learned_support.py --quick               (smoke test)
 """
 
 import argparse, json, os, sys, time
@@ -223,11 +243,11 @@ STRATEGIES = ["regular", "correlation", "projection", "greedy",
 # ── sweep ───────────────────────────────────────────────────────────────────
 
 def m_grid(d, N):
-    """M values swept upward, as multiples of the fan-in d. Runs to 2.5d
+    """M values swept upward, as multiples of the fan-in d. Runs to 2.0d
     because the pattern-aware supports turn out to keep working well past the
     ~0.8d where the random-regular baseline dies. Coarse on purpose: the grid is
     the same for every strategy, so it costs resolution, not fairness."""
-    fr = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5]
+    fr = [0.5, 0.75, 1.0, 1.5, 2.0]
     out = sorted({max(2, int(round(d * f))) for f in fr})
     return [m for m in out if m <= N]
 
@@ -291,8 +311,10 @@ def matched_recall(N, d, kind, M_ref, seed, hds, trials):
 
 def reps_for(N, d):
     """Replicates (independent pattern draws + independent support seeds) per
-    cell. Uniform across cells and strategies."""
-    return 2
+    cell. 1 at N=128 purely for runtime -- a training there costs ~20 s per
+    kappa. Uniform across STRATEGIES within a cell, which is what fairness
+    requires; the N=128 rows are simply noisier than the N=64 ones."""
+    return 2 if N <= 64 else 1
 
 
 def main():
@@ -303,6 +325,9 @@ def main():
     ap.add_argument("--seed", type=int, default=11)
     ap.add_argument("--reps", type=int, default=None)
     ap.add_argument("--quick", action="store_true")
+    ap.add_argument("--merge", nargs="+", default=None,
+                    help="skip the sweep; combine partial result JSONs (from "
+                         "per-cell runs) and print the report")
     ap.add_argument("--out", default=os.path.join(HERE, "results",
                                                   "learned_support.json"))
     args = ap.parse_args()
@@ -311,7 +336,15 @@ def main():
 
     t0 = time.time()
     rows, matched = [], []
-    for N in args.Ns:
+    if args.merge:
+        for fn in args.merge:
+            j = json.load(open(fn))
+            rows += j["runs"]; matched += j.get("matched_load", [])
+        args.Ns = sorted({r["N"] for r in rows})
+        args.ds = sorted({r["d"] for r in rows})
+        print(f"merged {len(args.merge)} partial result files "
+              f"({len(rows)} runs)")
+    for N in ([] if args.merge else args.Ns):
         hds = [max(1, int(round(f * N))) for f in (0.05, 0.10)]
         for d in args.ds:
             R = args.reps or reps_for(N, d)
@@ -349,6 +382,7 @@ def main():
            f"{'vs reg':>8}{'deg mean':>10}{'deg max':>9}{'deg min':>9}"
            f"{'rec@5%':>9}{'rec@10%':>9}")
     print(hdr); print("-" * len(hdr))
+    print("(* = hit the top of the M grid, so that max-M is a LOWER BOUND)")
     summary = []
     for N in args.Ns:
         hds = [max(1, int(round(f * N))) for f in (0.05, 0.10)]
@@ -371,7 +405,9 @@ def main():
                     vs = [r["recall_at_maxM"].get(f"hd{hd}") for r in rr
                           if r["recall_at_maxM"]]
                     rec.append(float(np.mean(vs)) if vs else float("nan"))
+                ceiling = max(m_grid(d, N))
                 srow = dict(N=N, d=d, strategy=kind, maxM_median=med,
+                            censored=bool(med >= ceiling), grid_ceiling=ceiling,
                             maxM_min=lo, maxM_max=hi, vs_regular=med - bm,
                             ratio=(med / bm if bm else None),
                             deg_mean=float(np.mean(dm)) if dm else None,
@@ -380,7 +416,8 @@ def main():
                             recall_own_maxM=dict(zip([f"hd{h}" for h in hds],
                                                      rec)))
                 summary.append(srow)
-                print(f"{N:>4}{d:>4}  {kind:<12}{med:>10}"
+                cen = "*" if srow["censored"] else " "
+                print(f"{N:>4}{d:>4}  {kind:<12}{str(med)+cen:>10}"
                       f"{f'{lo}-{hi}':>10}{med-bm:>+8}"
                       f"{(srow['deg_mean'] or 0):>10.2f}"
                       f"{(srow['deg_max'] or 0):>9}{(srow['deg_min'] or 0):>9}"
