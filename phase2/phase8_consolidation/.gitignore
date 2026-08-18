@@ -1,0 +1,5 @@
+# build_hnn.py intermediates and compiled simulator binaries -- regenerate by
+# re-running the tool; the emitted .sv and build_meta.json are the real outputs
+design_*/pla/
+design_*/*.vvp
+results/.gl_orig.json

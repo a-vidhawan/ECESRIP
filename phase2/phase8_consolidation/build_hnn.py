@@ -33,6 +33,12 @@ behavioural figure follows rtl_n256 (256*max_delay + 200), the gate-level one
 follows gate_level_hazard (4000*max_delay + 5000), because real gate
 propagation adds time on top of the scheduling delays.
 
+COST WARNING: espresso dominates the run time and its cost is driven by the
+care-set size M * sum_{j<=radius} C(fanin, j). fan-in 16 / radius 3 is the
+combination phase 3 and 4 used and it minimises in seconds per neuron; fan-in 32
+/ radius 3 is ~5000 care rows per pattern per neuron and a single neuron did not
+finish in 8 minutes here. Drop the radius to 2 before raising the fan-in.
+
 DESIGN RULE (phase 7b): the scheduling delays emitted here are in arbitrary
 units. Whatever unit they are given in the final timing constraints, one unit
 MUST exceed the worst-case combinational propagation delay through the SOP, or

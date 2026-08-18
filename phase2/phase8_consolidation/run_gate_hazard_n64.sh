@@ -12,9 +12,11 @@ cp "$CL/results/gate_level_hazard.json" "$OUT/.gl_orig.json"
 
 for SC in 1 20 100; do
   echo "=============== delay-scale=$SC ==============="
-  /usr/bin/time -f "elapsed %E" python3 "$CL/gate_level_hazard.py" \
+  T0=$SECONDS
+  python3 "$CL/gate_level_hazard.py" \
       --N 64 --M 8 --radius 2 --trials 40 --seed 11 --delay-scale "$SC" \
       2>&1 | tee "$OUT/gate_hazard_N64_scale${SC}.log"
+  echo "elapsed $((SECONDS-T0))s" | tee -a "$OUT/gate_hazard_N64_scale${SC}.log"
   if [ -f "$CL/results/gate_level_hazard.json" ]; then
     cp "$CL/results/gate_level_hazard.json" "$OUT/gate_hazard_N64_scale${SC}.json"
   fi

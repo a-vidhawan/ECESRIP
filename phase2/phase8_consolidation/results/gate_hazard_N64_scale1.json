@@ -1,14 +1,14 @@
 {
-  "N": 32,
-  "M": 4,
-  "hd": 3,
+  "N": 64,
+  "M": 8,
+  "hd": 6,
   "kappa": 1.0,
-  "terms": 259,
-  "gates": 671,
+  "terms": 1531,
+  "gates": 4409,
   "trials": 40,
-  "behav_settled": 0.975,
-  "behav_recall": 0.95,
+  "behav_settled": 1.0,
+  "behav_recall": 0.925,
   "gate_settled": 1.0,
-  "gate_recall": 0.9,
-  "agreement": 0.9
+  "gate_recall": 0.1,
+  "agreement": 0.1
 }
