@@ -41,12 +41,32 @@ settling stays at 100% at every rate tested. Targeting only the highest-fan-in
 quarter of neurons (deepest SOP, where hazards would concentrate) holds up to an
 80% glitch rate.
 
-So on this evidence hazards look benign: a glitched neuron re-evaluates, a
-correction gets scheduled, and the basin pulls the state back. Two caveats — my
-model latches a full wrong value, which is more severe than a narrow pulse, but
-injects glitches *independently*, whereas real hazards correlate with specific
-input transitions. The definitive test is gate-level simulation with annotated
-delays; we have the tooling (yosys + iverilog) and I can run it next.
+I then ran the gate-level version, which produces glitches from the circuit
+rather than inventing them: the neuron logic is synthesised to primitive gates
+(671 of them for a small N=32 network), each gate type given a different delay so
+paths through the AND/OR planes are genuinely unequal, and the netlist simulated
+against the zero-delay behavioural model on identical vectors. The two are
+logically equivalent, so any disagreement is glitch-induced.
+
+That turned up something more useful than a yes/no on hazards. Initially the
+gate-level model agreed with the behavioural one on only 50% of inputs — but most
+of that was **not** hazards. The gate delays (1–5 ns each over several levels)
+exceeded the scheduling delays (1–7 ns), so commits were being sequenced on stale
+logic and the colouring was meaningless. Scaling the scheduling delays up by 20×
+took agreement to 90%, and scaling a further 5× changed nothing.
+
+So there is a design rule we had not stated: **the scheduling delays must exceed
+the worst-case combinational propagation delay through the neuron.** That seems
+obvious in hindsight but it is a real constraint on how the delays get sized, and
+it interacts with your per-colour delay question — the *spread* between colours
+has to sit on top of a floor set by the logic depth.
+
+Once that rule is satisfied, the residual hazard effect is real but modest: ~10%
+of inputs settle to a different fixed point, costing about 5 points of recall
+(95% → 90%). It does not improve with further delay margin, which is what tells
+us it is genuinely a hazard rather than a timing shortfall. That is a smaller
+effect than I would want to ignore in a final design, but much smaller than the
+delay-budgeting problem it was hiding behind.
 
 **On C-elements.** Agreed that's the right mechanism if we do need it, but worth
 noting two things. It doesn't replace the colouring — a C-element makes a neuron

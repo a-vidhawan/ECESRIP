@@ -40,20 +40,20 @@ from rtl_n256 import emit_lut, emit_sched
 # the hazards we are trying to observe, so the point is that these differ.
 CELL_LIB = r"""
 `timescale 1ns/1ps
-module \$_NOT_ (input A, output Y);   assign #1 Y = ~A;      endmodule
+module \$_NOT_ (input A, output Y); assign #1 Y = ~A; endmodule
 module \$_AND_ (input A, B, output Y); assign #3 Y = A & B;   endmodule
-module \$_NAND_(input A, B, output Y); assign #2 Y = ~(A & B);endmodule
-module \$_OR_  (input A, B, output Y); assign #4 Y = A | B;   endmodule
+module \$_NAND_ (input A, B, output Y); assign #2 Y = ~(A & B);endmodule
+module \$_OR_ (input A, B, output Y); assign #4 Y = A | B;   endmodule
 module \$_NOR_ (input A, B, output Y); assign #2 Y = ~(A | B);endmodule
 module \$_XOR_ (input A, B, output Y); assign #5 Y = A ^ B;   endmodule
-module \$_XNOR_(input A, B, output Y); assign #5 Y = ~(A ^ B);endmodule
-module \$_ANDNOT_(input A, B, output Y); assign #3 Y = A & ~B;endmodule
+module \$_XNOR_ (input A, B, output Y); assign #5 Y = ~(A ^ B);endmodule
+module \$_ANDNOT_ (input A, B, output Y); assign #3 Y = A & ~B;endmodule
 module \$_ORNOT_ (input A, B, output Y); assign #3 Y = A | ~B;endmodule
 module \$_MUX_ (input A, B, S, output Y); assign #3 Y = S ? B : A; endmodule
-module \$_AOI3_(input A, B, C, output Y); assign #3 Y = ~((A&B)|C); endmodule
-module \$_OAI3_(input A, B, C, output Y); assign #3 Y = ~((A|B)&C); endmodule
-module \$_AOI4_(input A, B, C, D, output Y); assign #4 Y = ~((A&B)|(C&D)); endmodule
-module \$_OAI4_(input A, B, C, D, output Y); assign #4 Y = ~((A|B)&(C|D)); endmodule
+module \$_AOI3_ (input A, B, C, output Y); assign #3 Y = ~((A&B)|C); endmodule
+module \$_OAI3_ (input A, B, C, output Y); assign #3 Y = ~((A|B)&C); endmodule
+module \$_AOI4_ (input A, B, C, D, output Y); assign #4 Y = ~((A&B)|(C&D)); endmodule
+module \$_OAI4_ (input A, B, C, D, output Y); assign #4 Y = ~((A|B)&(C|D)); endmodule
 """
 
 
@@ -80,12 +80,12 @@ def synth_gates(out):
     dst = os.path.join(out, "lut_gates.v")
     script = (f"read_verilog -sv {src}; hierarchy -top hopfield_lut; "
               f"proc; opt; techmap; opt; abc -g simple; opt_clean; "
-              f"write_verilog -noattr {dst}")
+              f"write_verilog -noexpr -noattr {dst}")
     r = subprocess.run(["yosys", "-p", script], capture_output=True, text=True,
                        timeout=7200)
     if r.returncode != 0:
         return None, r.stderr[-800:]
-    n = sum(1 for ln in open(dst) if ln.strip().startswith("\\$_"))
+    n = sum(1 for ln in open(dst) if "\\$_" in ln and "(" in ln)
     return dst, n
 
 
@@ -155,6 +155,13 @@ def main():
     ap.add_argument("--hd", type=int, default=0)
     ap.add_argument("--trials", type=int, default=40)
     ap.add_argument("--seed", type=int, default=11)
+    ap.add_argument("--delay-scale", type=int, default=1,
+                    help="multiply the scheduling delays. The schedule only "
+                         "sequences commits correctly if its delays exceed the "
+                         "combinational propagation delay through the SOP; at "
+                         "scale=1 the gate delays dominate and the colouring is "
+                         "meaningless, which is a design-rule violation rather "
+                         "than a hazard effect.")
     ap.add_argument("--keep", default=None)
     args = ap.parse_args()
 
@@ -169,8 +176,14 @@ def main():
 
     n, edges = graph_from_W(W)
     colour = dsatur(n, edges)
-    delays = [colour[i] + 1 for i in range(n)]
+    delays = [(colour[i] + 1) * args.delay_scale for i in range(n)]
     emit_sched(N, delays, os.path.join(out, "sched.sv"))
+    # yosys elaborates the parameter away, so the gate-level netlist's
+    # hopfield_lut has no N to override -- strip the override for that build
+    sched_gate = os.path.join(out, "sched_gate.sv")
+    open(sched_gate, "w").write(
+        open(os.path.join(out, "sched.sv")).read()
+        .replace("hopfield_lut #(.N(N)) lut", "hopfield_lut lut"))
     print(f"  chi={max(colour.values())+1}, max scheduling delay={max(delays)}")
 
     print("  synthesising to primitive gates...")
@@ -201,7 +214,7 @@ def main():
 
     print("  simulating GATE-LEVEL model with unequal path delays...")
     gate, err = run_sim([gates, os.path.join(out, "cells.v"),
-                         os.path.join(out, "sched.sv"), tb], out, "gate")
+                         sched_gate, tb], out, "gate")
     if not gate:
         print("  failed:\n" + str(err)); return
 

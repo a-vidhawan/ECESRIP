@@ -868,5 +868,34 @@
       }
     ],
     "note": "1.5-3x more patterns at the same fan-in. Symmetrising an exact least-squares fit destroys it; maintaining symmetry throughout a margin-maximising solve does not."
+  },
+  "gate_level_hazard": {
+    "_provenance": "gate_level_hazard.py. N=32 M=4 radius=2, kappa=1.0, 259 product terms -> 671 primitive gates (yosys techmap + abc -g simple). Per-gate-type delays 1-5ns so SOP paths are unequal. Identical vectors through the zero-delay behavioural model and the gate-level netlist under iverilog; the two are logically equivalent so any disagreement is glitch-induced.",
+    "delay_scale_sweep": [
+      {
+        "scale": 1,
+        "max_sched_delay": 7,
+        "behav_recall": 0.95,
+        "gate_recall": 0.5,
+        "agreement": 0.5
+      },
+      {
+        "scale": 20,
+        "max_sched_delay": 140,
+        "behav_recall": 0.95,
+        "gate_recall": 0.9,
+        "agreement": 0.9
+      },
+      {
+        "scale": 100,
+        "max_sched_delay": 700,
+        "behav_recall": 0.95,
+        "gate_recall": 0.9,
+        "agreement": 0.9
+      }
+    ],
+    "finding_1_design_rule": "Scheduling delays MUST exceed worst-case combinational propagation delay through the neuron's SOP. At scale=1 the gate delays (1-5ns each over several levels, ~20-30ns total) dominate the scheduling delays (1-7ns), so commits are sequenced on stale logic and the colouring is meaningless. This is a design-rule violation, not a hazard effect, and it accounted for most of the damage: agreement 50% -> 90% simply by scaling the schedule.",
+    "finding_2_residual_hazards": "After the design rule is satisfied the effect saturates at 90% agreement and 90% recall vs 95% behavioural. It does not improve from scale=20 to scale=100, which is the signature of a hazard rather than a timing shortfall. So hazards are real but small: ~5 percentage points of recall, ~10% of inputs reaching a different fixed point.",
+    "supersedes": "Qualifies the phase-7 injection study, which reported hazards as benign. Injection was independent and random; real glitches are correlated with input transitions and concentrated in specific neurons, so injection over-estimated benignity."
   }
 }
