@@ -1,0 +1,14 @@
+{
+  "N": 32,
+  "M": 4,
+  "hd": 3,
+  "kappa": 1.0,
+  "terms": 259,
+  "gates": 671,
+  "trials": 40,
+  "behav_settled": 0.975,
+  "behav_recall": 0.95,
+  "gate_settled": 1.0,
+  "gate_recall": 0.9,
+  "agreement": 0.9
+}

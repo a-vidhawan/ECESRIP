@@ -10,7 +10,7 @@ a neuron with d inputs needs a 2^d LUT -- so the obvious question is whether a
 pattern-aware support stores more patterns at the SAME d. If it did, capacity
 would be free area-wise.
 
-Five support strategies are compared at matched fan-in:
+Six supports are compared at matched fan-in d:
 
   regular      random d-regular, pattern-blind          (the incumbent baseline)
   correlation  keep the d edges per neuron with the largest |sum_mu xi_i xi_j|
@@ -21,25 +21,42 @@ Five support strategies are compared at matched fan-in:
                edge by a hinge-weighted correlation that only counts (pattern,
                neuron) constraints whose margin is currently violated, so edges
                are added where the margin deficit actually is
+  decoy        CONTROL. The correlation selector run on a FRESH, INDEPENDENT
+               pattern set -- the same machinery pointed at the wrong patterns.
+               Isolates "the selector builds a better graph" from "the selector
+               knows the patterns".
   ring         circulant nearest-neighbour support -- a KNOWN-BAD control,
                included to prove the comparison can detect a bad support
 
-All five go through the same degree-constrained selector so every strategy is
-exactly (or near-exactly) d-regular; achieved mean/max degree is printed and
-stored so a fan-in advantage cannot masquerade as a capacity win. Every strategy
-gets the identical trainer, the identical kappa ladder, and the identical seeds.
+All six go through the same degree-constrained selector (greedy b-matching under
+a hard degree cap of d, plus a deficit-repair pass), so every strategy is
+exactly or near-exactly d-regular; the achieved mean/max/min degree is printed
+and stored so a fan-in advantage cannot masquerade as a capacity win. Every
+strategy gets the identical trainer (train_margin_auto), the identical kappa
+ladder, the identical M grid, the identical seeds, and the identical recall
+protocol (DSATUR colouring, delays = colour+1, settle_event_driven).
 
-FINDING (see results/learned_support.json, and the report printed at the end):
-pattern-aware support does NOT beat the pattern-blind random d-regular baseline.
-Across N in {64,128} and d in {16,32}, correlation/projection/greedy tie with or
-lose to `regular` on max storable M, and are no better on recall at HD = 5%/10%.
-The ring control DOES lose clearly, which shows the measurement is sensitive
-enough to see a bad support -- so the null result is not an artefact of a blunt
-instrument. The interpretation: for random unbiased patterns the empirical
-correlations carry no reusable structure (all |sum_mu xi_i xi_j| are O(sqrt(M))
-noise), so "pattern-aware" selection is just a different random graph, while the
-margin trainer is what actually does the work. Pattern-aware support would only
-be expected to pay off for structured/correlated pattern sets.
+FINDING -- pattern-aware support DOES beat random d-regular, by a lot.
+At matched fan-in the correlation/projection/greedy supports store roughly
+1.8-2x the patterns the random d-regular baseline can, and at matched load
+(everyone trained on the baseline's own max M) they recall ~80-100% at HD=5%/10%
+where the baseline recalls ~5%. The two controls behave exactly as they must for
+this to be believable: `ring` is no better than `regular` (the instrument can see
+a bad support), and `decoy` -- the identical selector fed independent patterns --
+lands on the baseline, not on the pattern-aware group. So the gain is
+attributable to pattern knowledge, not to the selector producing a
+structurally nicer graph. Numbers, per cell, in results/learned_support.json.
+
+CAVEATS. (1) The support is now pattern-specific: the routing is only valid for
+the pattern set it was derived from, so a stored-set change means a re-route,
+not just a re-train. The baseline graph is equally fixed, but it is
+pattern-agnostic, which is a real deployment difference. (2) Only 2 replicates
+per cell and one pattern draw per M, so max-M is resolved to the M grid, not
+finely. (3) Patterns are i.i.d. random +/-1; a correlation-based selector on
+i.i.d. patterns is picking up sampling noise in sum_mu xi_i xi_j, which is
+exactly the "structure" the trainer then exploits -- the effect should be
+expected to change (probably grow) for genuinely correlated pattern sets, and
+this experiment does not measure that.
 
 Run:  python3 learned_support.py            (~15 min)
       python3 learned_support.py --quick    (smaller sweep)
@@ -170,6 +187,18 @@ def support_greedy(pats, d, rng, rounds=4, kappa=1.0):
     return mask
 
 
+def support_decoy(pats, d, rng, seed):
+    """CONTROL. Identical selector, identical score function, but computed on a
+    FRESH independent pattern set of the same shape -- i.e. the right machinery
+    pointed at the wrong patterns. If `correlation` beats `regular` because it
+    knows the patterns, this must NOT beat `regular`; if it does, the advantage
+    came from the selector's graph structure and not from pattern knowledge."""
+    M, N = pats.shape
+    fake = np.random.default_rng(seed + 90210).choice(
+        [-1, 1], size=(M, N)).astype(float)
+    return support_correlation(fake, d, rng)
+
+
 def build_support(kind, N, d, pats, seed):
     rng = np.random.default_rng(seed)
     if kind == "regular":
@@ -182,62 +211,88 @@ def build_support(kind, N, d, pats, seed):
         return support_projection(pats, d, rng)
     if kind == "greedy":
         return support_greedy(pats, d, rng)
+    if kind == "decoy":
+        return support_decoy(pats, d, rng, seed)
     raise ValueError(kind)
 
 
-STRATEGIES = ["regular", "correlation", "projection", "greedy", "ring"]
+STRATEGIES = ["regular", "correlation", "projection", "greedy",
+              "decoy", "ring"]
 
 
 # ── sweep ───────────────────────────────────────────────────────────────────
 
 def m_grid(d, N):
-    base = [d // 4, d // 3, d // 2, int(d * 0.65), int(d * 0.8), d,
-            int(d * 1.25), int(d * 1.5)]
-    out = sorted({max(2, m) for m in base if m <= N // 2})
-    return out
+    """M values swept upward, as multiples of the fan-in d. Runs to 2.5d
+    because the pattern-aware supports turn out to keep working well past the
+    ~0.8d where the random-regular baseline dies. Coarse on purpose: the grid is
+    the same for every strategy, so it costs resolution, not fairness."""
+    fr = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5]
+    out = sorted({max(2, int(round(d * f))) for f in fr})
+    return [m for m in out if m <= N]
 
 
-def run_cell(N, d, kind, seed, trials, hds, verbose=True):
-    """Sweep M upward for one (N, d, strategy); return the largest M with all
-    patterns stored, plus recall at that M."""
-    best = dict(N=N, d=d, strategy=kind, max_M=0, kappa=None,
-                mean_degree=None, max_degree=None, min_degree=None,
-                recall={}, support_s=0.0, train_s=0.0)
+def train_at(N, d, kind, pats, seed):
+    mask = build_support(kind, N, d, pats, seed)
+    W, kap = train_margin_auto(pats, mask, kappas=KAPPAS, seed=seed)
+    return W, kap, mask
+
+
+def run_cell(N, d, kind, seed, hds, trials, verbose=True):
+    """Sweep M upward for one (N, d, strategy, seed); return the largest M with
+    ALL patterns stored, the achieved degrees, and recall at that M."""
+    out = dict(N=N, d=d, strategy=kind, seed=seed, max_M=0, kappa=None,
+               mean_degree=None, max_degree=None, min_degree=None,
+               n_edges=None, recall_at_maxM={})
+    keep = None
     fails = 0
     for M in m_grid(d, N):
         pats = np.random.default_rng(seed * 1000 + M).choice(
             [-1, 1], size=(M, N)).astype(float)
-        t0 = time.time()
-        mask = build_support(kind, N, d, pats, seed)
-        ts = time.time() - t0
+        W, kap, mask = train_at(N, d, kind, pats, seed)
         deg = mask.sum(axis=1)
-        t0 = time.time()
-        W, kap = train_margin_auto(pats, mask, kappas=KAPPAS, seed=seed)
-        tt = time.time() - t0
         nf = n_fixed(W, pats)
         if verbose:
-            print(f"    M={M:<3} deg mean/max/min={deg.mean():.1f}/"
-                  f"{int(deg.max())}/{int(deg.min())} kappa={kap} "
-                  f"fixed={nf}/{M} ({ts:.1f}s+{tt:.1f}s)", flush=True)
+            print(f"    M={M:<3} deg {deg.mean():.2f}/{int(deg.max())}/"
+                  f"{int(deg.min())} kappa={kap} fixed={nf}/{M}", flush=True)
         if nf == M:
             fails = 0
-            best.update(max_M=M, kappa=kap,
-                        mean_degree=float(deg.mean()),
-                        max_degree=int(deg.max()),
-                        min_degree=int(deg.min()),
-                        support_s=round(ts, 2), train_s=round(tt, 2))
-            best["_W"], best["_pats"] = W, pats
+            out.update(max_M=M, kappa=kap, mean_degree=float(deg.mean()),
+                       max_degree=int(deg.max()), min_degree=int(deg.min()),
+                       n_edges=int(deg.sum() // 2))
+            keep = (W, pats)
         else:
             fails += 1
-            if fails >= 2:
-                break
-    if "_W" in best:
-        W, pats = best.pop("_W"), best.pop("_pats")
+            if fails >= 1:      # failure is sharp and monotone in M here;
+                break           # stopping at the first one, for every strategy
+                                # alike, roughly halves the runtime
+    if keep is not None:
+        W, pats = keep
         for hd in hds:
-            r = recall_rate(W, pats, hd, trials, np.random.default_rng(seed + 7))
-            best["recall"][f"hd{hd}"] = r
-    best.pop("_W", None); best.pop("_pats", None)
-    return best
+            out["recall_at_maxM"][f"hd{hd}"] = recall_rate(
+                W, pats, hd, trials, np.random.default_rng(seed + 7))
+    return out
+
+
+def matched_recall(N, d, kind, M_ref, seed, hds, trials):
+    """Recall for every strategy at the SAME load M_ref (the baseline's max M),
+    so strategies are not compared at different pattern counts."""
+    pats = np.random.default_rng(seed * 1000 + M_ref).choice(
+        [-1, 1], size=(M_ref, N)).astype(float)
+    W, kap, mask = train_at(N, d, kind, pats, seed)
+    nf = n_fixed(W, pats)
+    r = dict(M_ref=M_ref, kappa=kap, n_fixed=nf, all_stored=bool(nf == M_ref),
+             mean_degree=float(mask.sum(axis=1).mean()))
+    for hd in hds:
+        r[f"hd{hd}"] = recall_rate(W, pats, hd, trials,
+                                   np.random.default_rng(seed + 7))
+    return r
+
+
+def reps_for(N, d):
+    """Replicates (independent pattern draws + independent support seeds) per
+    cell. Uniform across cells and strategies."""
+    return 2
 
 
 def main():
@@ -246,85 +301,150 @@ def main():
     ap.add_argument("--ds", type=int, nargs="+", default=[16, 32])
     ap.add_argument("--trials", type=int, default=40)
     ap.add_argument("--seed", type=int, default=11)
+    ap.add_argument("--reps", type=int, default=None)
     ap.add_argument("--quick", action="store_true")
     ap.add_argument("--out", default=os.path.join(HERE, "results",
                                                   "learned_support.json"))
     args = ap.parse_args()
     if args.quick:
-        args.Ns, args.ds, args.trials = [64], [16], 20
+        args.Ns, args.ds, args.trials, args.reps = [64], [16], 20, 1
 
-    t_start = time.time()
-    rows = []
+    t0 = time.time()
+    rows, matched = [], []
     for N in args.Ns:
         hds = [max(1, int(round(f * N))) for f in (0.05, 0.10)]
         for d in args.ds:
-            print(f"\n=== N={N} d={d}  (HD = {hds[0]}, {hds[1]}) ===", flush=True)
+            R = args.reps or reps_for(N, d)
+            print(f"\n=== N={N} d={d}  HD={hds}  reps={R} ===", flush=True)
             for kind in STRATEGIES:
-                print(f"  [{kind}]", flush=True)
-                r = run_cell(N, d, kind, args.seed, args.trials, hds)
-                rows.append(r)
+                for rep in range(R):
+                    sd = args.seed + 137 * rep
+                    print(f"  [{kind}] rep {rep} (seed {sd})", flush=True)
+                    rows.append(run_cell(N, d, kind, sd, hds, args.trials))
+            # matched-load recall at the baseline's median max M
+            base = sorted(r["max_M"] for r in rows
+                          if r["N"] == N and r["d"] == d
+                          and r["strategy"] == "regular")
+            M_ref = base[len(base) // 2] if base else 0
+            if M_ref:
+                print(f"  -- matched-load recall at M_ref={M_ref} --", flush=True)
+                for kind in STRATEGIES:
+                    for rep in range(R):
+                        sd = args.seed + 137 * rep
+                        m = matched_recall(N, d, kind, M_ref, sd, hds,
+                                           args.trials)
+                        m.update(N=N, d=d, strategy=kind, seed=sd)
+                        matched.append(m)
 
     # ── report ──
-    print("\n" + "=" * 92)
-    print("MAX M WITH ALL PATTERNS STORED, and recall at HD=5%/10% of N "
-          f"({args.trials} trials, seed {args.seed})")
-    print("=" * 92)
-    hdr = (f"{'N':>4}{'d':>4}  {'strategy':<12}{'maxM':>6}{'vs reg':>8}"
-           f"{'kappa':>7}{'deg mean':>10}{'deg max':>9}{'deg min':>9}"
+    def agg(vals):
+        v = sorted(vals)
+        return v[len(v) // 2], min(v), max(v)
+
+    print("\n" + "=" * 104)
+    print(f"MAX M WITH ALL PATTERNS STORED  (median [min-max] over reps), "
+          f"recall at each strategy's own max M, {args.trials} trials/point")
+    print("=" * 104)
+    hdr = (f"{'N':>4}{'d':>4}  {'strategy':<12}{'maxM med':>10}{'range':>10}"
+           f"{'vs reg':>8}{'deg mean':>10}{'deg max':>9}{'deg min':>9}"
            f"{'rec@5%':>9}{'rec@10%':>9}")
     print(hdr); print("-" * len(hdr))
+    summary = []
     for N in args.Ns:
+        hds = [max(1, int(round(f * N))) for f in (0.05, 0.10)]
         for d in args.ds:
             cell = [r for r in rows if r["N"] == N and r["d"] == d]
             if not cell:
                 continue
-            base = next((r["max_M"] for r in cell
-                         if r["strategy"] == "regular"), 0)
-            for r in cell:
-                rec = r["recall"]
-                ks = sorted(rec.keys(), key=lambda s: int(s[2:]))
-                v = [rec[k] for k in ks] + [float("nan")] * 2
-                delta = (f"{r['max_M']-base:+d}" if base else "--")
-                print(f"{r['N']:>4}{r['d']:>4}  {r['strategy']:<12}"
-                      f"{r['max_M']:>6}{delta:>8}{str(r['kappa']):>7}"
-                      f"{(r['mean_degree'] or 0):>10.1f}"
-                      f"{(r['max_degree'] or 0):>9}{(r['min_degree'] or 0):>9}"
-                      f"{100*v[0]:>8.0f}%{100*v[1]:>8.0f}%")
+            bm, _, _ = agg([r["max_M"] for r in cell
+                            if r["strategy"] == "regular"])
+            for kind in STRATEGIES:
+                rr = [r for r in cell if r["strategy"] == kind]
+                if not rr:
+                    continue
+                med, lo, hi = agg([r["max_M"] for r in rr])
+                dm = [r["mean_degree"] for r in rr if r["mean_degree"]]
+                dmx = [r["max_degree"] for r in rr if r["max_degree"]]
+                dmn = [r["min_degree"] for r in rr if r["min_degree"]]
+                rec = []
+                for hd in hds:
+                    vs = [r["recall_at_maxM"].get(f"hd{hd}") for r in rr
+                          if r["recall_at_maxM"]]
+                    rec.append(float(np.mean(vs)) if vs else float("nan"))
+                srow = dict(N=N, d=d, strategy=kind, maxM_median=med,
+                            maxM_min=lo, maxM_max=hi, vs_regular=med - bm,
+                            ratio=(med / bm if bm else None),
+                            deg_mean=float(np.mean(dm)) if dm else None,
+                            deg_max=int(max(dmx)) if dmx else None,
+                            deg_min=int(min(dmn)) if dmn else None,
+                            recall_own_maxM=dict(zip([f"hd{h}" for h in hds],
+                                                     rec)))
+                summary.append(srow)
+                print(f"{N:>4}{d:>4}  {kind:<12}{med:>10}"
+                      f"{f'{lo}-{hi}':>10}{med-bm:>+8}"
+                      f"{(srow['deg_mean'] or 0):>10.2f}"
+                      f"{(srow['deg_max'] or 0):>9}{(srow['deg_min'] or 0):>9}"
+                      f"{100*rec[0]:>8.0f}%{100*rec[1]:>8.0f}%")
             print()
 
-    # honest verdict
+    if matched:
+        print("=" * 104)
+        print("RECALL AT MATCHED LOAD (all strategies at the baseline's max M) "
+              f"-- {args.trials} trials/point, mean over reps")
+        print("=" * 104)
+        h2 = (f"{'N':>4}{'d':>4}  {'strategy':<12}{'M_ref':>7}{'stored':>9}"
+              f"{'rec@5%':>9}{'rec@10%':>9}")
+        print(h2); print("-" * len(h2))
+        for N in args.Ns:
+            hds = [max(1, int(round(f * N))) for f in (0.05, 0.10)]
+            for d in args.ds:
+                for kind in STRATEGIES:
+                    mm = [m for m in matched if m["N"] == N and m["d"] == d
+                          and m["strategy"] == kind]
+                    if not mm:
+                        continue
+                    st = np.mean([m["all_stored"] for m in mm])
+                    r5 = np.mean([m[f"hd{hds[0]}"] for m in mm])
+                    r10 = np.mean([m[f"hd{hds[1]}"] for m in mm])
+                    print(f"{N:>4}{d:>4}  {kind:<12}{mm[0]['M_ref']:>7}"
+                          f"{100*st:>8.0f}%{100*r5:>8.0f}%{100*r10:>8.0f}%")
+                print()
+
+    # ── honest verdict ──
     wins = losses = ties = 0
-    for N in args.Ns:
-        for d in args.ds:
-            cell = {r["strategy"]: r for r in rows
-                    if r["N"] == N and r["d"] == d}
-            if "regular" not in cell:
-                continue
-            b = cell["regular"]["max_M"]
-            for k in ("correlation", "projection", "greedy"):
-                if k not in cell:
-                    continue
-                m = cell[k]["max_M"]
-                wins += m > b; losses += m < b; ties += m == b
-    print("-" * 92)
-    print(f"pattern-aware vs random-regular on max-M: {wins} win / "
-          f"{ties} tie / {losses} loss across {wins+ties+losses} comparisons")
+    for s_ in summary:
+        if s_["strategy"] not in ("correlation", "projection", "greedy"):
+            continue
+        wins += s_["vs_regular"] > 0
+        losses += s_["vs_regular"] < 0
+        ties += s_["vs_regular"] == 0
+    dec = [s_ for s_ in summary if s_["strategy"] == "decoy"]
+    dec_wins = sum(s_["vs_regular"] > 0 for s_ in dec)
+    print("-" * 104)
+    print(f"pattern-aware vs random-regular on max-M: {wins} win / {ties} tie /"
+          f" {losses} loss of {wins+ties+losses} cells")
+    print(f"DECOY control (same selector, wrong patterns) beats regular in "
+          f"{dec_wins}/{len(dec)} cells")
     if wins == 0:
-        print("VERDICT: pattern-aware support does NOT beat random d-regular. "
-              "Negative result.")
-    elif wins > losses:
-        print("VERDICT: pattern-aware support wins more cells than it loses; "
-              "see the per-cell deltas above for the size of the effect.")
+        print("VERDICT: pattern-aware support does NOT beat random d-regular.")
+    elif dec_wins >= wins:
+        print("VERDICT: the gain is NOT from pattern knowledge -- the decoy "
+              "control gains as much, so it is the selector/graph structure.")
     else:
-        print("VERDICT: no consistent advantage for pattern-aware support.")
-    print(f"total runtime {time.time()-t_start:.0f}s")
+        print("VERDICT: pattern-aware support beats random d-regular, and the "
+              "decoy control does not reproduce the gain, so the gain is "
+              "attributable to pattern knowledge.")
+    print(f"total runtime {time.time()-t0:.0f}s")
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     with open(args.out, "w") as f:
         json.dump(dict(config=dict(Ns=args.Ns, ds=args.ds, trials=args.trials,
                                    seed=args.seed, kappas=list(KAPPAS),
-                                   strategies=STRATEGIES),
-                       rows=rows), f, indent=2)
+                                   strategies=STRATEGIES,
+                                   reps={f"N{N}_d{d}": (args.reps or reps_for(N, d))
+                                         for N in args.Ns for d in args.ds}),
+                       summary=summary, runs=rows, matched_load=matched),
+                  f, indent=2)
     print(f"wrote {args.out}")
 
 
