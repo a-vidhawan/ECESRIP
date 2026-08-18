@@ -9,6 +9,6 @@
   "behav_settled": 1.0,
   "behav_recall": 0.925,
   "gate_settled": 1.0,
-  "gate_recall": 0.1,
-  "agreement": 0.1
+  "gate_recall": 0.8,
+  "agreement": 0.8
 }

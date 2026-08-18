@@ -244,7 +244,8 @@ def main():
                    trials=n_, behav_settled=bset / n_, behav_recall=bok / n_,
                    gate_settled=gset / n_, gate_recall=gok / n_,
                    agreement=agree / n_),
-              open(os.path.join(HERE, "results", "gate_level_hazard.json"), "w"),
+              open(os.path.join(HERE, "results",
+                                f"gate_level_hazard_N{N}_M{M}.json"), "w"),
               indent=2)
     if args.keep:
         print(f"\nnetlists kept in {out}")
