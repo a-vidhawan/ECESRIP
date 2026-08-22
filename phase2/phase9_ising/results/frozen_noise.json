@@ -1,0 +1,23 @@
+{
+  "n": 60,
+  "p": 0.3,
+  "instances": 8,
+  "steps": 60,
+  "rounds": 20,
+  "quality": {
+    "fresh": 0.9967862207151084,
+    "frozen": 0.9924668711367618,
+    "frozen_r": 0.9985890932019383,
+    "chaotic": 0.9762789520774997,
+    "sa": 0.9996438746438747
+  },
+  "redraws": {
+    "fresh": 1200.0,
+    "frozen": 60.0,
+    "frozen_r": 60.0,
+    "chaotic": 0.0
+  },
+  "dwell_median": 2.0,
+  "dwell_mean": 2.125,
+  "dwell_useful_fraction": 0.10625
+}
