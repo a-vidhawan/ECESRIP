@@ -1,0 +1,68 @@
+{
+  "N": 16,
+  "M": 4,
+  "hd": 3,
+  "chi": 8,
+  "kappa": 1.0,
+  "terms": 598,
+  "gates_single_rail": 2875,
+  "gates_dual_rail": 6169,
+  "delay_scale": 40,
+  "trials": 8,
+  "rows": [
+    {
+      "config": "reference (zero-delay logic)",
+      "gates": null,
+      "settled": 1.0,
+      "recall": 0.625,
+      "agreement": 1.0,
+      "fixpoint": 1.0,
+      "latency": 391.0
+    },
+    {
+      "config": "baseline: transport delay",
+      "gates": 2875,
+      "settled": 1.0,
+      "recall": 0.5,
+      "agreement": 0.75,
+      "fixpoint": 0.75,
+      "latency": 261.0
+    },
+    {
+      "config": "A. inertial delay, tau=0",
+      "gates": 2907,
+      "settled": 1.0,
+      "recall": 0.5,
+      "agreement": 0.75,
+      "fixpoint": 0.75,
+      "latency": 261.0
+    },
+    {
+      "config": "A. inertial delay, tau=8",
+      "gates": 2907,
+      "settled": 1.0,
+      "recall": 0.5,
+      "agreement": 0.75,
+      "fixpoint": 0.75,
+      "latency": 269.75
+    },
+    {
+      "config": "B. C-element NCL, colour-scheduled",
+      "gates": 6169,
+      "settled": 1.0,
+      "recall": 0.125,
+      "agreement": 0.25,
+      "fixpoint": 1.0,
+      "latency": 2315.0
+    },
+    {
+      "config": "B. C-element NCL, NO colouring",
+      "gates": 6169,
+      "settled": 0.0,
+      "recall": 0.0,
+      "agreement": 0.0,
+      "fixpoint": 0.0,
+      "latency": null
+    }
+  ]
+}
