@@ -1,1 +1,11 @@
 N=64 M=8 radius=3 HD=6 trials=30
+  kappa=1.0, stored 8/8
+  chi=5, 512 coupling edges, max scheduling delay=750
+  9,739 product terms | single-rail 60,808 gates | dual-rail 123,599 gates (2.03x)
+
+  simulating...
+    reference (zero-delay logic)       settled  73%  fixpt  73%  recall  17%  agree 100%
+    baseline: transport delay          settled 100%  fixpt  47%  recall  10%  agree  27%
+    A. inertial delay, tau=0           settled 100%  fixpt  43%  recall  10%  agree  13%
+    A. inertial delay, tau=16          settled 100%  fixpt  43%  recall  10%  agree  13%
+    A. inertial delay, tau=64          settled 100%  fixpt  47%  recall  10%  agree  13%

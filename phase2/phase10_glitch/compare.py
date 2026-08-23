@@ -47,29 +47,29 @@ from rtl_n256 import emit_lut, emit_sched
 import netlist, schemes
 
 
-def build(N, M, radius, seed, out):
-    """Train, then minimise every neuron's ON-set and OFF-set separately.
+def build(N, M, radius, seed, out, degree=0):
+    """Train, then minimise every neuron with operating-region don't-cares.
 
-    The OFF-set is not the complement of the minimised ON-set -- it is a second
-    independent minimisation over the same care set with the output column
-    flipped. Dual-rail logic needs both, and needs each to be a positive SOP.
+    Only the ON-set is minimised. An earlier version also ran espresso on the
+    flipped output column to get an independent OFF-set cover for the dual-rail
+    build. That is twice the work AND wrong: two covers minimised against the
+    same don't-care set leave points covered by neither, which deadlocks
+    completion detection. The false rail is derived structurally instead.
     """
     pats = np.random.default_rng(seed + M).choice([-1, 1], size=(M, N)).astype(float)
-    mask = make_support(N, min(N - 1, max(16, 4 * M)), "regular",
+    d = degree or min(N - 1, max(16, 4 * M))
+    mask = make_support(N, min(N - 1, d), "regular",
                         np.random.default_rng(seed))
     W, kappa = train_margin_auto(pats, mask, seed=seed)
-    on, off = [], []
+    on = []
     for i in range(N):
         sup, d, rows = care_rows(i, W, pats, radius)
         if sup is None or d == 0:
-            on.append((None, None)); off.append((None, None)); continue
+            on.append((None, None)); continue
         p = os.path.join(out, f"n{i}.pla")
         write_pla(p, sup, d, rows, dc=True)
         on.append((sup, espresso_sop(p)))
-        q = os.path.join(out, f"n{i}_off.pla")
-        write_pla(q, sup, d, {k: 1 - v for k, v in rows.items()}, dc=True)
-        off.append((sup, espresso_sop(q)))
-    return pats, W, kappa, on, off
+    return pats, W, kappa, on
 
 
 def emit_tb(N, inits, budget, tb, vec):
@@ -138,6 +138,8 @@ def main():
     ap.add_argument("--N", type=int, default=32)
     ap.add_argument("--M", type=int, default=8)
     ap.add_argument("--radius", type=int, default=3)
+    ap.add_argument("--degree", type=int, default=0,
+                    help="coupling fan-in. Left at 0 this scales with M, which\n                         at N>=32 puts the care set past 40k rows and espresso\n                         past its half-hour timeout on a single neuron.")
     ap.add_argument("--hd", type=int, default=0)
     ap.add_argument("--trials", type=int, default=40)
     ap.add_argument("--seed", type=int, default=11)
@@ -158,7 +160,7 @@ def main():
     os.makedirs(out, exist_ok=True)
     print(f"N={N} M={M} radius={args.radius} HD={hd} trials={args.trials}")
 
-    pats, W, kappa, on, off = build(N, M, args.radius, args.seed, out)
+    pats, W, kappa, on = build(N, M, args.radius, args.seed, out, args.degree)
     print(f"  kappa={kappa}, stored {n_fixed(W, pats)}/{M}")
 
     n, edges = graph_from_W(W)
