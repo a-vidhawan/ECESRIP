@@ -13,3 +13,24 @@ N=32 M=8 radius=3 HD=3 trials=40
     A. inertial delay, tau=64          settled 100%  fixpt  72%  recall  60%  agree  52%
     A. inertial delay, tau=100         settled 100%  fixpt  65%  recall  50%  agree  48%
     B. C-element NCL, colour-scheduled settled 100%  fixpt 100%  recall   0%  agree   0%
+    B. C-element NCL, NO colouring: FAILED -- simulation wall-clock timeout
+
+configuration                        gates  settled  fixpt  recall  agree  latency
+----------------------------------------------------------------------------------
+reference (zero-delay logic)             -     100%   100%     60%   100%     2947
+baseline: transport delay           29,899     100%    68%     48%    62%     1743
+A. inertial delay, tau=0            29,963     100%    70%     57%    50%      768
+A. inertial delay, tau=8            29,963     100%    72%     57%    50%      783
+A. inertial delay, tau=16           29,963     100%    72%     57%    50%      797
+A. inertial delay, tau=32           29,963     100%    75%     60%    55%      801
+A. inertial delay, tau=64           29,963     100%    72%     60%    52%      856
+A. inertial delay, tau=100          29,963     100%    65%     50%    48%     1086
+B. C-element NCL, colour-scheduled  60,789     100%   100%      0%     0%     3189
+B. C-element NCL, NO colouring      FAILED: simulation wall-clock timeout
+----------------------------------------------------------------------------------
+fixpt  = the settled state really is a fixed point of the logic.
+agree  = identical to the zero-delay reference. Meaningful for the
+         single-rail rows, which run the same schedule; the NCL rows
+         run a different but equally valid order, so read fixpt there.
+
+wrote /home/user/ECESRIP/phase2/phase10_glitch/results/glitch_N32_M8.json

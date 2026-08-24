@@ -9,3 +9,4 @@ N=64 M=8 radius=3 HD=6 trials=30
     A. inertial delay, tau=0           settled 100%  fixpt  43%  recall  10%  agree  13%
     A. inertial delay, tau=16          settled 100%  fixpt  43%  recall  10%  agree  13%
     A. inertial delay, tau=64          settled 100%  fixpt  47%  recall  10%  agree  13%
+    B. C-element NCL, colour-scheduled settled 100%  fixpt 100%  recall   0%  agree   0%

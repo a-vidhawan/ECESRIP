@@ -72,7 +72,7 @@ def build(N, M, radius, seed, out, degree=0):
     return pats, W, kappa, on
 
 
-def emit_tb(N, inits, budget, tb, vec):
+def emit_tb(N, inits, budget, hold, tb, vec):
     nib = (N + 3) // 4
     open(vec, "w").write("".join(
         format(int(s), f"0{nib}x") + "\n" for s in inits))
@@ -81,6 +81,13 @@ module tb;
   localparam int NTESTS = {len(inits)};
   localparam int TIMEOUT = {budget};
   localparam int DRAIN = {max(200, budget // 20)};
+  // Quiescence must PERSIST. `s === s_next` is a combinational comparison, so
+  // in a gate-level design it is transiently true while the logic is still
+  // propagating -- the tell was the zero-delay reference reporting a LOWER
+  // settled rate than the glitchy designs it is the reference for. Requiring
+  // the comparison to hold continuously for longer than the worst-case
+  // scheduling delay removes that false positive.
+  localparam int HOLD = {hold};
   logic init_en = 1;
   logic [{N-1}:0] init_val = '0;
   wire  [{N-1}:0] s;
@@ -88,16 +95,18 @@ module tb;
   hopfield_top dut (.init_en(init_en), .init_val(init_val),
                     .s(s), .stable(stable));
   logic [{N-1}:0] vectors [0:NTESTS-1];
-  integer t; time t0; reg done;
+  integer t, hold; time t0; reg done;
   initial begin
     $readmemh("{vec}", vectors);
     for (t = 0; t < NTESTS; t = t + 1) begin
       init_en = 1; init_val = vectors[t]; #(DRAIN);
       init_en = 0; t0 = $time; done = 0;
+      hold = 0;
       begin : settle
         forever begin
           #1;
-          if (stable) begin done = 1; disable settle; end
+          if (stable) hold = hold + 1; else hold = 0;
+          if (hold >= HOLD) begin done = 1; disable settle; end
           if ($time - t0 > TIMEOUT) disable settle;
         end
       end
@@ -193,9 +202,10 @@ def main():
         v[rng.choice(N, size=hd, replace=False)] ^= 1
         cases.append((v, m))
     inits = [int("".join(str(b) for b in v[::-1]), 2) for v, _ in cases]
-    budget = 400 * max(delays) + 20000
+    budget = 600 * max(delays) + 40000
     tb = os.path.join(out, "tb.sv"); vec = os.path.join(out, "vec.hex")
-    emit_tb(N, inits, budget, tb, vec)
+    hold = max(delays) + 200
+    emit_tb(N, inits, budget, hold, tb, vec)
 
     # ---- configurations --------------------------------------------------
     cfgs = []
