@@ -197,6 +197,65 @@ stochastic non-convex problems," *ICML 2016*; arXiv:1503.03712. **[K]**
 
 ---
 
+## TIER D — the rest of the review's gap list
+
+Not yet searched. Full citations so counsel can pull them without a second
+identification pass. All **[K]** unless marked otherwise.
+
+**Cellular neural networks** — recurrent threshold arrays with local coupling
+that settle without a clock:
+> L. O. Chua, L. Yang, "Cellular neural networks: Theory," *IEEE Trans. Circuits
+> and Systems* **35**(10), 1257–1272 (1988); and "Cellular neural networks:
+> Applications," same issue, 1273–1290.
+
+**Partitioned cellular automata** — "partition the nodes so a block updates with
+no intra-block interaction, then alternate partitions" is claim 1's partition
+concept in 1980s CA hardware:
+> N. Margolus, "Physics-like models of computation," *Physica D* **10**, 81–95 (1984).
+> T. Toffoli, N. Margolus, *Cellular Automata Machines: A New Environment for
+> Modeling*, MIT Press (1987).
+
+**Boltzmann-machine analog VLSI with staggered/randomised node timing:**
+> J. Alspector, R. B. Allen, "A neuromorphic VLSI learning system," in
+> *Advanced Research in VLSI* (1987), 313–349.
+> J. Alspector, B. Gupta, R. B. Allen, "Performance of a stochastic learning
+> microchip," *NIPS 1988*.
+> Also sweep **Alspector / Bellcore** as inventor and assignee — the patents
+> matter more than the papers here.
+
+**Wavefront arrays** — ordering enforced by data arrival rather than a clock:
+> S. Y. Kung, K. S. Arun, R. J. Gal-Ezer, D. V. Bhaskar Rao, "Wavefront array
+> processor: language, architecture, and applications," *IEEE Trans. Computers*
+> **C-31**(11), 1054–1066 (1982).
+> S. Y. Kung, *VLSI Array Processors*, Prentice Hall (1988).
+
+**Commercial annealers — enforcing a valid update order across simultaneously
+evaluated spins:**
+> M. Aramon, G. Rosenberg, E. Valiante, T. Miyazawa, H. Tamura, H. G. Katzgraber,
+> "Physics-inspired optimization for quadratic unconstrained problems using a
+> digital annealer," *Frontiers in Physics* **7**, 48 (2019). — Fujitsu
+> H. Goto, K. Tatsumura, A. R. Dixon, "Combinatorial optimization by simulating
+> adiabatic bifurcations in nonlinear Hamiltonian systems," *Science Advances*
+> **5**, eaav2372 (2019). — Toshiba SBM
+> Plus the Fujitsu, Toshiba and D-Wave **patent families** on control sequencing,
+> which is where the risk actually is.
+
+**Neuromorphic, for the "clockless / event-driven update ordering" language:**
+> P. A. Merolla et al., "A million spiking-neuron integrated circuit with a
+> scalable communication network and interface," *Science* **345**, 668–673
+> (2014). — IBM TrueNorth
+> M. Davies et al., "Loihi: A neuromorphic manycore processor with on-chip
+> learning," *IEEE Micro* **38**(1), 82–99 (2018). — Intel
+> S. B. Furber, F. Galluppi, S. Temple, L. A. Plana, "The SpiNNaker project,"
+> *Proc. IEEE* **102**(5), 652–665 (2014).
+
+**Highest-value patent sweep, per the review:** continuations and family members
+of **Aadit / Camsari (UCSB)** and **Datta (Purdue)**. If a US application claims
+graph-coloured p-bit updating, that is the single reference that matters most and
+it is on no list we have. Sweep by inventor and by assignee, not by keyword.
+
+---
+
 ## What to send me
 
 Priority order, if you are downloading by hand:
