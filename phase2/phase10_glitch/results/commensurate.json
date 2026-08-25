@@ -1,0 +1,32 @@
+[
+  {
+    "N": 16,
+    "chi": 8.0,
+    "edges": 112.0,
+    "consecutive  k*s": 1.0,
+    "powers of two": 1.0,
+    "primes * s": 1.0,
+    "primes, coprime": 1.0,
+    "incommensurate": 1.0
+  },
+  {
+    "N": 32,
+    "chi": 6.5,
+    "edges": 255.5,
+    "consecutive  k*s": 1.0,
+    "powers of two": 1.0,
+    "primes * s": 1.0,
+    "primes, coprime": 1.0,
+    "incommensurate": 1.0
+  },
+  {
+    "N": 64,
+    "chi": 5.0,
+    "edges": 512.0,
+    "consecutive  k*s": 1.0,
+    "powers of two": 1.0,
+    "primes * s": 1.0,
+    "primes, coprime": 1.0,
+    "incommensurate": 1.0
+  }
+]
