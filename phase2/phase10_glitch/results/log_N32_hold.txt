@@ -4,20 +4,9 @@ N=32 M=8 radius=3 HD=3 trials=40
   4,825 product terms | single-rail 29,899 gates | dual-rail 60,789 gates (2.03x)
 
   simulating...
-Traceback (most recent call last):
-  File "/home/user/ECESRIP/phase2/phase10_glitch/compare.py", line 301, in <module>
-    main()
-  File "/home/user/ECESRIP/phase2/phase10_glitch/compare.py", line 240, in main
-    res, err = run(files, out, label.split(":")[0].replace(" ", "_")
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/user/ECESRIP/phase2/phase10_glitch/compare.py", line 125, in run
-    c = subprocess.run(["iverilog", "-g2012", "-o", vvp] + files,
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.11/subprocess.py", line 548, in run
-    with Popen(*popenargs, **kwargs) as process:
-         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.11/subprocess.py", line 1026, in __init__
-    self._execute_child(args, executable, preexec_fn, close_fds,
-  File "/usr/lib/python3.11/subprocess.py", line 1955, in _execute_child
-    raise child_exception_type(errno_num, err_msg, err_filename)
-FileNotFoundError: [Errno 2] No such file or directory: 'iverilog'
+    reference (zero-delay logic)       settled  50%  fixpt  50%  recall  38%  agree 100%
+    baseline: transport delay          settled  88%  fixpt  88%  recall  52%  agree  48%
+    A. inertial delay, tau=0           settled 100%  fixpt 100%  recall  70%  agree  42%
+    A. inertial delay, tau=16          settled 100%  fixpt 100%  recall  70%  agree  42%
+    A. inertial delay, tau=32          settled 100%  fixpt 100%  recall  75%  agree  42%
+    A. inertial delay, tau=64          settled 100%  fixpt 100%  recall  75%  agree  42%
