@@ -101,9 +101,9 @@ credible §103 combination), not risk of infringement by us.
 | 5 | US 11,817,859; 11,716,083/084/085/086; 11,658,664; 11,652,482; 11,652,487 (Intel) — asynchronous circuits with capacitive threshold / majority gates | Not retrieved for 11,817,859. Confirmed only that **US 11,716,084 (Intel) is titled "Pull-up and pull-down networks controlled asynchronously by majority gate or minority gate logic"**, converting multi-input pull-up/pull-down networks into 1-input networks driven by a majority gate; and that Intel's related family recites that **"asynchronous logic does not use a global clock ... instead uses handshaking protocols as data propagates from one logic component to another."** | Claim 11 (majority-gate realisation of the threshold function); claim 1's "in the absence of any clock signal" + handshake framing; claims 4/5 (completion detection + C-element) at the level of generic async practice. | **MEDIUM-HIGH on claim 11; MEDIUM on claims 4/5** | These are gate-level/datapath primitives, not recurrent attractor networks. None of the retrieved material shows a recurrent interaction graph with a cycle, a colouring, or an inter-class update ordering. Our distinction is architectural, not device-level — argue at the level of claim 1's recurrence + partition + ordering. **However:** they establish that "asynchronous majority/threshold gate with handshake" was off-the-shelf in 2022–23, which makes claims 5, 11 and 23 near-worthless as independent points of novelty. | (ii) for 11,716,084 title and the Intel async boilerplate; **(iii)/not accessed for 11,817,859 and the other seven numbers.** Claim 1 of none of these was retrieved. |
 | 6 | Rosin, Rontani, Gauthier, Schöll, *Excitability in autonomous Boolean networks*, arXiv:1208.6181 / EPL 100:30003 (2012); and *Experiments on autonomous Boolean networks*, Chaos 23 (2013) | Excitable systems built from **asynchronous logic gates on a reconfigurable chip (FPGA) in autonomous mode — no clock**; gates interconnected into **time-delay networks** whose dynamics show nanosecond-scale spike patterns **controllable in period and phase** via the delay lines. Recurrent, unclocked Boolean networks with per-link propagation delays as the design variable. | Claim 1's clockless + recurrent-combinational-network elements; **claim 2's delay-differentiation element** (delays as the controllable design variable in an unclocked recurrent Boolean network); claim 12 (transient propagation). | **HIGH — this reference is materially underrated in the draft.** | Rosin has (a) no threshold functions / no symmetric coupling weights / no energy function, (b) no attractor-recall or fixed-point objective — the point is sustained oscillation, which is exactly what we suppress, and (c) **no colouring and no independent-set partition**. That is a real distinction. But Rosin is the perfect §103 partner for Aadit: Aadit supplies "colour the coupling graph and update colour classes as blocks," Rosin supplies "recurrent Boolean networks run unclocked on an FPGA with per-node delays chosen to set the timing." An examiner who cites Aadit + Rosin against claim 1 has a strong case, and both are in the same technological neighbourhood. | (ii) search-result summary of the EPL/arXiv abstracts and the follow-on *Chaos* paper. Full text not accessed. |
 | 7 | Hopfield, PNAS 79:2554 (1982) | Symmetric-weight recurrent binary threshold network; monotone Lyapunov energy; **asynchronous (one-at-a-time, random-order) update converges to a fixed point**; content-addressable memory framing. | Claim 1's node/interconnect/threshold-function elements; claim 13 (CAM); the entire convergence rationale in ¶[0022]–[0023]. | **HIGH as background, LOW as a standalone reference** | Nothing in claim 1 turns on the network model; Hopfield discloses no circuit-level sequencing mechanism and no colouring. It anticipates the *purpose* (CAM) and the *dynamics*, so claim 13 adds nothing patentable. Cite it, concede it, and never argue against it. | (iii) background knowledge only — nature.com and the PNAS route are blocked. Content is uncontroversial and universally known. |
-| 8 | Kosko, *Bidirectional associative memories*, IEEE Trans. SMC 18:49 (1988) | Two-layer bipartite associative memory; couplings only **between** layers; stable under **alternating layer-wise (block) update** of the two layers, with a bidirectional Lyapunov function. Implemented in hardware by many groups in the late 1980s–90s. | **Claim 7 directly** ("exactly two update classes and the interaction graph is bipartite"), claim 20's "constraining training to a two-layer coupling topology," and the two-class portions of ¶[0025]. | **HIGH against claims 7 and 20 (first alternative)** | Our only distinction on claim 7 is the clockless sequencing imported from claim 1. Kosko is a §102-grade disclosure of "bipartite ⇒ two alternately-updated classes, convergence guaranteed" — that is the entire substance of claim 7. **Recommendation: claim 7 is not independently novel.** Keep it only as a scope-fence dependent, and expect it to be rejected as adding nothing over claim 1. | (ii)/(iii) — the alternating-layer-update mechanism was confirmed at summary level in general Hopfield/BAM material; the IEEE paper itself was not accessed. |
-| 9 | Goles et al., block-sequential update literature (and the Boolean-automata-networks follow-on: Goles & Noual; "On the cost of simulating a parallel Boolean automata network by a block-sequential one") | Formal theory of **block-sequential update schedules** on threshold/automata networks: the state space is partitioned into blocks, blocks are updated in a fixed sequence, nodes within a block simultaneously; **the energy function decreases and fixed-point convergence holds for symmetric weights** under such schedules, whereas fully parallel update admits period-2 cycles. | The entire theoretical justification recited in ¶[0022]–[0023] and asserted as the benefit in claims 1, 14 ("whereby the network converges to a fixed point without oscillation"). | **HIGH against the rationale; MEDIUM against the claims** | The claims are to *circuitry*, and Goles discloses no circuit. That is the only defence and it is a good one — but it means **we must not argue that "block-sequential ⇒ convergence" is inventive**, and we should not let dependent claims be drafted so that their only added content is a restatement of Goles. This is precisely the "chromatic scheduling as an algorithm is textbook" concession we already made. | (ii) for the existence and framing of the block-sequential literature (confirmed via the Springer chapter and the "decreasing energy functions for threshold networks" material); (iii) for the specific Goles theorem statements. |
-| 10 | Orponen, *Computing with truly asynchronous threshold logic networks*, Theor. Comput. Sci. 174:123 (1997) | Threshold-logic networks under **"truly asynchronous"** operation — arbitrary/unbounded update delays, no ordering assumption at all — and the computational characterisation thereof. Published in TCS; article page on ScienceDirect confirmed to exist. | Claim 1's premise that ordering must be *enforced*; claim 14's "whereby the network converges to a fixed point without oscillation attributable to simultaneous update." | **MEDIUM-HIGH, and dangerous in a way the draft does not anticipate** | The danger is not anticipation, it is **motivation destruction**. If a POSITA already knew that threshold-logic networks compute correctly under arbitrary asynchronous delays, an examiner can say the clockless recurrent threshold network was known and the colouring is a mere obvious optimisation. Our answer must be empirical and specific: our own measurement (C1) is that **60.2% of the 2^16 state space cycles** under simultaneous update and that *unordered* delay assignment (index parity) settles 0% on the hard set — i.e. "truly asynchronous" in the physical sense of coupled nodes commiting together does *not* converge. That is a genuine, non-obvious, measured rebuttal. Put it in the spec as a worked result, not as attorney argument. | (ii) — confirmed the paper exists at that citation with that title and that it is cited alongside Goles/Noual in the automata-network literature. **Contents not accessed** (ScienceDirect blocked). I am not going to characterise its theorems from memory. |
+| 8 | Kosko, *Bidirectional associative memories*, IEEE Trans. SMC 18:49 (1988) | Two-layer bipartite associative memory; couplings only **between** layers; stable under **alternating layer-wise (block) update** of the two layers, with a bidirectional Lyapunov function. Implemented in hardware by many groups in the late 1980s–90s. | **Claim 7 directly** ("exactly two update classes and the interaction graph is bipartite"), claim 20's "constraining training to a two-layer coupling topology," and the two-class portions of ¶[0025]. | **HIGH against claims 7 and 20 (first alternative)** | Our only distinction on claim 7 is the clockless sequencing imported from claim 1. Kosko is a §102-grade disclosure of "bipartite ⇒ two alternately-updated classes, convergence guaranteed" — that is the entire substance of claim 7. **Recommendation: claim 7 is not independently novel.** Keep it only as a scope fence, and expect it to be rejected as adding nothing over claim 1. | (ii)/(iii) — the alternating-layer-update mechanism was confirmed at summary level in general Hopfield/BAM material; the IEEE paper itself was not accessed. |
+| 9 | Goles et al., block-sequential update literature (and the Boolean-automata-networks follow-on: Goles & Noual; "On the cost of simulating a parallel Boolean automata network by a block-sequential one") | Formal theory of **block-sequential update schedules** on threshold/automata networks: the node set is partitioned into blocks, blocks are updated in a fixed sequence, nodes within a block simultaneously; **the energy function decreases and fixed-point convergence holds for symmetric weights** under such schedules, whereas fully parallel update admits period-2 cycles. | The entire theoretical justification recited in ¶[0022]–[0023] and asserted as the benefit in claims 1, 14 ("whereby the network converges to a fixed point without oscillation"). | **HIGH against the rationale; MEDIUM against the claims** | The claims are to *circuitry*, and Goles discloses no circuit. That is the only defence and it is a good one — but it means **we must not argue that "block-sequential ⇒ convergence" is inventive**, and we should not let dependent claims be drafted so that their only added content is a restatement of Goles. This is precisely the "chromatic scheduling as an algorithm is textbook" concession we already made. | (ii) for the existence and framing of the block-sequential literature (confirmed via the Springer chapter and the "decreasing energy functions for threshold networks" material); (iii) for the specific Goles theorem statements. |
+| 10 | Orponen, *Computing with truly asynchronous threshold logic networks*, Theor. Comput. Sci. 174:123 (1997) | Threshold-logic networks under **"truly asynchronous"** operation — arbitrary/unbounded update delays, no ordering assumption at all — and the computational characterisation thereof. Published in TCS; article page on ScienceDirect confirmed to exist. | Claim 1's premise that ordering must be *enforced*; claim 14's "whereby the network converges to a fixed point without oscillation attributable to simultaneous update." | **MEDIUM-HIGH, and dangerous in a way the draft does not anticipate** | The danger is not anticipation, it is **motivation destruction**. If a POSITA already knew that threshold-logic networks compute correctly under arbitrary asynchronous delays, an examiner can say the clockless recurrent threshold network was known and the colouring is a mere obvious optimisation. Our answer must be empirical and specific: our own measurement (C1) is that **60.2% of the 2^16 state space cycles** under simultaneous update and that *unordered* delay assignment (index parity) settles 0% on the hard set — i.e. "truly asynchronous" in the physical sense of coupled nodes committing together does *not* converge. That is a genuine, non-obvious, measured rebuttal. Put it in the spec as a worked result, not as attorney argument. | (ii) — confirmed the paper exists at that citation with that title and that it is cited alongside Goles/Noual in the automata-network literature. **Contents not accessed** (ScienceDirect blocked). I am not going to characterise its theorems from memory. |
 | 11 | Gonzalez, Low, Gretton, Guestrin, *Parallel Gibbs Sampling: From Colored Fields to Thin Junction Trees*, AISTATS 2011 (PMLR v15:324–332) | The **Chromatic parallel Gibbs sampler**: graph-colour the Markov random field and sample all variables of one colour in parallel, cycling through colours; proves this parallel schedule is equivalent to a valid sequential sweep. Plus the Splash sampler for tightly-coupled variables. | Claim 1's partition-into-independent-sets element; claim 14's method framing; claim 18's colouring step. This is the *origin* of Aadit's method. | **HIGH against method claims 14 and 18; MEDIUM against claim 1** | It is software on a 32-core CPU — no circuitry, no delays, no clocklessness, no threshold logic, no fixed-point attractor. Claim 14 is anchored to "sequencing circuitry," which saves it, and claim 18 outputs "a circuit definition dataset," which saves it. **But the draft has already flagged this as highly material and that judgement is correct.** It forecloses the colouring step as a point of novelty for all time; any claim whose novelty rests on "colour the graph and update classes in turn" is dead on Gonzalez alone. | (ii) — PMLR listing, abstract and the chromatic/Splash decomposition confirmed via search summary; PDF at proceedings.mlr.press exists but was not fetched. |
 | 12 | Multicolour Gauss-Seidel / parallel-schedule-from-colouring (textbook) | Red-black and multicolour orderings of Gauss-Seidel/SOR: colour the sparse matrix graph, relax all unknowns of one colour in parallel, cycle colours; the result is provably identical to a sequential sweep in a permuted order. Standard numerical-linear-algebra material since the 1970s. | Same as item 11. Also the "aggregate effect identical to evaluating them one at a time" assertion in ¶[0023]. | **HIGH against any colouring-only novelty; LOW against the drafted claims** | Same argument as item 11 — no circuit. Its role is to make the colouring step *unarguably* old, which we have already conceded. Its practical effect is to force all of our novelty onto the physical realisation. | (iii) background knowledge only. Universally documented; not contentious. |
 | 13 | Fahimi, Mahmoodi, Nili, Polishchuk, Strukov, *Combinatorial optimization by weight annealing in memristive Hopfield networks*, Sci. Rep. (2021) | Memristive-crossbar Hopfield network for combinatorial optimisation in which annealing is performed by **scaling the coupling weights** rather than by injecting noise. Analog crossbar; continuous-time settling. | Claim 1's threshold-node/recurrent-interconnect elements at the analog level; peripherally claim 12 (perturbation as a computational resource). | **LOW-MEDIUM** | Analog crossbar with continuous-valued dynamics; no Boolean threshold logic block, no update classes, no colouring, no delay-based sequencing. The only real touch is that memristive Hopfield crossbars are *inherently clockless* — see §5(d), where I argue this whole family (13–15, plus the 1980s analog Hopfield chips that are **not on this list**) is a bigger threat to claim 1's "clockless" element than the draft recognises. | (ii) title/venue/approach confirmed via search summary; (iii) for detail. Not accessed. |
@@ -111,7 +111,7 @@ credible §103 combination), not risk of infringement by us.
 | 15 | Cai, Kumar et al., *Power-efficient combinatorial optimization using intrinsic noise in memristor Hopfield neural networks*, Nat. Electron. 3:409 (2020) (and arXiv:1903.11194) | Memristor-Hopfield crossbar solving max-cut, **harnessing intrinsic analog device noise as a computing resource** rather than suppressing it; analogue–digital hybrid with a feedback algorithm to amplify/damp the noise. | **Claim 12**, squarely — "device-intrinsic noise as a computational resource in a Hopfield network" is the exact concept. | **MEDIUM-HIGH against claim 12** | Distinction is the *kind* of noise and where it comes from: theirs is analog device/thermal noise in a crossbar, ours is a deterministic digital logic hazard arising from the multi-level SOP realisation of a threshold function. That is a real structural difference but it is a narrow one, and an examiner may well call it an obvious substitution of one perturbation source for another. **Claim 12 is the weakest "clever" claim in the set.** Either narrow it hard (no RNG, no noise-injection circuit, hazard arising from a specified multi-level realisation) or drop it. | (ii) — abstract-level content confirmed via search summary (intrinsic noise as resource, max-cut, crossbar). Not accessed in full. |
 | 16 | Chen & Aihara, *Chaotic simulated annealing by a neural network model with transient chaos* (1995); *On chaotic simulated annealing*, IEEE TNN (1999) | Transiently-chaotic Hopfield-type network: a self-feedback term is annealed so the network is **deterministically chaotic early and settles to a fixed point late** — annealing without any stochastic source. | Claim 12; and the spec's suggestion that occasional ordering violations act as beneficial stochastic perturbations (¶[0029]). | **MEDIUM** | This is the most awkward reference for the ¶[0029]/claim 12 story, because it establishes that **deterministic** internal dynamics deliberately used as an annealing perturbation in a Hopfield network is a known technique. It removes the "but ours isn't random noise" distinction we might have used against items 14–15. Our remaining distinction is purely that the mechanism is a circuit-level timing hazard rather than a modelled self-feedback term. | (iii) background knowledge only. Not accessed. |
 | 17 | Blake & Zisserman (GNC); Rose (deterministic annealing); Hazan et al., *Graduated optimization for stochastic non-convex problems* (2015) | Continuation / graduated non-convexity: solve a smoothed problem and track the solution as the smoothing is withdrawn. Deterministic annealing as a statistical-physics analogue of the same. | Nothing in the drafted claims. Touches only the annealing narrative in the spec. | **LOW** | Purely algorithmic optimisation theory; no circuit, no update ordering, no threshold hardware. Its only role is to make "anneal a control parameter" old, which affects no drafted claim. **This is the least material item on the list.** If it is on the list to pad an IDS, that is fine; if it is there because someone thought it was close art, it is not. | (iii) background knowledge only. Not accessed. |
-| 18 | NullaNet; LogicNets; PolyLUT (arXiv:2309.02334); NeuraLUT-Assemble (arXiv:2504.00592); SparseLUT (arXiv:2503.12829) | **NullaNet: "minimises these functions' footprint using Boolean logic minimisation, selectively determining output values for specific input combinations while treating the rest as don't-care conditions to conserve resources."** LogicNets: a-priori extremely sparse networks trained so each neuron's full truth table fits a LUT, avoiding NullaNet's don't-care-induced accuracy loss. PolyLUT/NeuraLUT/SparseLUT: successive refinements of neuron→LUT mapping with structured pruning and polynomial features. | **The absent don't-care claim family**, entirely. Also claim 18's "synthesizing combinational logic implementing a Boolean threshold function," claim 9/11 (node realisation), claim 10 (bounded degree — LogicNets' central trick). | **HIGH against the don't-care family — the single most dangerous item for the claim we have not yet written** | Our real distinctions, in order of strength: (1) **the care set is derived in closed form** — `M·Σ_{j≤h} C(d,j)` states, the union of Hamming balls of radius `h` about the stored patterns — whereas NullaNet's don't-cares are the *complement of an empirically sampled activation set*, which is data-dependent, unbounded and unverifiable; (2) **the network is recurrent**, so an incorrect off-region output can create a *new spurious fixed point* — a correctness hazard that simply does not exist in NullaNet/LogicNets' feedforward setting, and which we address; (3) **a guaranteed operating region** (recall correct for all inputs within radius `h`) rather than a statistical accuracy target. Distinction (2) is the strongest and should be the centre of gravity of the claim. Distinction (1) alone risks being dismissed as an obvious choice of don't-care set. Also note claim 10 ("maximum degree bounded independently of N") is essentially LogicNets' architecture — expect a rejection there. | (ii) — NullaNet's don't-care mechanism, LogicNets' motivation for avoiding it, and PolyLUT's positioning all confirmed by search summary of the survey/NeuraLUT-Assemble material. Primary papers not accessed. |
+| 18 | NullaNet; LogicNets; PolyLUT (arXiv:2309.02334); NeuraLUT-Assemble (arXiv:2504.00592); SparseLUT (arXiv:2503.12829) | **NullaNet: "minimises these functions' footprint using Boolean logic minimisation, selectively determining output values for specific input combinations while treating the rest as don't-care conditions to conserve resources."** LogicNets: a-priori extremely sparse networks trained so each neuron's full truth table fits a LUT, avoiding NullaNet's don't-care-induced accuracy loss. PolyLUT/NeuraLUT/SparseLUT: successive refinements of neuron→LUT mapping with structured pruning and polynomial features. | **The absent don't-care claim family**, entirely. Also claim 18's "synthesizing combinational logic implementing a Boolean threshold function," claim 9/11 (node realisation), claim 10 (bounded degree — LogicNets' central trick). | **HIGH against the don't-care family — the single most dangerous item for the claim we have not yet written** | Our real distinctions, in order of strength: (1) **the network is recurrent**, so an incorrect off-region output can create a *new spurious fixed point* — a correctness hazard that simply does not exist in NullaNet/LogicNets' feedforward setting, and which we address; (2) **the care set is derived in closed form** — `M·Σ_{j≤h} C(d,j)` states, the union of Hamming balls of radius `h` about the stored patterns — whereas NullaNet's don't-cares are the *complement of an empirically sampled activation set*, which is data-dependent, unbounded and unverifiable; (3) **a guaranteed operating region** (recall correct for all inputs within radius `h`) rather than a statistical accuracy target. **Lead with (1).** Distinction (2) alone risks being dismissed as an obvious choice of don't-care set. Also note claim 10 ("maximum degree bounded independently of N") is essentially LogicNets' architecture — expect a rejection there. | (ii) — NullaNet's don't-care mechanism, LogicNets' motivation for avoiding it, and PolyLUT's positioning all confirmed by search summary of the survey/NeuraLUT-Assemble material. Primary papers not accessed. |
 | 19 | Unger (hazards, inertial delay); Nowick & Dill, *Exact two-level minimization of hazard-free logic with multiple-input changes* (ICCAD'92; IEEE TCAD 14:986, 1995); Theobald & Nowick, *Espresso-HF* | Nowick & Dill: **exact hazard-free two-level (SOP) minimisation**, a constrained Quine–McCluskey, producing a minimal SOP that is hazard-free for a given set of **multiple**-input changes if one exists. Espresso-HF is the heuristic version. Unger: inertial vs transport delay; pulse rejection; classical asynchronous-sequential-circuit hazard theory. | **Claim 21 directly** (enable-gating ⇒ single-input-change ⇒ "combinational logic of the node circuit is hazard-free with respect to a single input change"); **claim 22** (inertial delay element with a rejection window); and the don't-care family, adversely. | **HIGH against claim 21; MEDIUM against claim 22** | Claim 21 recites textbook fundamental-mode/burst-mode asynchronous design: gate the data, let the enable be the sole changing input, synthesise SIC-hazard-free. There is nothing novel there; its only value is as a scope fence. Claim 22 is better — the *dual role* of one element as both the class sequencer and the hazard filter, with the rejection window quantitatively tied to the preceding class's settling time, is a specific structural relation I did not find disclosed. **Claim 22 is, in my assessment, the strongest apparatus claim in the draft after a properly narrowed claim 1.** ⚠️ **Internal contradiction to resolve before filing:** hazard-free two-level synthesis requires *retaining redundant consensus product terms* — exactly the terms our don't-care minimisation deletes. Claim 21 and the (absent) don't-care family are in direct technical tension, and `MEETING_PREP.md` already identifies this. If both families are prosecuted, an examiner or an opponent will read them against each other. Additionally, Nowick & Dill's own framing already contemplates **multiple**-input changes, so the "classical theory only covers SIC" caveat in `MEETING_PREP.md` is *too generous to us* — the multiple-input-change case is covered by the 1992/1995 work. | (ii) for Nowick & Dill's exact-minimisation result and the multiple-input-change scope (confirmed via search summary and the Columbia CS6861 handout listing); (iii) for Unger. Primary texts not accessed. |
 
 ---
@@ -138,7 +138,8 @@ weak evidence, and I could reach neither IEEE Xplore, ACM DL, nor any patent dat
 | US 5,793,662 | Null convention adder | Theseus | expired |
 | US 5,828,228 | Null convention logic system (Fant & Brandt) | Theseus | Issued 1998; **expired** |
 
-All are 1991–1998 filings, so all are past the 20-year term.
+All are 1991–1998 filings, so all are past the 20-year term. (Statuses above are from search-result
+summaries, not from a docket check — counsel should confirm term and any terminal disclaimers.)
 
 **The live risk is the later NCL layer, not the Fant layer.** Specifically:
 
@@ -206,7 +207,7 @@ All are 1991–1998 filings, so all are past the 20-year term.
 
 | Element | Verdict |
 |---|---|
-| "Partitioned into update classes such that no two nodes in a class are directly coupled" (claim 1, 14, 18) | **Not novel.** Gonzalez 2011, multicolour Gauss-Seidel, Aadit 2022, Goles. Keep it as a limitation; never argue it as the point of novelty. |
+| "Partitioned into update classes such that no two nodes in a class are directly coupled" (claims 1, 14, 18) | **Not novel.** Gonzalez 2011, multicolour Gauss-Seidel, Aadit 2022, Goles. Keep it as a limitation; never argue it as the point of novelty. |
 | "Enforce an update ordering among the classes" (claim 1) | **Not novel.** Aadit does exactly this with clock phases. |
 | "In the absence of any clock signal" (claim 1) | **Novel only in combination**, and the combination is obvious over Aadit + Sutton/Rosin. This element cannot carry claim 1 by itself. |
 | Claim 6 — convergence detection by a no-change pass | **Not novel.** Generic quiescence/completion detection; standard in async design and in annealer patents. |
@@ -272,32 +273,40 @@ The list has a conspicuous shape: it is strong on 2019–2024 p-bit/Ising hardwa
 LUT-NN work, and almost empty on **1985–1998 analog and asynchronous neural VLSI**, which is exactly
 where the dangerous §102 art for a *clockless recurrent threshold network* lives.
 
+Full bibliographic details for everything in this section are in **§6**, with per-item verification
+status.
+
 1. **1980s–90s analog Hopfield VLSI. This is the biggest gap and I would treat it as urgent.**
-   Graf & Jackel (AT&T Bell Labs) CMOS associative-memory chips; Sivilotti/Mead/Emerling; Verleysen
-   & Jespers; Moopenn/Thakoor (JPL). These chips are *inherently clockless*: an array of amplifiers
-   with resistive feedback, each node settling on its own RC time constant, converging to a fixed
-   point with no periodic timing reference anywhere. That is claim 1's preamble plus its clockless
-   element in 1987 silicon. What they lack is the colouring — which is why claim 1 must recite the
-   colouring **and** the delay-value relation, not the clocklessness, as its point of novelty.
-2. **Delay-differentiated / random-delay Hopfield hardware.** A search surfaced: *"Takeda et al.
-   designed direct and differential asynchronous transition modes with random delays to address the
-   oscillation problem of discrete-time Hopfield models."* If that is Takeda & Goodman (Applied
-   Optics, 1986) or a successor, it is **directly on point for claim 2** — per-node delays
-   deliberately differentiated to break simultaneous update of coupled neurons. I could not access
-   it. **Counsel should treat this as a potential §102 reference against claim 2 and pull it first.**
+   Graf & Jackel (AT&T Bell Labs); Sivilotti/Emerling/Mead (Caltech); Verleysen & Jespers (UCL);
+   Moopenn/Langenbacher/Thakoor/Khanna (JPL). These chips are *inherently clockless*: an array of
+   amplifiers with resistive feedback, each node settling on its own RC time constant, converging to
+   a fixed point with no periodic timing reference anywhere. That is claim 1's preamble plus its
+   clockless element in 1986–89 silicon. What they lack is the colouring — which is why claim 1 must
+   recite the colouring **and** the delay-value relation, not the clocklessness, as its point of
+   novelty.
+2. **Delay-differentiated / random-delay Hopfield update modes.** A recurring statement in survey
+   literature — surfaced twice, independently, in my searches — is that *"Takeda et al. designed
+   direct and differential asynchronous transition modes (random delays) to address the oscillation
+   problem of discrete-time Hopfield models,"* with the differential mode reducing oscillation and
+   the direct mode speeding energy minimisation. If that describes a real primary source, it is
+   **directly on point for claim 2** — per-node delays deliberately differentiated to break
+   simultaneous update of coupled neurons. **See the warning in §6 item G6: I could not confirm
+   which paper this refers to, and the one Takeda paper whose bibliographic details I did verify is
+   about something else.** Counsel must resolve this before relying on or dismissing it. Treat as a
+   potential §102 reference against claim 2 and pull it first.
 3. **Fujitsu Digital Annealer patent family** (parallel-trial with single-flip acceptance), and
    **Toshiba SBM** and **D-Wave** control-sequencing patents. All concern enforcing a valid update
    order across many simultaneously-evaluated spins. None are on the list.
 4. **Cellular neural networks (Chua & Yang, 1988)** and their clockless analog VLSI
    implementations — recurrent threshold arrays with local coupling that settle without a clock.
-5. **Partitioned/block cellular automata hardware** — Margolus-neighbourhood and
-   partitioned-CA machines are literally "partition the nodes so that a block updates without
-   intra-block interaction, then alternate partitions." That is our claim 1 partition concept in
-   1980s CA hardware.
+5. **Partitioned / block cellular automata hardware** — the Margolus neighbourhood partitions the
+   lattice into blocks that are *updated independently*, with the partition **changed on alternate
+   timesteps**. That is our claim-1 partition concept, plus alternation between partitions, in 1980s
+   CA hardware (Toffoli & Margolus's CAM machines).
 6. **Asynchronous / self-timed CAM and associative-memory patents** (claim 13's territory).
-7. **Boltzmann machine hardware patents, late 1980s** (Alspector at Bellcore; Bell Labs) —
-   several used deliberately staggered or randomised node update timing in analog VLSI.
-8. **Systolic/wavefront array "self-timed dataflow" patents** — the wavefront-array literature
+7. **Boltzmann machine hardware, late 1980s** — Alspector et al. at Bellcore; several such designs
+   used deliberately staggered or randomised node update timing in analog VLSI.
+8. **Systolic / wavefront array "self-timed dataflow" patents** — the wavefront-array literature
    (S.-Y. Kung) is exactly "ordering enforced by data arrival rather than a clock."
 9. **Neuromorphic async patents:** IBM TrueNorth, Intel Loihi, and SpiNNaker filings, which are full
    of "clockless / event-driven neuron update ordering" language.
@@ -315,8 +324,8 @@ where the dangerous §102 art for a *clockless recurrent threshold network* live
 - `("clockless" OR "self-timed" OR asynchronous OR "delay insensitive" OR "quasi delay
   insensitive") AND (Hopfield OR "associative memory" OR "attractor network" OR "recurrent neural")`
 - `("propagation delay" OR "delay element" OR "delay line" OR "inertial delay") AND neuron AND
-  (update order OR "simultaneous update" OR oscillation OR "limit cycle")`
-- `"block sequential" OR "block-sequential" AND (threshold network OR automata network) AND hardware`
+  ("update order" OR "simultaneous update" OR oscillation OR "limit cycle")`
+- `"block sequential" OR "block-sequential" AND ("threshold network" OR "automata network") AND hardware`
 - `"duplicate spin" OR "spin duplication" OR "parallel cluster annealing" OR PCA AND bipartite AND Ising`
 - `"don't care" AND ("logic minimization" OR espresso OR "sum of products") AND (neuron OR "neural
   network") AND (LUT OR FPGA)` — plus `"Hamming" AND "don't care" AND "operating region"`
@@ -324,8 +333,8 @@ where the dangerous §102 art for a *clockless recurrent threshold network* live
 - Assignee/inventor sweeps: **Camsari; Datta; Aadit; Chowdhury; UC Santa Barbara; Purdue Research
   Foundation; Hitachi (Ising/CMOS annealing); Fujitsu (Digital Annealer); Toshiba (SBM); Intel
   (asynchronous majority gate); Camgian Networks (NCL); University of Arkansas (MTNCL).**
-- Non-patent: Takeda & Goodman (asynchronous transition modes, random delays, Hopfield); Graf &
-  Jackel; Alspector; Chua & Yang; Margolus partitioned CA.
+- Non-patent: Takeda & Goodman; Graf & Jackel; Sivilotti/Mead; Verleysen & Jespers; Moopenn/Thakoor;
+  Alspector; Chua & Yang; Margolus/Toffoli partitioned CA; S.-Y. Kung wavefront arrays.
 
 ---
 
@@ -355,3 +364,234 @@ problem we would be handing to an opponent.
 And before any of that is filed: **verify US 11,966,716 and the eight Intel numbers on an
 unrestricted network.** Nothing in the "US patents" rows of this review is verified, and one of them
 appears to be mis-characterised in our own draft.
+
+---
+
+## 6. Bibliography for the §4(d) gap references
+
+**Read the verification legend before using any entry.**
+
+- **[V-2]** — bibliographic details (title / authors / venue / volume / pages / year / DOI)
+  **confirmed against a search-result summary** in this session. This is a *secondary* confirmation:
+  I did not open the article. Details are consistent across at least one retrieval.
+- **[BG]** — **background knowledge only**; not confirmed in this session. Treat every field as
+  provisional and verify before citing in any filing.
+- **[UNRESOLVED]** — I have a claim about the content but could not tie it to a specific paper, or
+  the retrieved bibliographic record contradicts the content attributed to it. Explicitly flagged.
+
+I have **not** invented any DOI, page range, volume or issue. Where a field is missing below, it is
+missing because I do not have it — not because it does not exist.
+
+### G1 — Sivilotti, Emerling & Mead (1986) — analog VLSI neural network architectures **[V-2]**
+
+- **Authors:** M. A. Sivilotti, M. R. Emerling, C. A. Mead
+- **Title:** *VLSI architectures for implementation of neural networks*
+- **Venue:** AIP Conference Proceedings **151** ("Neural Networks for Computing"), J. S. Denker (ed.),
+  American Institute of Physics — Snowbird, UT, April 1986
+- **Pages:** 408–413
+- **Stable record:** Caltech authors library, `https://authors.library.caltech.edu/records/5ghjd-stc46`
+- **DOI:** not retrieved.
+- **Why it matters:** repeatedly described in the literature as the seminal analog-VLSI neural
+  implementation. Clockless by construction.
+- **Verification note:** authors, title, venue, volume, editor, location, date and page range all
+  confirmed in a single search-result summary. Not opened.
+
+### G2 — Graf, Jackel et al. (1986) — Bell Labs neural network memory chip **[V-2, title uncertain]**
+
+- **Authors:** H. P. Graf, L. D. Jackel, R. E. Howard, and others. **The full author list is not
+  confirmed** — Bell Labs papers of this period commonly also list W. Hubbard, B. Straughn,
+  J. S. Denker, D. M. Tennant; I have not verified who is on this specific paper.
+- **Title:** *VLSI implementation of a neural network memory with several hundreds of neurons*
+- **Venue:** AIP Conference Proceedings **151**, 1986 (the same Snowbird volume as G1)
+- **Pages:** 414–419
+- **DOI:** not retrieved.
+- **⚠️ Title caution:** a separate search hit shows a Semantic Scholar record for a Graf & Jackel
+  paper titled *"VLSI implementation of a neural network model"* — which may be the same work under
+  a shortened title, a companion paper, or a different paper entirely (there is also a
+  well-known Graf/Jackel/Hubbard *IEEE Computer*, March 1988 article). **Counsel should verify which
+  title/venue pairing is correct before citing.**
+- **Related, unverified but likely relevant:** R. E. Howard et al., *Electronic Neural Networks*,
+  AT&T Technical Journal, 1988 — surfaced in search with DOI-style link
+  `10.1002/j.1538-7305.1988.tb00233.x`. **[V-2 for existence of the record only; author list and
+  pages not retrieved.]**
+- **Affiliation confirmed:** Jackel and Graf at Bell Laboratories, Holmdel.
+
+### G3 — Verleysen & Jespers (1989) — analog VLSI Hopfield network **[V-2]**
+
+- **Authors:** M. Verleysen, P. G. A. Jespers
+- **Title:** *An Analog VLSI Implementation of Hopfield's Neural Network*
+- **Venue:** IEEE Micro, volume **9**, number **6**, 1989
+- **DOI:** **10.1109/40.42986** (from the ACM DL record surfaced in search)
+- **Pages:** not retrieved.
+- **Author-hosted PDF:** `https://perso.uclouvain.be/michel.verleysen/papers/ieeemicro89mv.pdf`
+- **Content confirmed:** test chip with **14 neurons and 196 synapses**; argues analog
+  implementations are more appropriate for the fully-connected Hopfield network; discusses memory
+  point selection and synapse design.
+- **Note:** a *different* IEEE Micro article, *VLSI Architectures for Neural Networks*, carries DOI
+  `10.1109/40.42984` — do not conflate the two.
+
+### G4 — Moopenn, Langenbacher, Thakoor & Khanna (1988) — JPL programmable synaptic chip **[V-2]**
+
+- **Authors:** A. Moopenn, H. Langenbacher, A. P. Thakoor, S. K. Khanna
+- **Title:** *Programmable Synaptic Chip for Electronic Neural Networks*
+- **Venue:** Advances in Neural Information Processing Systems (NIPS) 1988 proceedings
+- **Stable record:** `https://papers.nips.cc/paper/18-programmable-synaptic-chip-for-electronic-neural-networks`
+- **NTRS record:** `https://ntrs.nasa.gov/citations/19890041672`
+- **Content confirmed:** programmable **32×32 array of "long channel" NMOSFET binary connection
+  elements** in a 3 µm bulk CMOS process; **neurons kept off-chip**, so the chip is a cascadable
+  building block for networks up to 512×512; evaluated in a **32-neuron breadboard associative
+  memory** test.
+- **Related JPL item, less well verified:** A. P. Thakoor et al., *Electronic hardware
+  implementations of neural networks*, Applied Optics **26**(23):5085 (1987) — surfaced as
+  `https://opg.optica.org/ao/abstract.cfm?uri=ao-26-23-5085` and NTRS `19880035618`. **[V-2 for the
+  record; author list not confirmed.]**
+
+### G5 — Takeda & Goodman (1986) — Applied Optics **[V-2 for bibliography; see G6 warning]**
+
+- **Authors:** M. Takeda, J. W. Goodman
+- **Title:** *Neural networks for computation: number representations and programming complexity*
+- **Venue:** Applied Optics, volume **25**, issue **18**, pages **3033–3046**, 1986
+- **Stable URL:** `https://opg.optica.org/ao/abstract.cfm?uri=ao-25-18-3033`
+- **DOI:** not retrieved.
+- **Content confirmed by search summary:** applies neural networks to the Hitchcock combinatorial
+  optimisation problem and to signal-processing problems (matrix inversion, Fourier transformation);
+  finds that success depends on the **number-representation scheme**, with redundant schemes giving
+  better convergence.
+- **Also listed in J. W. Goodman's own publication list at
+  `https://www-ee.stanford.edu/~goodman/publist.html`** (surfaced in search; I did not open it, but
+  it is the authoritative place for counsel to confirm the exact title and any companion papers).
+- **Note the volume/issue is confirmed but the article title as retrieved does *not* mention
+  asynchronous transition modes — see G6.**
+
+### G6 — ⚠️ **[UNRESOLVED]** — the "asynchronous transition modes with random delays" claim
+
+This is the item I most want counsel to chase, and the one I am least able to pin down.
+
+- **The content claim**, which appeared **twice, in two independent searches**, phrased near
+  identically both times (and therefore almost certainly originates in a survey paper that both
+  retrievals were drawing on):
+
+  > *"Takeda et al. designed direct and differential asynchronous transition modes (random delays) to
+  > address the oscillation problem of discrete-time Hopfield models, which occasionally arises when
+  > the interconnection matrices are non-zero. ... the direct mode can speed up minimizing the energy
+  > function, while the differential mode can better reduce oscillations. However, Takeda et al.
+  > pointed out that since the energy function must be a quadratic function of the neuron state
+  > variables, it can only deal with linear problems."*
+
+- **Why this is unresolved:** the only Takeda paper whose bibliographic details I verified (G5,
+  Applied Optics 25(18):3033–3046) is retrieved with a title and abstract about **number
+  representations and programming complexity**, not about asynchronous transition modes. Three
+  possibilities, and I cannot distinguish them:
+  1. G5 *is* the source, and the transition-mode material is an internal section of it that the
+     abstract does not foreground (plausible — the "energy function must be quadratic ⇒ only linear
+     problems" remark fits a paper about what neural networks can compute).
+  2. It is a **different Takeda paper**, possibly a companion in the same Applied Optics period.
+  3. The survey being quoted has itself mis-attributed it.
+- **I am not going to guess.** No title, venue, volume or page range is asserted here.
+- **What counsel should do:** open J. W. Goodman's publication list (URL in G5), and read Applied
+  Optics 25(18):3033–3046 directly. If §2 or §3 of that paper describes "direct" and "differential"
+  asynchronous transition modes implemented with random delays, **it is prior art against claim 2
+  and possibly §102-grade**, and it dates to 1986.
+
+### G7 — Chua & Yang (1988) — Cellular Neural Networks **[V-2]**
+
+- **Authors:** L. O. Chua, L. Yang
+- **Title:** *Cellular Neural Networks: Theory*
+- **Venue:** IEEE Transactions on Circuits and Systems, volume **35**, issue **10**, October 1988
+- **Pages:** **1257–1272**
+- **DOI:** **10.1109/31.7600**
+- **Companion paper:** *Cellular Neural Networks: Applications*, same authors, same issue.
+  **[BG — I did not verify the companion's page range; it is conventionally cited as 1273–1290 but I
+  have not confirmed that here.]**
+- **Why it matters:** locally-coupled recurrent analog arrays with a piecewise-linear (threshold-like)
+  output function that settle continuously to a fixed point, with no clock.
+
+### G8 — Margolus / Toffoli — partitioned (block) cellular automata **[V-2 for the mechanism; BG for citations]**
+
+- **Mechanism confirmed by search summary:** in the **Margolus neighbourhood** the lattice is
+  partitioned into 2-cell blocks (2×2 in two dimensions, 2×2×2 in three); **each block is
+  transformed independently**; and the partition is **shifted by one cell on alternate timesteps**.
+  Reversible block cellular automata are also known as *partitioning CA*. Used in the CAM machines
+  to implement the HPP lattice gas.
+- **Why it matters:** "partition the nodes so that each block updates with no intra-block
+  interaction, then alternate the partition" is claim 1's partition concept plus claim 7's
+  alternation, realised in 1980s special-purpose hardware.
+- **Bibliography: [BG] and deliberately incomplete.** The canonical citations are generally given as
+  N. Margolus's work on physics-like reversible CA and **T. Toffoli & N. Margolus, *Cellular Automata
+  Machines: A New Environment for Modeling*, MIT Press, 1987**. **I did not verify the Toffoli &
+  Margolus book's details in this session** and I have not verified any Margolus journal article
+  title, venue, volume or page range. Do not cite any of this without checking.
+
+### G9 — Alspector et al. — Bellcore Boltzmann machine / stochastic learning chip **[V-2, partial]**
+
+- **Content confirmed by search summary:** described as the first analog single-chip learning
+  machine — a stochastic Boltzmann machine with **6 analog neurons, 15 bidirectional 5-bit MDAC
+  synapses, and variable-amplitude noise sources**; developed by Alspector et al. at **Bellcore**.
+- **Title as retrieved:** *Performance of a Stochastic Learning Microchip*
+- **Venue as retrieved:** "Vol. 1, Morgan Kaufmann Publishers, 1989" — which is almost certainly
+  *Advances in Neural Information Processing Systems 1* (NIPS 1988, published 1989 by Morgan
+  Kaufmann). **[BG for that expansion — the retrieval gave only "Vol. 1 of Morgan Kaufmann
+  Publishers", which I am interpreting.]**
+- **Authors:** J. Alspector "et al." — **the co-author list is not confirmed.** Alspector's
+  collaborators in this period are commonly cited as B. Gupta and R. B. Allen, but **I did not
+  verify who is on this paper.**
+- **Pages / DOI:** not retrieved.
+- **Also surfaced, unverified:** *Deterministic Boltzmann machine VLSI can be scaled using multi-chip
+  modules* (IEEE conference publication, Xplore document 218571) — **[V-2 for the record's
+  existence only; authors, venue name, year and pages not retrieved.]**
+
+### G10 — S.-Y. Kung — wavefront arrays **[BG — no bibliographic details verified]**
+
+- **Content:** wavefront array processors sequence computation by **data arrival rather than a global
+  clock**, i.e. self-timed dataflow across a processor array.
+- **Bibliography: none asserted.** I did not search for or verify any Kung citation in this session.
+  The canonical works are a set of IEEE papers and a textbook from the early-to-mid 1980s; counsel
+  should pull the exact citations rather than take a title from me.
+- **Why it is on the list:** it is the cleanest statement in the literature of "ordering enforced by
+  propagation and arrival rather than a periodic reference," which is claim 1's characterising
+  clause, in an unrelated application domain. An examiner could use it for the general proposition.
+
+### G11 — Fujitsu / Toshiba / D-Wave annealer patent families **[BG — no numbers verified]**
+
+- **I deliberately assert no patent numbers here.** I could not reach any patent database, and
+  guessing a patent number is worse than leaving it blank. The families to sweep by assignee are
+  **Fujitsu Limited** (Digital Annealer; parallel-trial architectures where many spins are evaluated
+  simultaneously but acceptance is restricted to preserve a valid sequential-update semantics),
+  **Kabushiki Kaisha Toshiba** (Simulated Bifurcation Machine), **D-Wave Systems** (annealing
+  control and schedule sequencing), and **Hitachi** (CMOS annealing / Ising chips — note the Hitachi
+  CMOS Ising work surfaced under numbers including US 9,588,911 and US 10,896,241, **[V-2 for the
+  existence of those numbers as Hitachi Ising patents from a search-result listing; claims not
+  retrieved and relevance not assessed]**).
+
+### G12 — Neuromorphic asynchronous patent families **[BG — no numbers verified]**
+
+- **IBM** (TrueNorth), **Intel** (Loihi), **University of Manchester / SpiNNaker**. Event-driven,
+  clockless neuron update ordering. No numbers asserted; sweep by assignee.
+
+### G13 — Miscellaneous items surfaced in search, relevance not assessed **[V-2 for existence only]**
+
+Recorded because they appeared in searches and a human should glance at them, not because I have
+assessed them:
+
+- **US 11,030,518 B2** — *Asynchronous artificial neural network architecture*; assignee reported as
+  **the United States of America as represented by the Secretary of the Navy**. Addresses ANNs
+  operating asynchronously in continuous time rather than in synchronous discrete-time chunks.
+  **Claims not retrieved. This one should be pulled** — the title alone is close to our field.
+- **US 11,610,104 B1** — *Asynchronous analog accelerator for fully connected artificial neural
+  networks*. Claims not retrieved.
+- **US 5,355,435** — *Asynchronous temporal neural processing element* (RC network simulating a
+  neuron soma; axon-hillock simulator using a voltage-controlled oscillator). Old, likely expired,
+  but on-point vocabulary.
+- **US 8,644,318** — *Systems and methods for asynchronous handshake-based interconnects*; described
+  in search as a clock-less delay-insensitive asynchronous network usable in large-scale neural
+  network hardware.
+- **US 12,431,188** — *Efficient Muller C-element implementation for high bit-width asynchronous
+  applications* (also cited in §3).
+- **arXiv:2107.02238** — *High-Speed CMOS-Free Purely Spintronic Asynchronous Recurrent Neural
+  Network*; also published in **APL Machine Learning 1(1):016107** per the AIP record surfaced in
+  search. A fully spintronic **asynchronous Hopfield RNN**. **Not on the review list and it should
+  be** — an asynchronous recurrent Hopfield network in hardware touches claim 1's preamble directly.
+  I did not retrieve enough to assess whether it discloses any update-ordering mechanism.
+- **arXiv:2403.13105** — *Using evolutionary computation to optimize task performance of unclocked,
+  recurrent Boolean circuits in FPGAs*. Directly in the Rosin lineage (item 6); unclocked recurrent
+  Boolean circuits in FPGAs as a design target.

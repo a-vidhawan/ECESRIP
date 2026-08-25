@@ -1,4 +1,23 @@
+N=32 M=8 radius=3 HD=3 trials=40
+  kappa=1.0, stored 8/8
+  chi=7, 256 coupling edges, max scheduling delay=840
+  4,825 product terms | single-rail 29,899 gates | dual-rail 60,789 gates (2.03x)
+
+  simulating...
 Traceback (most recent call last):
-  File "/home/user/ECESRIP/phase2/phase10_glitch/compare.py", line 33, in <module>
-    import numpy as np
-ModuleNotFoundError: No module named 'numpy'
+  File "/home/user/ECESRIP/phase2/phase10_glitch/compare.py", line 301, in <module>
+    main()
+  File "/home/user/ECESRIP/phase2/phase10_glitch/compare.py", line 240, in main
+    res, err = run(files, out, label.split(":")[0].replace(" ", "_")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/ECESRIP/phase2/phase10_glitch/compare.py", line 125, in run
+    c = subprocess.run(["iverilog", "-g2012", "-o", vvp] + files,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/usr/lib/python3.11/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'iverilog'

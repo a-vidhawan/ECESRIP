@@ -1,4 +1,21 @@
+N=64 M=8 radius=3 HD=6 trials=30
 Traceback (most recent call last):
-  File "/home/user/ECESRIP/phase2/phase10_glitch/compare.py", line 33, in <module>
-    import numpy as np
-ModuleNotFoundError: No module named 'numpy'
+  File "/home/user/ECESRIP/phase2/phase10_glitch/compare.py", line 301, in <module>
+    main()
+  File "/home/user/ECESRIP/phase2/phase10_glitch/compare.py", line 172, in main
+    pats, W, kappa, on = build(N, M, args.radius, args.seed, out, args.degree)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/ECESRIP/phase2/phase10_glitch/compare.py", line 71, in build
+    on.append((sup, espresso_sop(p)))
+                    ^^^^^^^^^^^^^^^
+  File "/home/user/ECESRIP/phase2/clockless/verify_dc_recall.py", line 28, in espresso_sop
+    out = subprocess.run([ESPRESSO, path], capture_output=True, text=True,
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 548, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 1026, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/usr/lib/python3.11/subprocess.py", line 1955, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-0/-home-user-ECESRIP/34c74a44-9001-565a-8629-44b3228b7c84/scratchpad/espresso-logic/bin/espresso'
