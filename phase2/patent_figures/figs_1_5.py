@@ -117,7 +117,9 @@ label(ax, 50, 15,
       "switching, so it falls to zero of its own accord as the network\n"
       "approaches a fixed point. The schedule therefore self-quenches and no\n"
       "separate cooling of a noise source is required.", fs=7.2, it=True)
-label(ax, 50, 6, "Relationship shown; axes are not to scale.", fs=6.6, it=True)
+label(ax, 50, 8, "Relationship shown; axes are not to scale. Operation below full margin is\n"
+                 "known in clocked colour-partitioned implementations, where it has been\n"
+                 "reported to improve rather than degrade solution quality.", fs=6.4, it=True)
 finish(fig, ax, 2, OUT)
 
 # ---------------------------------------------------------------- FIG. 3
@@ -168,11 +170,16 @@ for fx in (0.17, 0.49):
 label(ax, 30 + 52 * 0.33, 32, "pulses narrower than r are rejected", fs=6.4, it=True)
 label(ax, 30 + 52 * 0.84, 32, "width ≥ r  →  passed", fs=6.4, it=True)
 
-label(ax, 50, 13,
+label(ax, 50, 14,
       "A short rejection window lets hazard pulses through, and those pulses are\n"
       "the perturbation source. A full-width window admits at most one settled\n"
       "transition per evaluation. r is therefore the annealing control variable.",
       fs=7.2, it=True)
+label(ax, 50, 6,
+      "The rejection is not a refinement of this element — it is what makes the\n"
+      "schedule work at all. A delay that propagates every transition instead of\n"
+      "cancelling superseded ones reaches a fixed point from 1–16% of initial\n"
+      "states under the same schedule. See FIG. 12.", fs=6.6, it=True)
 finish(fig, ax, 3, OUT)
 
 # ---------------------------------------------------------------- FIG. 4

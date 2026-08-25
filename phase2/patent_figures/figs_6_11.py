@@ -161,6 +161,7 @@ label(ax, 44, 82, "two-level logic realising the node's update function\n"
                   "(synthesised as in FIG. 10)", fs=6.4, it=True)
 arrow(ax, [(66, 101), (74, 101)])
 box(ax, 74, 94, 18, 14, "INERTIAL\nDELAY  d(i)", fs=7.2)
+label(ax, 83, 91, "cancels superseded\ntransitions (FIG. 12)", fs=6.0, it=True)
 numeral(ax, 300, 95, 112, 92, 108)
 label(ax, 50, 74, "V(i) becomes an input to every node coupled to i, and to no other\n"
                   "node. Node i does not receive its own output.", fs=6.6, it=True)
@@ -183,7 +184,7 @@ label(ax, 50, 36,
       "The two inequalities are independent. Satisfying only the second gives a\n"
       "circuit that violates its own schedule; satisfying only the first gives a\n"
       "correctly-timed circuit with no ordering at all.", fs=7.2, it=True)
-label(ax, 50, 24,
+label(ax, 50, 22,
       "The delay element is the same element as FIG. 3. When its rejection window\n"
       "is programmable, one element performs both functions: it sequences the node\n"
       "and it sets how much hazard activity is admitted.", fs=7.2, it=True)

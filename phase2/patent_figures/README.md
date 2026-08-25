@@ -1,7 +1,7 @@
 # Patent figures — revised set
 
-Eleven sheets, `out/patent_figures_v2.pdf`. Regenerate with
-`python3 figs_1_5.py && python3 figs_6_11.py`.
+Twelve sheets, `out/patent_figures_v3.pdf`. Regenerate with
+`python3 figs_1_5.py && python3 figs_6_11.py && python3 figs_12.py`.
 
 Drawn to 37 CFR 1.84: black line art, no colour, no greyscale fill, vector PDF.
 Distinctions that would normally be carried by colour (which class a node
@@ -37,9 +37,47 @@ independent claims recite.
 - **10** operating-region don't-care synthesis flow
 - **11** measured care-set size and product-term counts versus fan-in
 
+## FIG. 12 — new, and it changes where the novelty sits
+
+The delay element has to be **inertial** — it must cancel a pending transition
+whose cause has gone away. Measured, on identical networks, colourings, delay
+values and initial states, with only the delay semantics differing:
+
+| N | inertial | transport |
+|---|---|---|
+| 16 | 100% | 1% |
+| 32 | 100% | 16% |
+| 64 | 100% | 15% |
+| 128 | 100% | 7% |
+
+This is not a hazard mitigation that can be added or left off. It is a
+requirement of the scheme, and it is something a phase-shifted clock cannot
+supply: a clocked node samples at an edge, so a transition that appeared and
+disappeared between two edges is never seen and there is nothing to cancel.
+
+Realignment of commensurate delay values was ruled out first — five delay pools
+spanning consecutive multiples, powers of two, primes and an incommensurate
+ratio all reach a fixed point from 100% of random starts. So FIG. 6 stands as
+drafted: the values matter only in being distinct.
+
+## Reframing after reading the prior art
+
+Three sheets were overclaiming and have been corrected in place:
+
+- **FIG. 2** now records that operating below full margin is known in clocked
+  colour-partitioned implementations, where it has been reported to *improve*
+  solution quality. Aadit 2022 calls it overclocking and ties it to
+  Hogwild!-Gibbs.
+- **FIG. 3** now points at FIG. 12, because the pulse rejection is the
+  load-bearing part of that element rather than a refinement of it.
+- **FIG. 4** now states that the sizing constraint itself is a known requirement
+  of colour-partitioned updating, and that what the sheet shows is a means of
+  *varying* it. Aadit 2022: "the MAC must finish its computation before the next
+  color block is updated."
+
 ## Which sheets carry measured values
 
-**FIG. 7** (the 2×2) and **FIG. 11** (both panels) only. Both are labelled
+**FIG. 7** (the 2×2), **FIG. 11** (both panels) and **FIG. 12(B)** only. Both are labelled
 MEASURED and state their conditions on the sheet. Everything else is
 structural or states a relationship without asserting magnitudes — FIG. 2
 carries "relationship shown; axes are not to scale" for that reason.
