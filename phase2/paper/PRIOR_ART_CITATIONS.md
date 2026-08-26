@@ -49,10 +49,26 @@ squarely about update order:
 > sparse Ising machines," *Nature Electronics* **5**, 460–468 (2022). **[K]**
 > arXiv:2110.02481 — https://arxiv.org/abs/2110.02481
 
-Pull the **Methods** section. The distinction our draft rests on is that their
-colour groups are driven by *phase-shifted periodic clocks*. I have never read
-that sentence in the source — the egress proxy here blocks nature.com and arXiv —
-and the entire clocked/clockless distinction depends on it being accurate.
+**READ IN FULL — the distinction is confirmed, and the reference is closer than
+the draft assumed.** See `PRIOR_ART_FINDINGS_READ.md`. Verbatim:
+
+> "Even when sampling is made inexact using **faster clocks**, sIM can find the
+> correct ground state with further speedup." (abstract)
+>
+> "This is achieved by using **multiple phase shifted clocks** controlling the
+> activation of probabilistic bits (p-bits)." (p. 2)
+>
+> "This architecture can be considered to be a low level hardware-level
+> implementation of **chromatic Gibbs sampling**." (p. 2)
+>
+> "For this sampling to be exact, **the MAC must finish its computation before
+> the next color block is updated.**" (p. 2)
+
+So the clocked/clockless distinction holds on the circuit. Note however that the
+paper's own Fig. 1 caption describes the dynamics as "clockless" and the 2024
+follow-up calls its architecture an "asynchronous p-computer" — an examiner
+quoting that language has "asynchronous" and "clockless" in a colour-partitioned
+p-bit Ising machine. Do not rely on "clockless" alone as the point of novelty.
 
 **11. Gonzalez et al. 2011** — flagged HIGH.
 
