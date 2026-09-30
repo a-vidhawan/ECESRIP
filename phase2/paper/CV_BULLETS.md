@@ -12,7 +12,7 @@ June, 2026 – Present
 
 - Built a compiler from trained Hopfield weights to synthesizable SystemVerilog (Espresso minimization, graph-colored delay scheduling); verified at N=256, 240/240 vectors recalled.
 - Cut per-neuron logic 627–2,918 → 31–54 product terms via operating-region don't-cares, making fan-in 32 synthesizable where full enumeration is impossible.
-- Showed clockless settling requires distinct delay values (equal: 0% convergence) and inertial elements (100% vs 1–16%), correcting two patent-draft assumptions.
+- Showed clockless settling requires distinct delay values (equal: 0% convergence) and inertial rather than transport delay elements (100% vs 1–16%).
 - Raised storage capacity from α=0.138 to 0.5 (≥95% recall) via margin retraining; audited 18 claims against regenerated source data, retracting two.
 
 ---
