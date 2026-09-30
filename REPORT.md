@@ -6,79 +6,74 @@ Summer Research Internship Program (SRIP), 2026 · `github.com/a-vidhawan/ECESRI
 
 ---
 
-## Abstract
+## Summary
 
 A Hopfield associative memory updates each neuron as `s_i = sign(Σ_j W_ij s_j)`.
-The conventional hardware realisation is a multiply–accumulate followed by a
-comparator. This project asks what happens if each neuron is instead compiled
-directly into **two-level Boolean logic**, and if the clock is then removed
-entirely, so that the network settles as a combinational feedback circuit.
+Normally that becomes a multiply-accumulate and a comparator. This project asked
+what happens if you compile each neuron straight into **two-level Boolean logic**
+instead, and then remove the clock so the network settles as a combinational
+feedback circuit.
 
-Both halves turn out to be tractable, and both have a catch that only appears
-when measured.
+Both halves work. Both have a catch that only shows up when you measure.
 
-The synthesis half works because an associative memory does not need to be
-correct everywhere — only on the states it actually visits. Specifying each
-neuron only over a bounded operating region and leaving the rest as don't-cares
-reduces the specification from *2<sup>d</sup>* rows to *M · Σ<sub>k≤h</sub> C(d,k)*, which is
-polynomial in the fan-in where the full table is exponential. Measured: **31–54
-product terms against 627–2,918** for the fully specified function at fan-in 16,
-and the method remains feasible at fan-in 32 where the complete table has
-4.29 × 10⁹ rows and cannot be enumerated at all.
+**Synthesis.** An associative memory doesn't need to be correct everywhere — only
+on the states it actually visits. Specifying each neuron over a bounded operating
+region and leaving the rest as don't-cares shrinks the specification from
+*2<sup>d</sup>* rows to *M · Σ<sub>k≤h</sub> C(d,k)*, which is polynomial in fan-in
+where the full table is exponential. Measured: **31–54 product terms vs 627–2,918**
+at fan-in 16, and still feasible at fan-in 32, where the complete table has
+4.29 × 10⁹ rows and can't be written down at all.
 
-The clockless half works because update order can be enforced by propagation
-delay rather than by a clock edge. Colouring the coupling graph and giving each
-colour class a different delay value prevents mutually coupled neurons from
-committing simultaneously. Two conditions on that mechanism were established by
-measurement and neither was obvious in advance: the invariant is on the delay
-**values** rather than on the colour labels, and the delay elements must be
-**inertial** rather than transport.
+**Timing.** Update order can come from propagation delay instead of a clock edge.
+Colour the coupling graph, give each colour class a different delay, and coupled
+neurons can never commit at the same instant. Two conditions on that turned out
+to matter, and neither was obvious up front: the constraint is on the delay
+**values**, not the colour labels, and the delay elements have to be **inertial**
+rather than transport.
 
-A complete network was built at N = 256 neurons and 12,357 product terms, and
-verified in RTL against its own behavioural model on 240 of 240 test vectors.
+A full network was built at N = 256 and 12,357 product terms, and checked in RTL
+against its own behavioural model on 240 of 240 vectors.
 
 ---
 
 ## 1. The problem
 
-A Hopfield network is a recurrent network of binary threshold units whose
-symmetric weight matrix defines an energy function. Stored patterns sit at local
-minima; recall consists of initialising the network near a pattern and letting it
-descend to that minimum. The attraction for hardware is that this is a
-*settling* process rather than a computation — there is no instruction stream, and
-in principle no clock.
+A Hopfield network is a recurrent network of binary threshold units with a
+symmetric weight matrix that defines an energy function. Stored patterns sit at
+local minima. Recall means starting near a pattern and letting the network
+descend into it. That's attractive for hardware because it's a *settling* process,
+not a computation — no instruction stream, and in principle no clock.
 
-Two obstacles stand in the way of a direct logic implementation.
+Two things get in the way.
 
-**The truth table is exponential.** A neuron with fan-in *d* has a *2<sup>d</sup>*-row
-truth table. At *d* = 32 that is 4.29 × 10⁹ rows — not merely large to minimise,
-but impossible to *write down*. Existing LUT-based neural network work
-(NullaNet, LogicNets, PolyLUT) sidesteps this by sampling which input
-combinations a trained network actually produces, which gives an empirical
-frequency rather than a guarantee.
+**The truth table is exponential.** A neuron with fan-in *d* has a
+*2<sup>d</sup>*-row table. At *d* = 32 that's 4.29 × 10⁹ rows — not just slow to
+minimise, impossible to write down. Existing LUT-based neural network work
+(NullaNet, LogicNets, PolyLUT) gets around this by sampling which inputs a
+trained network actually produces, which gives a frequency rather than a
+guarantee.
 
-**Removing the clock creates a correctness problem.** Convergence guarantees for
-Hopfield networks assume serialised updates. If two mutually coupled neurons
-update simultaneously, each acts on the other's stale value, and the network can
-enter a limit cycle instead of settling. Measured exhaustively at N = 16:
-**60.2%** of all 2¹⁶ states cycle under fully synchronous updating. Something has
-to impose an order, and in a clockless circuit there is no clock to impose it.
+**Dropping the clock breaks convergence.** Hopfield convergence proofs assume
+serialised updates. If two coupled neurons update at once, each acts on the
+other's stale value and the network can cycle instead of settling. Measured
+exhaustively at N = 16: **60.2% of all 2¹⁶ states cycle** under fully synchronous
+updating. Something has to impose an order, and there's no clock to do it.
 
 ---
 
 ## 2. Approach
 
-The pipeline compiles a trained weight matrix into synthesizable RTL:
+The pipeline turns a trained weight matrix into synthesizable RTL:
 
 ```
 trained weights W
     │
     ├─► coupling graph G:  vertex per neuron, edge wherever W_ij ≠ 0
-    │       └─► DSATUR vertex colouring ──► per-neuron delay values
+    │       └─► DSATUR colouring ──► per-neuron delay values
     │
     └─► per-neuron care set: operating region projected onto each support
             └─► incompletely-specified PLA  (.type fr)
-                    └─► Berkeley espresso two-level minimisation
+                    └─► Berkeley espresso minimisation
                             └─► SystemVerilog sum-of-products
                                     │
                                     ▼
@@ -90,94 +85,89 @@ trained weights W
                                          → gate-level simulation
 ```
 
-Two design decisions carry most of the weight.
+Two decisions do most of the work.
 
-**The care set is derived, not sampled.** The operating region is defined as all
-states within Hamming distance `h` of a stored pattern. Its projection onto
-neuron `i`'s support is enumerated directly — the projection of a corrupted
-pattern is just that pattern's projection with at most `h` of *those* bits
-flipped — giving a closed-form size of *M · Σ<sub>k≤h</sub> C(d,k)*. This is a guarantee
-over a stated radius rather than an observed activation frequency.
+**The care set is derived, not sampled.** The operating region is every state
+within Hamming distance *h* of a stored pattern. Its projection onto neuron *i*'s
+support is enumerated directly — the projection of a corrupted pattern is just
+that pattern's projection with at most *h* of *those* bits flipped — which gives a
+closed-form size of *M · Σ<sub>k≤h</sub> C(d,k)*. That's a guarantee over a stated
+radius, not an observed frequency.
 
-**Order comes from delay, not from a clock.** Each neuron's output passes through
-a delay element in its feedback path. Neurons in different colour classes get
-different delay values, so no two coupled neurons can commit at the same instant.
-There is no clock generator, no distribution network, and no sequencer.
+**Order comes from delay.** Each neuron's output passes through a delay element in
+its feedback path. Different colour classes get different delays, so no two
+coupled neurons commit together. No clock generator, no distribution network, no
+sequencer.
 
 ---
 
 ## 3. Results
 
-### 3.1 Don't-care synthesis dissolves the exponential wall
+### 3.1 Don't-care synthesis
 
-| fan-in | full table rows | care rows | care % | product terms (don't-care) | product terms (full) |
+| fan-in | full table rows | care rows | care % | terms (don't-care) | terms (full) |
 |---|---|---|---|---|---|
 | 16 | 65,536 | 2,768 | 4.22% | 31–54 (mean 40) | 627–2,918 (mean 1,385) |
-| 24 | 16,777,216 | 9,300 | 0.055% | 10–58 (mean 27) | infeasible to enumerate |
-| 32 | 4,294,967,296 | 21,956 | 0.001% | 5–27 (mean 14) | infeasible to enumerate |
+| 24 | 16,777,216 | 9,300 | 0.055% | 10–58 (mean 27) | can't enumerate |
+| 32 | 4,294,967,296 | 21,956 | 0.001% | 5–27 (mean 14) | can't enumerate |
 
-The saving is in what must be **specified**, and only then in the term count that
-follows. At fan-in 48 espresso itself times out at 30 minutes — the limit is
-minimiser runtime, not term count.
+The saving is in what has to be **specified**; the term count follows from that.
+At fan-in 48 espresso itself times out at 30 minutes, so the ceiling is minimiser
+runtime rather than term count.
 
-**What this costs.** Off the operating region the function is unspecified, so
-espresso chooses freely and the minimised network diverges from the exact
-threshold network. Measured agreement on uniformly random states is **2.5%**.
-Inside the operating region the two are indistinguishable, including at Hamming
-distance 5 — beyond the radius-3 care set they were built from. This is the
-method's price, not a defect to conceal: it is fine for recall and unsuitable for
-adversarially chosen inputs.
+**The cost.** Outside the operating region the function is unspecified, so
+espresso picks freely and the minimised network drifts away from the exact
+threshold network. Agreement on uniformly random states is **2.5%**. Inside the
+operating region they're indistinguishable, including at Hamming distance 5 —
+past the radius-3 care set they were built from. Fine for recall, not for
+adversarial input.
 
-Because the network is recurrent, this is a stronger claim than it would be in a
-feed-forward network. An unspecified input that is later realised can create a
-fixed point the target function does not have. Behavioural equivalence had to be
-verified, not assumed.
+Because the network is recurrent this needed checking rather than assuming. An
+unspecified input that later comes up can create a fixed point the target
+function doesn't have, which has no equivalent in a feed-forward network.
 
-### 3.2 The scheduling invariant is on delay values
+### 3.2 The constraint is on delay values
 
-Partitioning by parity of neuron index — the obvious first scheme — fails. On an
-N = 16 network with 43 coupling edges at 35.8% density, the chromatic number is
-**6**, and parity leaves **19 of 43 coupled pairs (44.2%)** inside a common class.
+Partitioning by parity of neuron index — the obvious first try — fails. On an
+N = 16 network with 43 coupling edges at 35.8% density the chromatic number is
+**6**, and parity leaves **19 of 43 coupled pairs (44.2%)** inside a shared class.
 The highest-degree neuron shares a class with six of its eleven neighbours.
 
-The 2 × 2 that settled the question:
+The 2 × 2 that settled it:
 
 | | distinct delay values | identical delay values |
 |---|---|---|
 | **proper colouring** | **100%** settled | **0%** settled |
 | **parity (no colouring)** | **0%** settled | — |
 
-The upper-right cell is the result. A *valid proper colouring* whose classes are
-all assigned the same delay value satisfies every graph-theoretic requirement of
-the partition and settles in none of the trials. The invariant is on delay
-values, not on class labels — a distinction with no counterpart in a clocked
-implementation, where a colour simply *is* a phase.
+The top-right cell is the result. A valid proper colouring with all classes
+assigned the same delay meets every graph-theoretic requirement and settles in
+none of the trials. So the constraint is on delay values, not colour labels — a
+distinction that doesn't exist in a clocked design, where a colour simply *is* a
+phase. The project's own verifier had this bug and would have passed the 0%
+schedule.
 
-The project's own verifier had this bug and would have passed the 0% schedule.
+**The particular values don't matter.** Five delay families — consecutive
+multiples, powers of two, prime multiples, coprime offsets, and an irrational
+ratio — all settle from 100% of random starts at N = 16, 32 and 64. Twelve random
+permutations of the same six primes over the same six classes give a standard
+deviation of 0.00. Distinctness is the whole requirement.
 
-**The particular values are immaterial.** Five delay families — consecutive
-integer multiples, powers of two, prime multiples, mutually coprime offsets, and
-an irrational ratio — all reach a fixed point from 100% of random initial states
-at N = 16, 32 and 64. Twelve random permutations of the same six primes over the
-same six classes give a standard deviation of 0.00. Distinctness is the whole
-requirement.
+### 3.3 The delay element has to be inertial
 
-### 3.3 The delay element must be inertial
+This one came out of an anomaly: a zero-delay *reference* model was settling less
+often than the glitchy gate-level designs it was supposed to be the reference
+for, which can't happen if the schedule works.
 
-This was the sharpest result of the project, and it arrived by chasing an
-anomaly: a zero-delay *reference* model settled less often than the glitchy
-gate-level designs it was supposed to be a reference for, which is impossible if
-the schedule works.
-
-An **inertial** delay cancels a pending transition when its cause reverts before
+An **inertial** delay cancels a pending transition if its cause goes away before
 the delay elapses. A **transport** delay queues every transition and delivers all
-of them. Because each neuron evaluates continuously rather than once per pass, a
-neuron's target can revert after a transition is scheduled and before it commits
-— and a transport element then commits that superseded value onto neighbours
-whose states have already changed.
+of them. Since each neuron evaluates continuously rather than once per pass, a
+neuron's target can revert after a transition is scheduled and before it commits.
+A transport element then writes that superseded value onto neighbours that have
+already moved.
 
-Identical networks, identical partitions, identical delay values, identical
-initial states; only the delay semantics differ:
+Same networks, same colourings, same delay values, same initial states — only the
+delay semantics differ:
 
 | N | inertial | transport |
 |---|---|---|
@@ -186,19 +176,20 @@ initial states; only the delay semantics differ:
 | 64 | 100% | 14.7% |
 | 128 | 100% | 7.0% |
 
-Commensurate delay values realigning was ruled out first, which is what made the
-delay semantics the only remaining explanation.
+Commensurate delay values realigning was ruled out first, which left the
+semantics as the only explanation.
 
-This is not a hazard mitigation that can be added or omitted. It is a requirement
-of the scheme — and notably, a phase-shifted clock cannot supply it, because a
-clocked node samples at an edge and never observes a transition that appeared and
-disappeared between two edges.
+This isn't a mitigation you can add or leave off — it's what makes the ordering
+work without a periodic timing reference. A clocked design gets the same
+protection a different way, by sampling only after the logic has settled. A
+delay-sequenced design has no sampling instants, so it has to come from the delay
+element itself, and a plain delay line gives none of it.
 
-### 3.4 End-to-end verification at N = 256
+### 3.4 End-to-end at N = 256
 
-N = 256, M = 4, fan-in 16, care radius 3, χ = 4, zero delay-value conflicts.
-12,357 product terms across 256 neurons, emitted as SystemVerilog and simulated
-in Icarus Verilog.
+N = 256, M = 4, fan-in 16, care radius 3, χ = 4, no delay-value conflicts.
+12,357 product terms over 256 neurons, emitted as SystemVerilog and run in Icarus
+Verilog.
 
 | HD | n | RTL settled | RTL recall | RTL = simulator |
 |---|---|---|---|---|
@@ -207,95 +198,86 @@ in Icarus Verilog.
 | 3 | 60 | 100.0 [94.0–100.0] | 100.0 [94.0–100.0] | 100.0 |
 | 5 | 60 | 100.0 [94.0–100.0] | 100.0 [94.0–100.0] | 100.0 |
 
-240 of 240 vectors. The last column is the one that matters: it is what licenses
-using the faster event-driven simulator for larger networks at all — and it
-licenses it at N = 256, not at N = 4096.
+240 of 240. The last column is what justifies using the faster event-driven
+simulator for larger networks — at N = 256, not at N = 4096.
 
-### 3.5 Capacity, robustness, optimisation
+### 3.5 Capacity, variation, optimisation
 
 **Capacity.** Margin-based retraining (Krauth–Mertens minover under a sparsity
-mask, with the margin κ chosen adaptively as the largest feasible value) stores
-all patterns with ≥95% recall at a loading of **α = M/N = 0.5**, against **0.138**
-for the classical outer-product rule. Corruption tolerance improves with size:
-≥90% recall out to 5% of bits corrupted at N = 64, 16% at N = 128, and **19% at
-N = 256**.
+mask, with κ chosen as the largest feasible value) stores every pattern with ≥95%
+recall at a loading of **α = M/N = 0.5**, against **0.138** for the classical
+outer-product rule. Corruption tolerance grows with size: ≥90% recall out to 5%
+of bits flipped at N = 64, 16% at N = 128, **19% at N = 256**.
 
-**Process variation.** Independent random perturbation of each neuron's delay
-value leaves settling at 100% out to **±348%** spread at 3σ. More interestingly,
-applying variation to a *degenerate* schedule — all classes assigned the same
-nominal delay — raises settling from 67% to 100%, because continuous variation
-makes nominally equal delays distinct with probability one. The practical
-corollary is that silicon variation helps; the hazard is delays made equal *by
-construction*, as an identical-buffer-chain layout would give.
+**Process variation.** Randomly perturbing each neuron's delay leaves settling at
+100% out to **±348%** spread at 3σ. More usefully, applying variation to a
+*degenerate* schedule — all classes on the same nominal delay — lifts settling from
+67% to 100%, because continuous variation makes equal delays distinct with
+probability one. Silicon variation helps here. The thing to avoid is delays made
+equal *by construction*, which is what identical buffer chains would give.
 
-**Optimisation.** Mapping MAX-CUT onto the same machine by setting `W = −A`, the
-network reaches a fixed point on 100% of instances and attains **99.5%** of the
-best cut weight found by any method tested, at roughly **100×** lower simulated
-cost than single-flip simulated annealing at equal restarts. A fixed point is a
-locally optimal cut; no asymptotic claim is made.
+**Optimisation.** Mapping MAX-CUT onto the same machine with `W = −A`, the network
+settles on 100% of instances and reaches **99.5%** of the best cut found by any
+method tested, at roughly **100×** lower simulated cost than single-flip simulated
+annealing at equal restarts. A fixed point is a locally optimal cut; there's no
+asymptotic claim here.
 
 ---
 
-## 4. Negative results and self-corrections
+## 4. What didn't work
 
 Every headline number is regenerated from source by `audit_claims.py`. Final
-status: **14 verified, 2 revised, 2 retracted.**
+tally: **14 verified, 2 revised, 2 retracted.**
 
-**Retracted outright.** (i) "32 universal oscillators never converge under any
-configuration" — false; every graph-coloured schedule settles all 32 across 18
-independent schemes, and the original claim generalised from having tried only
-parity variants. (ii) "Noise is a third delay mode" — the noise RTL emitted
+**Retracted.** (i) "32 universal oscillators never converge under any
+configuration" — false. Every graph-coloured schedule settles all 32 across 18
+independent schemes; the original claim generalised from having only tried parity
+variants. (ii) "Noise is a third delay mode" — the noise RTL emitted
 byte-identical delays to depth mode, because `round(d + U(−0.5, 0.5))` almost
-always returns `d`. Every three-way mode comparison in the project was really
-two-way.
+always returns `d`. Every three-way mode comparison was really two-way.
 
-**Revised.** An early estimate claimed the LUT approach was 2.4–2.8× smaller than
+**Revised.** An early estimate put the LUT approach at 2.4–2.8× smaller than
 threshold gates. Synthesis says **1.52× smaller on an ASIC proxy and 1.19× larger
-on FPGA** — 4-bit weights suffice where the estimate assumed 8, and 6-LUT packing
-favours the adder tree. *Do not lead with area.*
+on FPGA** — 4-bit weights are enough where the estimate assumed 8, and 6-LUT
+packing favours the adder tree. Area is not the selling point.
 
-**A baseline that beats us.** At N = 64, M = 4 a nearest-match content-addressable
-memory is **2,858 gates to our 7,020**, and recalls 100% at every Hamming distance
-where this design manages ~57%. The verdict is radius-dependent — at care radius
-2 we are 2.1× smaller — but the loading sweep is unambiguous: 4/4 patterns stored
-at M = 4, 6/8 at M = 8, 0/16 at M = 16. This design fails on *storage* before it
-fails on area.
+**A baseline that wins.** At N = 64, M = 4 a nearest-match CAM is **2,858 gates to
+our 7,020**, and recalls 100% at every Hamming distance where this design manages
+~57%. The verdict flips with care radius — at radius 2 we're 2.1× smaller — but
+the loading sweep is clear: 4/4 patterns stored at M = 4, 6/8 at M = 8, 0/16 at
+M = 16. This design runs out of storage before it runs out of area.
 
-**Where the failures actually are.** Decomposing recall failures on random
-initial states: spurious convergence accounts for ~75%, oscillation for ~2%.
-Scheduling addresses the oscillation column. Only loading addresses the other.
+**Where the failures actually are.** Decomposing recall failures from random
+starts: spurious convergence is ~75%, oscillation ~2%. Scheduling fixes the
+oscillation column. Only loading fixes the other one.
 
 ---
 
-## 5. Position relative to prior art
+## 5. Relation to prior work
 
-The honest summary is that the scheduling mechanism is not novel, and
-establishing that was itself a substantial part of the work.
+The scheduling mechanism is not new, and working that out took a fair amount of
+the project.
 
-Colour-partitioned update ordering for recurrent stochastic networks traces to
+Colour-partitioned update ordering for recurrent stochastic networks goes back to
 **Geman & Geman (1984)**. **Gonzalez et al. (AISTATS 2011)** built the Chromatic
-Gibbs sampler on the same energy argument. In hardware and in this exact field,
-**Aadit et al. (Nature Electronics, 2022)** describe their FPGA Ising machine as
-*"a low level hardware-level implementation of chromatic Gibbs sampling"*, and
-their bibliography collects further colour-block hardware — an FPGA parallel
-Gibbs accelerator (FlexGibbs, FCCM 2019), FPGA Ising annealing processors
-(Yoshimura et al., 2016, 2017), and an FPGA restricted Boltzmann machine (Patel
-et al., 2020).
+Gibbs sampler on the same energy argument. In hardware, **Aadit et al. (Nature
+Electronics, 2022)** describe their FPGA Ising machine as *"a low level
+hardware-level implementation of chromatic Gibbs sampling"*, and their
+bibliography collects more colour-block hardware: an FPGA parallel Gibbs
+accelerator (FlexGibbs, FCCM 2019), FPGA Ising annealing processors (Yoshimura et
+al., 2016, 2017), and an FPGA restricted Boltzmann machine (Patel et al., 2020).
 
 That same paper also states the sizing constraint — *"the MAC must finish its
-computation before the next color block is updated"* — and separately reports
-that deliberately violating it ("overclocking", connected to Hogwild!-Gibbs)
-*improves* time-to-solution.
+computation before the next color block is updated"* — and reports that
+deliberately violating it (*overclocking*, related to Hogwild!-Gibbs) improves
+time-to-solution.
 
-Two things survived a full-text review of the closest references. The specific
-combination of colour-partitioned ordering **and** no periodic timing reference
-was not found. Neither was the inertial-cancellation requirement of §3.3 — and
-that one is a structural incapability of the art rather than an oversight, since
-every implementation above samples at a clock edge.
-
-The operating-region don't-care derivation is also untouched by that art, which
-derives don't-cares by sampling observed activations rather than in closed form
-from a bounded region.
+Two things came through a full-text review of the closest references. The
+combination of colour-partitioned ordering *and* no periodic timing reference
+didn't turn up anywhere. Neither did the inertial requirement in §3.3. The
+operating-region don't-care derivation is also untouched by that work, which
+derives don't-cares by sampling activations rather than in closed form from a
+bounded region.
 
 ---
 
@@ -303,37 +285,42 @@ from a bounded region.
 
 Results carry an evidence tier: **T1** measured in RTL, **T2** measured by a tool
 (yosys, espresso), **T3** from the event-driven simulator, **T4** analytical
-estimate. Proportions are reported as Wilson 95% confidence intervals rather than
-the normal approximation, because many estimates sit at exactly 0 or 1 where the
-normal interval collapses to zero width and overstates certainty.
+estimate.
 
-The audit script exists because three of the project's own conclusions were
-overturned by later measurement. The intent was that the record should show that
-rather than hide it.
+Proportions are Wilson 95% confidence intervals rather than the normal
+approximation, because a lot of these estimates sit at exactly 0 or 1, where the
+normal interval collapses to zero width.
+
+`audit_claims.py` regenerates every headline number from the source data, which
+is how the two retractions in §4 were caught.
 
 ---
 
 ## 7. Limitations
 
-- **No silicon and no PDK timing.** Area figures are yosys cell counts after
+- **The delays are simulation constructs.** Every delay here is a Verilog `#`
+  directive, which synthesis tools strip. Real hardware would need physical delay
+  elements — buffer chains, current-starved inverters, programmable delay lines —
+  and none were built or synthesized. Only the combinational neuron logic went
+  through yosys; the scheduling wrapper did not.
+- **No silicon, no PDK timing.** Area figures are yosys cell counts after
   technology-independent mapping.
-- **RTL verification stops at N = 256.** Larger results come from the
-  event-driven simulator, validated against RTL at N = 16 and N = 256 and not
-  beyond.
-- **Random bipolar patterns only.** No correlated or real data, which would
-  change basin geometry.
-- **Off-region behaviour is unspecified by construction** — 2.5% agreement with
-  the exact network on uniformly random states.
-- **The gate-level hazard comparison is incomplete.** Inertial delay was
-  re-measured on a corrected testbench; the dual-rail/C-element comparison was
-  not, and its numbers come from a testbench with a known premature-readout bug.
+- **RTL verification stops at N = 256.** Larger numbers come from the event-driven
+  simulator, validated against RTL at N = 16 and N = 256 and nowhere beyond.
+- **Random bipolar patterns only.** No correlated or real data, which would change
+  the basin geometry.
+- **Off-region behaviour is unspecified by construction** — 2.5% agreement with the
+  exact network on uniformly random states.
+- **The dual-rail comparison is incomplete.** Inertial delay was re-measured on a
+  corrected testbench; the C-element variant was not, and its numbers come from a
+  testbench with a known premature-readout bug.
 
 ---
 
 ## 8. Reproducing
 
-Requires `python3` (numpy, matplotlib), `iverilog`, `yosys`, and Berkeley
-`espresso` on `PATH`.
+Needs `python3` (numpy, matplotlib), `iverilog`, `yosys`, and Berkeley `espresso`
+on `PATH`.
 
 ```bash
 python3 phase2/paper/audit_claims.py                 # regenerate every headline number
@@ -341,8 +328,6 @@ python3 phase2/clockless/rtl_n256.py --N 256 --M 4 --degree 16 --radius 3
 python3 phase2/clockless/analyze_coupling.py         # colouring vs parity
 python3 phase2/phase10_glitch/inertial_required.py   # inertial vs transport
 ```
-
-Repository: `github.com/a-vidhawan/ECESRIP`
 
 ---
 
@@ -356,8 +341,8 @@ Repository: `github.com/a-vidhawan/ECESRIP`
    networks. *J. Phys. A* 20(11):L745, 1987.
 4. J. Gonzalez, Y. Low, A. Gretton, C. Guestrin. Parallel Gibbs sampling: from
    colored fields to thin junction trees. *AISTATS*, PMLR 15:324–332, 2011.
-5. N. A. Aadit et al. Massively parallel probabilistic computing with sparse
-   Ising machines. *Nature Electronics* 5:460–468, 2022.
+5. N. A. Aadit et al. Massively parallel probabilistic computing with sparse Ising
+   machines. *Nature Electronics* 5:460–468, 2022.
 6. S. Nikhar, S. Kannan, N. A. Aadit, S. Chowdhury, K. Y. Camsari. All-to-all
    reconfigurability with sparse and higher-order Ising machines. *Nature
    Communications* 15:8977, 2024.
