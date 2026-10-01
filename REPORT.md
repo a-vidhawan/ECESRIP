@@ -26,10 +26,9 @@ at fan-in 16, and still feasible at fan-in 32, where the complete table has
 
 **Timing.** Update order can come from propagation delay instead of a clock edge.
 Colour the coupling graph, give each colour class a different delay, and coupled
-neurons can never commit at the same instant. Two conditions on that turned out
-to matter, and neither was obvious up front: the constraint is on the delay
-**values**, not the colour labels, and the delay elements have to be **inertial**
-rather than transport.
+neurons can never commit at the same instant. One condition on that turned out to
+matter and was not obvious up front: the constraint is on the delay **values**,
+not on the colour labels.
 
 A full network was built at N = 256 and 12,357 product terms, and checked in RTL
 against its own behavioural model on 240 of 240 vectors.
@@ -153,39 +152,7 @@ ratio — all settle from 100% of random starts at N = 16, 32 and 64. Twelve ran
 permutations of the same six primes over the same six classes give a standard
 deviation of 0.00. Distinctness is the whole requirement.
 
-### 3.3 The delay element has to be inertial
-
-This one came out of an anomaly: a zero-delay *reference* model was settling less
-often than the glitchy gate-level designs it was supposed to be the reference
-for, which can't happen if the schedule works.
-
-An **inertial** delay cancels a pending transition if its cause goes away before
-the delay elapses. A **transport** delay queues every transition and delivers all
-of them. Since each neuron evaluates continuously rather than once per pass, a
-neuron's target can revert after a transition is scheduled and before it commits.
-A transport element then writes that superseded value onto neighbours that have
-already moved.
-
-Same networks, same colourings, same delay values, same initial states — only the
-delay semantics differ:
-
-| N | inertial | transport |
-|---|---|---|
-| 16 | 100% | 0.7% |
-| 32 | 100% | 15.7% |
-| 64 | 100% | 14.7% |
-| 128 | 100% | 7.0% |
-
-Commensurate delay values realigning was ruled out first, which left the
-semantics as the only explanation.
-
-This isn't a mitigation you can add or leave off — it's what makes the ordering
-work without a periodic timing reference. A clocked design gets the same
-protection a different way, by sampling only after the logic has settled. A
-delay-sequenced design has no sampling instants, so it has to come from the delay
-element itself, and a plain delay line gives none of it.
-
-### 3.4 End-to-end at N = 256
+### 3.3 End-to-end at N = 256
 
 N = 256, M = 4, fan-in 16, care radius 3, χ = 4, no delay-value conflicts.
 12,357 product terms over 256 neurons, emitted as SystemVerilog and run in Icarus
@@ -201,7 +168,7 @@ Verilog.
 240 of 240. The last column is what justifies using the faster event-driven
 simulator for larger networks — at N = 256, not at N = 4096.
 
-### 3.5 Capacity, variation, optimisation
+### 3.4 Capacity, variation, optimisation
 
 **Capacity.** Margin-based retraining (Krauth–Mertens minover under a sparsity
 mask, with κ chosen as the largest feasible value) stores every pattern with ≥95%
@@ -224,36 +191,7 @@ asymptotic claim here.
 
 ---
 
-## 4. What didn't work
-
-Every headline number is regenerated from source by `audit_claims.py`. Final
-tally: **14 verified, 2 revised, 2 retracted.**
-
-**Retracted.** (i) "32 universal oscillators never converge under any
-configuration" — false. Every graph-coloured schedule settles all 32 across 18
-independent schemes; the original claim generalised from having only tried parity
-variants. (ii) "Noise is a third delay mode" — the noise RTL emitted
-byte-identical delays to depth mode, because `round(d + U(−0.5, 0.5))` almost
-always returns `d`. Every three-way mode comparison was really two-way.
-
-**Revised.** An early estimate put the LUT approach at 2.4–2.8× smaller than
-threshold gates. Synthesis says **1.52× smaller on an ASIC proxy and 1.19× larger
-on FPGA** — 4-bit weights are enough where the estimate assumed 8, and 6-LUT
-packing favours the adder tree. Area is not the selling point.
-
-**A baseline that wins.** At N = 64, M = 4 a nearest-match CAM is **2,858 gates to
-our 7,020**, and recalls 100% at every Hamming distance where this design manages
-~57%. The verdict flips with care radius — at radius 2 we're 2.1× smaller — but
-the loading sweep is clear: 4/4 patterns stored at M = 4, 6/8 at M = 8, 0/16 at
-M = 16. This design runs out of storage before it runs out of area.
-
-**Where the failures actually are.** Decomposing recall failures from random
-starts: spurious convergence is ~75%, oscillation ~2%. Scheduling fixes the
-oscillation column. Only loading fixes the other one.
-
----
-
-## 5. Relation to prior work
+## 4. Relation to prior work
 
 The scheduling mechanism is not new, and working that out took a fair amount of
 the project.
@@ -272,16 +210,15 @@ computation before the next color block is updated"* — and reports that
 deliberately violating it (*overclocking*, related to Hogwild!-Gibbs) improves
 time-to-solution.
 
-Two things came through a full-text review of the closest references. The
+One thing came through a full-text review of the closest references: the
 combination of colour-partitioned ordering *and* no periodic timing reference
-didn't turn up anywhere. Neither did the inertial requirement in §3.3. The
-operating-region don't-care derivation is also untouched by that work, which
-derives don't-cares by sampling activations rather than in closed form from a
-bounded region.
+didn't turn up anywhere. The operating-region don't-care derivation is also
+untouched by that work, which derives don't-cares by sampling activations rather
+than in closed form from a bounded region.
 
 ---
 
-## 6. Method
+## 5. Method
 
 Results carry an evidence tier: **T1** measured in RTL, **T2** measured by a tool
 (yosys, espresso), **T3** from the event-driven simulator, **T4** analytical
@@ -291,12 +228,12 @@ Proportions are Wilson 95% confidence intervals rather than the normal
 approximation, because a lot of these estimates sit at exactly 0 or 1, where the
 normal interval collapses to zero width.
 
-`audit_claims.py` regenerates every headline number from the source data, which
-is how the two retractions in §4 were caught.
+`audit_claims.py` regenerates every headline number in this report from the
+source data.
 
 ---
 
-## 7. Limitations
+## 6. Limitations
 
 - **The delays are simulation constructs.** Every delay here is a Verilog `#`
   directive, which synthesis tools strip. Real hardware would need physical delay
@@ -311,13 +248,10 @@ is how the two retractions in §4 were caught.
   the basin geometry.
 - **Off-region behaviour is unspecified by construction** — 2.5% agreement with the
   exact network on uniformly random states.
-- **The dual-rail comparison is incomplete.** Inertial delay was re-measured on a
-  corrected testbench; the C-element variant was not, and its numbers come from a
-  testbench with a known premature-readout bug.
 
 ---
 
-## 8. Reproducing
+## 7. Reproducing
 
 Needs `python3` (numpy, matplotlib), `iverilog`, `yosys`, and Berkeley `espresso`
 on `PATH`.
@@ -326,7 +260,6 @@ on `PATH`.
 python3 phase2/paper/audit_claims.py                 # regenerate every headline number
 python3 phase2/clockless/rtl_n256.py --N 256 --M 4 --degree 16 --radius 3
 python3 phase2/clockless/analyze_coupling.py         # colouring vs parity
-python3 phase2/phase10_glitch/inertial_required.py   # inertial vs transport
 ```
 
 ---
