@@ -41,17 +41,18 @@ overclocking, connect it to the Hogwild!-Gibbs algorithm, and report that it
 *improves* time-to-solution — which is essentially the annealing-by-timing-margin
 idea from our figures, already published with a claimed advantage.
 
-Two things did survive the search, for what it's worth. I could not find the
+Two things did survive the search. I could not find the
 specific combination of colour-partitioned ordering *and* no periodic timing
 reference anywhere. And I could not find anything on what turned out to be the
 sharpest result of the summer: the delay element has to be inertial — it has to
 cancel a pending transition when its cause goes away. Measured on identical
 networks, partitions and delay values, inertial delay elements converge from 100%
-of initial states where transport delay elements manage 1–16%. A phase-shifted
-clock structurally cannot do this, because a clocked node samples at an edge and
-never sees a transition that came and went between edges. That is a real
-distinction, but I don't think it is enough on its own to carry a filing, and it
-would be a narrow claim to defend.
+of initial states where transport delay elements manage 1–16%. A clocked design
+gets the same protection a different way, by sampling only after the logic has
+settled; a delay-sequenced design has no sampling instants, so it has to come
+from the delay element itself. That is a real distinction, but I don't think it
+is enough on its own to carry a filing, and it would be a narrow claim to
+defend.
 
 I've left everything in a state where it can be picked up if you disagree with
 that read: the draft is revised against what we measured, the figure set is
