@@ -39,3 +39,8 @@ sim/v1/c_sim/*.o
 # OS
 .DS_Store
 Thumbs.db
+
+# generated
+*.vvp
+REPORT.pdf
+phase2/patent_figures/out/
