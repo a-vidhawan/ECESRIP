@@ -1,4 +1,11 @@
-# Patent finalization — what's left, and one blocker
+# Patent finalization — what's left
+
+> **CORRECTION (2026-10-21).** An earlier version of this file reported that the
+> specification and the drawings were for different disclosures. That was wrong.
+> The figure set it compared against was for **Application 2** (timing-margin
+> annealing); Application 1's own figure set matches its BRIEF DESCRIPTION
+> exactly, FIG. 1 through FIG. 7. The analysis below is retained only for the
+> items that are genuinely open; the figure-mismatch section does not apply.
 
 ## The blocker: the spec and the drawings don't match
 
