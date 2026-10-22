@@ -96,3 +96,27 @@ FIG. 6, FIG. 7 and FIG. 8 depict subject matter that `../paper/PRIOR_ART_REVIEW.
 concludes is not adequately recited in the present independent claims, and
 FIG. 10 depicts a family that is not claimed at all. Figures cannot cure that;
 the claims have to.
+
+## Application 1 — FIGS. 1 and 2 (`app1/`)
+
+`python3 figs_app1_1_2.py` → `app1/fig01.pdf`, `app1/fig02.pdf`. These belong to
+Application 1 (self-timed network), not to the annealing set above. That is why
+they go in their own directory.
+
+- **FIG. 1** — sequencing circuitry 106 is no longer a single central block. In
+  (A), the delay-differentiated embodiment, 106 is the dashed group of
+  per-node inertial delay elements 110. Each one sits inside its own node's
+  feedback path. (B) shows the handshake embodiment, where 106 really is a
+  shared block: completion detection 114 and phase element 116.
+  Numerals: 100 circuit, 102 node circuit, 104 interconnection, 106 sequencing,
+  108 convergence detection, 110 delay element, 112 DONE, 114, 116 as above.
+- **FIG. 2** — keeps the bipartite (A) and odd-cycle (B) cases, and adds the
+  measured N = 16 network (43 couplings, 35.8% dense) under a proper 6-class
+  colouring (C) and under index parity (D). Under parity, 19 of 43 coupled
+  pairs (44.2%) share a class, and the hub shares a class with 6 of its 11
+  neighbours. The sheet also has the class counts measured at N = 256 / 1024 /
+  4096 (4 / 5 / 6). The graph is read from `../pla_min/pseudo_maxprune` through
+  `../clockless/analyze_coupling.py`, and every count on the sheet is asserted
+  against it. The graph is a hub adjacent to all 11 others in its component,
+  plus a separate K4, so it is drawn as a wheel with the rim order chosen for
+  the fewest crossings.
