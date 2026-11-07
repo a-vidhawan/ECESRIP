@@ -75,6 +75,35 @@ module hopfield_clockless #(parameter int N = {N}) (
     open(path, "w").write("\n".join(L))
 
 
+def emit_sched_inertial(N, delays, path):
+    """Same schedule, but each delay element is INERTIAL.
+
+    `assign #(d)` is a continuous assignment with a delay: a pending change is
+    cancelled if the input reverts before d has elapsed, which is the delay
+    element the patent application describes. The nonblocking `<= #(d)` in
+    emit_sched is transport delay -- every event is delivered.
+    """
+    L = [f"""// Graph-coloured clockless schedule, inertial delay elements
+`timescale 1ns/1ps
+module hopfield_clockless #(parameter int N = {N}) (
+    input  wire          init_en,
+    input  wire [N-1:0]  init_val,
+    output wire [N-1:0]  s,
+    output wire [N-1:0]  s_next,
+    output wire          stable
+);
+    wire [N-1:0] s_del;
+    assign s = init_en ? init_val : s_del;
+    hopfield_lut #(.N(N)) lut (.s(s), .s_next(s_next));
+    assign stable = (&(s|~s)) & (&(s_next|~s_next)) & (s === s_next);
+    // hold the delay line at init_val during init, so nothing is pending on release
+    wire [N-1:0] d_in = init_en ? init_val : s_next;"""]
+    for i, d in enumerate(delays):
+        L.append(f"    assign #({d}) s_del[{i}] = d_in[{i}];")
+    L.append("endmodule")
+    open(path, "w").write("\n".join(L))
+
+
 def emit_tb(N, inits, max_delay, tb_path, vec_path):
     nib = (N + 3) // 4
     with open(vec_path, "w") as f:
@@ -141,6 +170,8 @@ def main():
     ap.add_argument("--trials", type=int, default=40)
     ap.add_argument("--seed", type=int, default=11)
     ap.add_argument("--keep", default=None, help="dir to keep generated RTL in")
+    ap.add_argument("--delay", choices=("transport", "inertial"), default="transport",
+                    help="delay-element semantics in the feedback path")
     args = ap.parse_args()
 
     N = args.N
@@ -173,7 +204,9 @@ def main():
     print(f"  {total:,} product terms across {N} neurons "
           f"({total/N:.1f} avg), {time.time()-t0:.0f}s")
 
-    emit_sched(N, delays, os.path.join(out, "hopfield_clockless.sv"))
+    print(f"  delay elements: {args.delay}")
+    (emit_sched_inertial if args.delay == "inertial" else emit_sched)(
+        N, delays, os.path.join(out, "hopfield_clockless.sv"))
 
     # test vectors: HD 0..5 from stored patterns, plus the exact patterns
     rng = np.random.default_rng(args.seed + 7)
