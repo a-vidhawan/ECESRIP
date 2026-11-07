@@ -1,7 +1,8 @@
 # Prompt for the patent agent — final fixes to Application 1
 
-Paste everything below the line into the agent session that holds the current
-draft. Supply with it the revised FIG. 3A with DELAY SELECT 322 (FIX 5).
+Give this whole document to the agent session that holds the current draft.
+The revised FIG. 3A with DELAY SELECT 322 (FIX 5) is at the end of this
+document.
 
 ---
 
@@ -141,9 +142,9 @@ reverted before the delay interval elapsed."
 FIX 5 — Show the programmable delay in the drawings
 =====================================================================
 Claim 3 recites programmable delay elements calibrated after manufacture. The
-revised FIG. 3A supplied with this prompt adds a dashed control input "DELAY
+revised FIG. 3A at the end of this document adds a dashed control input "DELAY
 SELECT (PROGRAMMABLE, OPTIONAL)", reference numeral 322, entering delay element
-316. Replace FIG. 3A with the supplied version. FIG. 3B is unchanged.
+316. Replace FIG. 3A with that version. FIG. 3B is unchanged.
 (a) In the Brief Description, in the clause describing FIG. 3A, add "and,
 optionally, a delay-select input by which the delay of the delay element is
 programmed".
