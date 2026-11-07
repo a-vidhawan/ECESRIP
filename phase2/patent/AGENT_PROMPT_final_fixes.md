@@ -1,8 +1,7 @@
 # Prompt for the patent agent — final fixes to Application 1
 
 Paste everything below the line into the agent session that holds the current
-draft. Supply with it: the replacement FIG. 5 and FIG. 6A images, and the
-revised FIG. 3A with DELAY SELECT 322 (FIX 5).
+draft. Supply with it the revised FIG. 3A with DELAY SELECT 322 (FIX 5).
 
 ---
 
@@ -157,22 +156,17 @@ procedure."
 (c) Do not change claim 3.
 
 =====================================================================
-FIX 6 — Replacement images for FIG. 5 and FIG. 6A
+FIX 6 — Numeral 610 (text only)
 =====================================================================
-Replace the FIG. 5 and FIG. 6A images with the supplied exports. Place each at
-full page width without resampling it down.
-- FIG. 6A labels the completion-signal input "DONE_1, DONE_2 (FROM 506, 508)"
-  with reference numeral 610. Make sure the convergence-detection paragraph
-  names it. Where that paragraph describes sampling on each class's completion,
-  add "the completion signals 610" so that it reads, for example, "...sampled
-  on the completion signals 610 of the update classes, received from
-  completion detection circuits 506, 508...". Make no other change to that
-  paragraph.
-- Check that FIG. 5 and FIG. 6A use the same names for the completion signals
-  (DONE_1 / DONE_2, not DONE_A / DONE_B). If they differ, report it; do not
-  edit images.
-- Report each image's pixel dimensions and its effective resolution as placed
-  on the page. Flag any below 300 dpi.
+Do NOT replace, re-export or modify the FIG. 5 or FIG. 6A images, and do not
+report on their resolution. They are final.
+If FIG. 6A as it appears in the document labels the completion-signal input
+with reference numeral 610 and the convergence-detection paragraph does not
+name it, add "the completion signals 610" where that paragraph describes
+sampling on each class's completion, so that it reads, for example,
+"...sampled on the completion signals 610 of the update classes, received from
+completion detection circuits 506, 508...". Make no other change to that
+paragraph.
 
 =====================================================================
 FIX 7 — Filing package
@@ -197,6 +191,7 @@ it in one line.
 DO NOT CHANGE
 =====================================================================
 - The claims.
+- The FIG. 5 and FIG. 6A images.
 - Any text not named in this prompt.
 
 =====================================================================
@@ -206,7 +201,6 @@ REPORT BACK
 2. Every occurrence found by the searches in FIX 1 and FIX 3(c), and what you
    did with each.
 3. The full 1.84(p)(5) numeral cross-check from FIX 7(b).
-4. Image dimensions and effective dpi from FIX 6.
-5. Anything you could not apply, and why.
-6. Any new inconsistency you notice, numbered by importance. List them; do not
+4. Anything you could not apply, and why.
+5. Any new inconsistency you notice, numbered by importance. List them; do not
    fix them.
