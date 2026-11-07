@@ -1,0 +1,61 @@
+{
+  "_provenance": "phase2/clockless/rtl_n256.py --N 256 --M 4 --degree 16 --radius 3 --trials 240 --seed 11, run once with --delay transport and once with --delay inertial. Same network, same espresso SOPs (12,357 terms), same DSATUR colouring (chi=4, delays = class+1 = 1..4), same 240 vectors. iverilog 12.",
+  "inertial_model": "assign #(d) s_del[i] = d_in[i]  (continuous assignment with delay: a pending change is cancelled if the input reverts before d elapses)",
+  "transport_model": "s_settle[i] <= #(d) s_next[i]  (nonblocking intra-assignment delay: every event delivered)",
+  "rows": [
+    {
+      "hd": 0,
+      "n": 60,
+      "transport": {
+        "settled": 1.0,
+        "recall": 1.0
+      },
+      "inertial": {
+        "settled": 1.0,
+        "recall": 1.0
+      }
+    },
+    {
+      "hd": 1,
+      "n": 60,
+      "transport": {
+        "settled": 1.0,
+        "recall": 1.0
+      },
+      "inertial": {
+        "settled": 1.0,
+        "recall": 1.0
+      }
+    },
+    {
+      "hd": 3,
+      "n": 60,
+      "transport": {
+        "settled": 1.0,
+        "recall": 1.0
+      },
+      "inertial": {
+        "settled": 1.0,
+        "recall": 1.0
+      }
+    },
+    {
+      "hd": 5,
+      "n": 60,
+      "transport": {
+        "settled": 1.0,
+        "recall": 1.0
+      },
+      "inertial": {
+        "settled": 1.0,
+        "recall": 1.0
+      }
+    }
+  ],
+  "inertial_vs_transport_same_final_state": "240/240",
+  "settle_time_differs_on": 8,
+  "rtl_matches_python_simulator": {
+    "transport": "240/240",
+    "inertial": "240/240"
+  }
+}
