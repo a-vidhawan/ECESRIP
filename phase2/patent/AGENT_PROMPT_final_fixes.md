@@ -2,7 +2,7 @@
 
 Paste everything below the line into the agent session that holds the current
 draft. Supply with it: the replacement FIG. 5 and FIG. 6A images, and the
-revised node-circuit figure with DELAY SELECT 322 (FIX 5).
+revised FIG. 3A with DELAY SELECT 322 (FIX 5).
 
 ---
 
@@ -142,17 +142,18 @@ reverted before the delay interval elapsed."
 FIX 5 — Show the programmable delay in the drawings
 =====================================================================
 Claim 3 recites programmable delay elements calibrated after manufacture. The
-revised node-circuit figure supplied with this prompt adds a dashed control
-input "DELAY SELECT (PROGRAMMABLE, OPTIONAL)", reference numeral 322, entering
-delay element 316. Replace the node-circuit figure with the supplied version.
-(a) In that figure's Brief Description paragraph, add "and, optionally, a
-delay-select input by which the delay of the delay element is programmed".
+revised FIG. 3A supplied with this prompt adds a dashed control input "DELAY
+SELECT (PROGRAMMABLE, OPTIONAL)", reference numeral 322, entering delay element
+316. Replace FIG. 3A with the supplied version. FIG. 3B is unchanged.
+(a) In the Brief Description, in the clause describing FIG. 3A, add "and,
+optionally, a delay-select input by which the delay of the delay element is
+programmed".
 (b) In the programmable-delay paragraph (the one edited in FIX 1), add after
 its first sentence:
 "In such embodiments the delay element 316 of each node circuit comprises a
-delay-select input 322, illustrated in FIG. 3, by which its delay value is set,
-for example from a configuration register or by the calibration procedure."
-Use the node-circuit figure's actual number if it is not FIG. 3.
+delay-select input 322, illustrated in FIG. 3A, by which its delay value is
+set, for example from a configuration register or by the calibration
+procedure."
 (c) Do not change claim 3.
 
 =====================================================================
